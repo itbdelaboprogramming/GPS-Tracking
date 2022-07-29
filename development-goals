@@ -4,3 +4,11 @@ Goals for the GPS tracking development
 - increase the accuracy by using the encoder and the IMU sensor then implementing x-Kalman Filter
 - test run
 - make the development report and submit to NIW
+
+For user interface, we'll use Mission Planner for the time being
+
+Some necessary documents:
+- Instruction manual for beginner and hands-on manual
+  ^ make the work flowchart
+  ^ make the word or ppt instruction
+  ^ explanation session or a short training tutorial
