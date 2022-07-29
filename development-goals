@@ -1,0 +1,6 @@
+Goals for the GPS tracking development
+- change the prototype physical configuration from using ArduPilot Pixhawk to Arduino Mega with ESP8266
+- migrate the system from plug and play to configure each components manually
+- increase the accuracy by using the encoder and the IMU sensor then implementing x-Kalman Filter
+- test run
+- make the development report and submit to NIW
