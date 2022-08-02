@@ -1,7 +1,8 @@
 /** 
-  Code to send data usaing Mavlink Protocol from Arduino
+  Code to send data using Mavlink Protocol from Arduino
   Author  : Mochamad Luthfi Hariyadin
   Project : GPS Tracking
+  Purpose : send the self-written data (latitude, longitude, and heading) from arduino to Mission Planner by using telemetry
   For more information contact
   -> email: luthfihariyadin06@gmail.com
   Reference :
