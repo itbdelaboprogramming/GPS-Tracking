@@ -18,69 +18,6 @@ double KalmanFilter::wrapAngle(double angle)
 	return angle;
 }
 
-void KalmanFilter::handleLidarMeasurements(const std::vector<LidarMeasurement>& dataset, const BeaconMap& map)
-{
-    // Assume No Correlation between the Measurements and Update Sequentially
-    for(const auto& meas : dataset) {handleLidarMeasurement(meas, map);}
-}
-
-void KalmanFilter::handleLidarMeasurement(LidarMeasurement meas, const BeaconMap& map)
-{
-    if (isInitialised())
-    {
-        VectorXd state = getState();
-        MatrixXd cov = getCovariance();
-
-        // Implement The Kalman Filter Update Step for the Lidar Measurements in the 
-        // section below.
-        // HINT: use the wrapAngle() function on angular values to always keep angle
-        // values within correct range, otherwise strange angle effects might be seen.
-        // HINT: You can use the constants: LIDAR_RANGE_STD, LIDAR_THETA_STD
-        // HINT: The mapped-matched beacon position can be accessed by the variables
-        // map_beacon.x and map_beacon.y
-        // ----------------------------------------------------------------------- //
-        // ENTER YOUR CODE HERE
-
-        BeaconData map_beacon = map.getBeaconWithId(meas.id); // Match Beacon with built in Data Association Id
-        if (meas.id != -1 && map_beacon.id != -1)
-        {           
-            // Measurement Vector
-            VectorXd z = Vector2d::Zero();
-            z << meas.range, meas.theta;
-
-            // Predicted Measurement Vector (Measurement Model)
-            VectorXd z_hat = Vector2d::Zero();
-            double delta_x = map_beacon.x - state[0];
-            double delta_y = map_beacon.y - state[1];
-            double zhat_range = sqrt(delta_x*delta_x + delta_y*delta_y);
-            double zhat_theta = wrapAngle(atan2(delta_y,delta_x) - state[2]);
-            z_hat << zhat_range, zhat_theta;
-
-            // Measurement Model Sensitivity Matrix
-            MatrixXd H = MatrixXd(2,4);
-            H << -delta_x/zhat_range,-delta_y/zhat_range,0,0,delta_y/zhat_range/zhat_range,-delta_x/zhat_range/zhat_range,-1,0;
-
-            // Generate Measurement Model Noise Covariance Matrix
-            MatrixXd R = Matrix2d::Zero();
-            R(0,0) = LIDAR_RANGE_STD*LIDAR_RANGE_STD;
-            R(1,1) = LIDAR_THETA_STD*LIDAR_THETA_STD;
-
-            VectorXd y = z - z_hat;
-            MatrixXd S = H * cov * H.transpose() + R;
-            MatrixXd K = cov*H.transpose()*S.inverse();
-
-            y(1) = wrapAngle(y(1)); // Wrap the Heading Innovation
-
-            state = state + K*y;
-            cov = (Matrix4d::Identity() - K*H) * cov;            
-        }
-        // ----------------------------------------------------------------------- //
-
-        setState(state);
-        setCovariance(cov);
-    }
-}
-
 void KalmanFilter::predictionStep(GyroMeasurement gyro, double dt)
 {
     if (isInitialised())

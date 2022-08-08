@@ -7,11 +7,6 @@
 #include <algorithm>
 #include <cmath>
 
-//#include "car.h"
-//#include "sensors.h"
-//#include "beacons.h"
-
-
 using Eigen::VectorXd;
 using Eigen::Vector2d;
 using Eigen::Vector4d;
@@ -35,11 +30,10 @@ class ekf
 {
     public:
 
-        KalmanFilterBase():m_initialised(false){}
-        virtual ~KalmanFilterBase(){}
+        ekf():m_initialised(false){}
+        virtual ~ekf(){}
         void reset(){m_initialised = false;}
         bool isInitialised() const {return m_initialised;}
-        double wrapAngle(double angle)
 
     protected:
     
@@ -57,14 +51,13 @@ class ekf
 class KalmanFilter : public ekf
 {
     public:
+        double wrapAngle(double angle);
 
         VehicleState getVehicleState();
         Matrix2d getVehicleStatePositionCovariance();
 
         void predictionStep(double dt);
         void predictionStep(GyroMeasurement gyro, double dt);
-        void handleLidarMeasurements(const std::vector<LidarMeasurement>& meas, const BeaconMap& map);
-        void handleLidarMeasurement(LidarMeasurement meas, const BeaconMap& map);
         void handleGPSMeasurement(GPSMeasurement meas);
 
 };

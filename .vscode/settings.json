@@ -1,0 +1,9 @@
+{
+    "C_Cpp.default.enableConfigurationSquiggles": true,
+    "C_Cpp.default.includePath": [
+        "D:\\vscod\\include\\eigen-3.4.0"
+    ],
+    "files.associations": {
+        "cmath": "cpp"
+    }
+}
