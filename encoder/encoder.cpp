@@ -37,7 +37,7 @@ void Encoder::doEncoderA(){
   else   // must be a high-to-low edge on channel A                                       
   { 
     // check channel B to see which way encoder is turning  
-    if (digitalRead(enc_a) == HIGH) {   
+    if (digitalRead(enc_b) == HIGH) {   
       enc_pos = enc_pos + 1;          // CW
     } 
     else {
