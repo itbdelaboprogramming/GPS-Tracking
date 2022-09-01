@@ -3,7 +3,9 @@
 #define enc_a 7
 #define enc_b 4
 
-Encoder encoder_kiri(enc_a, enc_b);
+Encoder encoder_kiri(enc_a, enc_b); // Create an Encoder-object named encoder_kiri
+
+// Function to recall the reading pulse function
 void callbackA(){encoder_kiri.doEncoderA();}
 void callbackB(){encoder_kiri.doEncoderB();}
 
