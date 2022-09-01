@@ -1,6 +1,7 @@
 /** 
   Code to assign motor pin in arduino with BTS7960 motor driver
-  Author  : Achmad Syahrul Irwansyah
+  Author  : - Achmad Syahrul Irwansyah
+            - M. Luthfi Hariyadin
   Project : GPS Tracking
   For more information contact
   -> email: ach.syahrul99@gmail.com
@@ -11,30 +12,47 @@
 #include <Arduino.h>
 #include "motor.h"
 
-Motor::Motor(int _fwd, int _rev, int _ena){
-    pinMode(_fwd,OUTPUT);
-    pinMode(_rev,OUTPUT);
-    pinMode(_ena,OUTPUT);
-
-    ena = _ena;
-    fwd = _fwd;
-    rev = _rev;
+// Constructor to assign motor pin
+Motor::Motor(int rpwm, int lpwm, int en){
+  rPWM = rpwm;
+  lPWM = lpwm;
+  EN = en;
 };
 
-void Motor::setEnable(bool en){
-    if (en==1) {
-        digitalWrite(ena,HIGH);
+// Method to set the motor pin mode
+void Motor::start(){
+  pinMode(rPWM, OUTPUT);
+  pinMode(lPWM, OUTPUT);
+  pinMode(EN, OUTPUT);
+}
+
+// Method to set enable pin
+// Set "ena" to be HIGH to activate the motor
+void Motor::setEnable(bool ena){
+    // Set the enable pin to be HIGH when "ena" is HIGH
+    if (ena==1) {
+        digitalWrite(EN,HIGH);
     } else {
-        digitalWrite(ena,LOW);
+        digitalWrite(EN,LOW);
     }
 };
 
+// Method to assign PWM value and rotate the motor
 void Motor::rotate(int val){
+    // Rotate CW when the value of "val" is more than 0
+    // and rotate CCW when the value is less then 0
     if (val >= 0) {
-        analogWrite(fwd,val);
-        analogWrite(rev,0);
+        analogWrite(rPWM, val);
+        analogWrite(lPWM, 0);
     } else {
-        analogWrite(fwd,0);
-        analogWrite(rev,val);
+        analogWrite(rPWM, 0);
+        analogWrite(lPWM, -val);
     }
 };
+
+// Method to show pin assignment
+void Motor::debug(){
+  Serial.print(rPWM);Serial.print("\t");
+  Serial.print(lPWM);Serial.print("\t");
+  Serial.print(EN);Serial.print("\t");
+}

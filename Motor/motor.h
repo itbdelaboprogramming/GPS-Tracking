@@ -15,14 +15,17 @@
 
 class Motor{
     public:
-    Motor(int _fwd, int _rev, int _ena);
+    Motor(int rpwm, int lpwm, int en);
 
-    void setEnable(bool en);
+    void start();
+    void setEnable(bool ena);
     void rotate(int val);
+    void debug();
 
-    int ena;
-    int fwd;
-    int rev;
+    private:
+    int rPWM;
+    int lPWM;
+    int EN;
 };
 
 #endif
