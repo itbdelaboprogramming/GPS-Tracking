@@ -27,11 +27,20 @@ float pidIr::compute(float setpoint, float feedback, float max_output){
 
     output = (Kp + Ki*Ts + (Kd/Ts))*error - Kd*Ts*last_error + Ki*last_output;
     if (output > max_output){
-        output = abs(output)/output*max_output;
+        output = absolute(output)/output*max_output;
     }
 
     last_output = output;
 
     return output;
 };
+
+float pidIr::absolute(float val){
+    if (val > 0) {
+      return val;
+    } else {
+      return -val;
+    }
+};
+
 

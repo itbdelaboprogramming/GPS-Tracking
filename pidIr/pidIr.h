@@ -15,9 +15,9 @@
 
 class pidIr{
     public:
-    //constructor - p=proporsional, i=integral, d=differential, Ts=sampling time
+    //p=proporsional, i=integral, d=differential, Ts=sampling time
     pidIr(float p, float i, float d, float _Ts);
-
+    
     float compute(float setpoint, float feedback, float max);
 
     private:
