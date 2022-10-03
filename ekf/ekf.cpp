@@ -44,6 +44,14 @@ double ekf::wrapAngle(double angle)
 	return angle;
 }
 
+VectorXd x_new(const InputProcess& control, double dt)
+{
+    VectorXd state = getState();
+    double x = state(0);
+    double psi = state(2);
+    return x + dt * Cv * control.V * cos(psi - alpha)
+}
+
 void ekf::predictionStep(InputProcess control, double dt)
 {
     VectorXd state = getState();
@@ -72,15 +80,15 @@ void ekf::predictionStep(InputProcess control, double dt)
     state << x_new,y_new,psi_new,V_new;
 
     // Generate F Matrix
-    MatrixXd F = Matrix4d::Zero();
-    F << 1,0,-dt*V*sin(psi),dt*cos(psi),0,1,dt*V*cos(psi),dt*sin(psi),0,0,1,0,0,0,0,1;
+    //MatrixXd F = Matrix4d::Zero();
+    //F << 1,0,-dt*V*sin(psi),dt*cos(psi),0,1,dt*V*cos(psi),dt*sin(psi),0,0,1,0,0,0,0,1;
 
     // Generate Q Matrix
-    MatrixXd Q = Matrix4d::Zero();
-    Q(2,2) = dt*dt*GYRO_STD*GYRO_STD;
-    Q(3,3) = dt*dt*ACCEL_STD*ACCEL_STD;
+    //MatrixXd Q = Matrix4d::Zero();
+    //Q(2,2) = dt*dt*GYRO_STD*GYRO_STD;
+    //Q(3,3) = dt*dt*ACCEL_STD*ACCEL_STD;
 
-    cov = F * cov * F.transpose() + Q;
+    //cov = F * cov * F.transpose() + Q;
 
     // ----------------------------------------------------------------------- //
 

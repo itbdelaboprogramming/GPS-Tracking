@@ -3,9 +3,12 @@
 
 #include <vector>
 #include <Eigen/Dense>
+#include <autodiff/forward/real.hpp>
+//#include <autodiff/forward/real/eigen.hpp>
 //#include <stdio.h>
 #include <algorithm>
 #include <cmath>
+//using namespace autodiff;
 
 using Eigen::VectorXd;
 using Eigen::Vector2d;
@@ -47,7 +50,8 @@ class ekf
 
         //ekf():m_initialised(false){}
         ekf(double input[], double millis):L1(10), L2(10){}
-        ekf(double gps_read[], double gyro_read, double encod_read[]){} 
+        ekf(double gps_read[], double gyro_read, double encod_read[]){}
+        void ekf::setCons(InputProcess control){}
         virtual ~ekf(){}
         //void reset(){m_initialised = false;}
         //bool isInitialised() const {return m_initialised;}
@@ -63,6 +67,7 @@ class ekf
         void setState(const VectorXd& state ) {m_state = state;}
         void setCovariance(const MatrixXd& cov ){m_covariance = cov;}
         
+        VectorXd f(const VectorXd& x, const VectorXd& p, const VectorXd& q){}
 
     private:
         //bool m_initialised;
