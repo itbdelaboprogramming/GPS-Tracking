@@ -10,6 +10,7 @@
 
 #include "pidIr.h"
 
+// Constructor to assign PID parameters
 pidIr::pidIr(float p, float i, float d, float _Ts){
     Kp = p;
     Ki = i;
@@ -17,20 +18,29 @@ pidIr::pidIr(float p, float i, float d, float _Ts){
     Ts = _Ts;
     last_error = 0;
     last_output = 0;
-
 };
 
+// Method to compute PID
 float pidIr::compute(float setpoint, float feedback, float max_output){
     error = setpoint - feedback;
     last_error = error;
 
     output = (Kp + Ki*Ts + (Kd/Ts))*error - Kd*Ts*last_error + Ki*last_output;
     if (output > max_output){
-        output = last_output;
+        output = absolute(output)/output*max_output;
     }
 
     last_output = output;
 
     return output;
 };
+
+float pidIr::absolute(float val){
+    if (val > 0) {
+      return val;
+    } else {
+      return -val;
+    }
+};
+
 
