@@ -8,6 +8,8 @@
   -> https://www.instructables.com/4WD-Security-Robot/
 **/
 
+
+
 #define PIN_CH_1 12
 #define PIN_CH_2 13
 
@@ -18,7 +20,8 @@
 #define PIN_RPWM_LEFT 9
 #define PIN_LPWM_LEFT 10
 
-#define MAX_PWM 63 // 2^6-1
+#define MAX_PWM_MOVE 63 // 2^6-1
+#define MAX_PWM_TURN 31 // 2^5-1
 #define MOTOR_THRESHOLD 5
 
 int ch1;
@@ -48,8 +51,8 @@ void loop() {
   ch1 = constrain(ch1, 1000, 2000);
   ch2 = constrain(ch2, 1000, 2000);
 
-  moveValue = map(ch1, 1000, 2000, -MAX_PWM, MAX_PWM);
-  turnValue = map(ch2, 1000, 2000, -MAX_PWM, MAX_PWM);
+  moveValue = map(ch1, 1000, 2000, -MAX_PWM_MOVE, MAX_PWM_MOVE);
+  turnValue = map(ch2, 1000, 2000, -MAX_PWM_TURN, MAX_PWM_TURN);
 
   pwmRight = moveValue + turnValue;
   pwmLeft = moveValue - turnValue;
@@ -59,6 +62,8 @@ void loop() {
 
   Serial.print(pwmRight);Serial.print("\t");
   Serial.print(pwmLeft);Serial.print("\t");
+  //Serial.print(ch1);Serial.print("\t");
+  //Serial.print(ch2);Serial.print("\t");
   Serial.println();
 }
 
@@ -87,3 +92,4 @@ void motor_left(int pwm){
     analogWrite(PIN_LPWM_LEFT, 0);
   }
 }
+
