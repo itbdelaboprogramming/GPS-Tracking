@@ -35,6 +35,7 @@ uint32_t tlast_heartbeat;
 
 /** Function to set execute at specific frequency **/
 #define EXECUTE(TLAST, FREQ) if((tnow-TLAST) >= 1000/FREQ)
+#define SEND(TLAST) if((tnow-TLAST)>= 2000)
 /** 
   @brief EXECUTE(TLAST, FREQ) will be execute at desired frequency
   @param TLAST the last time this function is executed in milisecond
@@ -43,7 +44,8 @@ uint32_t tlast_heartbeat;
 
 void setup() {
   /** Start serial connection at 57600 baudrate **/ 
-  Serial.begin(57600);
+  //Serial.begin(9600);
+  Serial1.begin(57600);
 
   /** Reset all timer to 0 **/
   //tlast_attitude = 0;
@@ -59,9 +61,15 @@ void loop() {
   EXECUTE(tlast_heartbeat, 1){
     send_heartbeat();
     send_attitude(tnow, radians(45.00), radians(0.00), radians(30.00), radians(0.00), radians(0.00), radians(0.00));
-    send_gps(tnow, -68916370, 1076106390, 1000, 1000, 4500);
+    send_gps(tnow, -68896085, 1076087324, 1000, 1000, 4500);
     tlast_heartbeat = tnow;
   }
+  /*
+  SEND(tlast_heartbeat){
+    send_heartbeat();
+    //Serial.println(tlast_heartbeat);
+    tlast_heartbeat = tnow;
+  }*/
   
   /** 
     Heartbeat is needed to informed the other that this device is exist and sending mavlink data
@@ -92,7 +100,8 @@ void send_heartbeat() {
 
     /** Continue to serialize the message sent to a buffer and send it through serial comunication **/
     uint16_t len = mavlink_msg_to_send_buffer(buf, &msg_send);
-    Serial.write(buf,len);
+    Serial1.write(buf,len);
+    
 };
 
 void send_gps(
@@ -128,7 +137,7 @@ void send_gps(
     
     /** Continue to serialize the message sent to a buffer and send it through serial comunication **/
     uint16_t len = mavlink_msg_to_send_buffer(buf, &msg_send);
-    Serial.write(buf,len);
+    Serial1.write(buf,len);
 };
 
 void send_attitude(
@@ -163,5 +172,5 @@ void send_attitude(
     
     /** Continue to serialize the message sent to a buffer and send it through serial comunication **/
     uint16_t len = mavlink_msg_to_send_buffer(buf, &msg_send);
-    Serial.write(buf,len);
+    Serial1.write(buf,len);
 };
