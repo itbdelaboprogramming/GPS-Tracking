@@ -1,15 +1,3 @@
-/** 
-  Code to send data usaing Mavlink Protocol from Arduino
-  Author  : Mochamad Luthfi Hariyadin
-  Project : GPS Tracking
-  For more information contact
-  -> email: luthfihariyadin06@gmail.com
-  Reference :
-  -> https://www.locarbftw.com/understanding-the-arduino-mavlink-library/
-  -> https://discuss.ardupilot.org/t/mavlink-step-by-step/9629
-  -> https://discuss.ardupilot.org/t/mavlink-and-arduino-step-by-step/25566
-**/
-
 // Adding mavlink library
 #include "mavlink/common/mavlink.h"
 #include <TinyGPS++.h>
@@ -41,6 +29,8 @@ struct gpsData {
   float HDOP;
 };
 
+double A;
+
 // Declare gpsData struct
 struct gpsData gpsData;
 
@@ -67,6 +57,8 @@ void setup() {
   // Serial1 is for receiving data from GPS Module
   Serial.begin(9600);  
   Serial1.begin(9600);
+
+  A = 10000000;
 
   // This will only run in debug mode
   #ifdef DEBUG
@@ -97,8 +89,8 @@ void loop() {
       if(gps.location.isValid()){
         // Assign all the GPS data read from the GPS module to gpsData struc
 
-        gpsData.latitude = gps.location.lat();
-        gpsData.longitude = gps.location.lng();
+        gpsData.latitude = gps.location.lat()*A;
+        gpsData.longitude = gps.location.lng()*A;
         gpsData.heading = gps.course.deg();
         gpsData.satellites = gps.satellites.value();
         gpsData.HDOP = gps.hdop.hdop();
