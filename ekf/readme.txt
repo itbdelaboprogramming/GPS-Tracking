@@ -1,4 +1,8 @@
-download eigen library in
-http://eigen.tuxfamily.org/index.php?title=Main_Page#Download
+untuk menggunakan library EKF (C code) di Arduino, ikuti contoh di code_example.png
 
-add the library's folder path in includePath for cpp
+untuk sekarang, tunning masih perlu dilakukan di MATLAB (file ekf.m),
+bisa disimulasikan dahulu pakai MATLAB (file try_ekf.m)
+baru kemudian generate C code untuk update library (file try_codegen)
+
+penurunan model/algoritma ada di file .pdf dalam folder matlab_derivation
+
