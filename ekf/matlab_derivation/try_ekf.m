@@ -2,8 +2,7 @@
 %y = ekf(0.1, -6.895369395151447, 107.6116112416878, 4.5, 20.5, 1.1)
 
 %%
-
-%[-6.914744, 107.609810, 800] 
+% datum [-6.914744, 107.609810, 800] 
 
 dt = 0.1;         % 0.00001 degree [lla] ~~ 1 meter [enu]
 numPts = 150;
@@ -27,7 +26,7 @@ lat0=[lat01,lat02,lat03];
 lon0=[lon01,lon02,lon03];
 
 figure;hold;grid;            % Prepare plot window
-result = zeros(100,4);
+%result = zeros(100,4);
 
 %GPS-coordinate conversion
 lla0 = [-6.914744, 107.609810, 800];            % latitude [deg] longitude [deg] altitude [m] Bandung
@@ -52,7 +51,7 @@ for idx = 1:numPts
 
     y = ekf(dt,lat,lon,psi_1dot,V,V_1dot);        % Call Kalman filter to estimate the position
 
-    result(idx,:) = y;
+    %result(idx,:) = y;
     z0_enu = lla2enu([lat0(idx),lon0(idx),800],lla0,'ellipsoid');
     z_enu = lla2enu([lat,lon,800],lla0,'ellipsoid');
     y_enu = lla2enu([y(1),y(2),800],lla0,'ellipsoid');
