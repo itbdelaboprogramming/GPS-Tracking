@@ -4,24 +4,22 @@ import time
 
 
 def check_circle(roi):
-    if roi is None:
-        print("fail to load frame")
-        return False
+    if np.shape(roi)[1] != 0:
 
-    gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
 
-    # Blur using 3 * 3 kernel.
-    gray_blurred = cv2.blur(gray, (3, 3))
+        # Blur using 3 * 3 kernel.
+        gray_blurred = cv2.blur(gray, (3, 3))
 
-    # Apply Hough transform on the blurred image.
-    detected_circles = cv2.HoughCircles(gray_blurred,
-                                        cv2.HOUGH_GRADIENT, 1, 20, param1=50,
-                                        param2=30, minRadius=1, maxRadius=40)
+        # Apply Hough transform on the blurred image.
+        detected_circles = cv2.HoughCircles(gray_blurred,
+                                            cv2.HOUGH_GRADIENT, 1, 20, param1=50,
+                                            param2=30, minRadius=1, maxRadius=40)
 
-    if detected_circles is not None:
-        return True
-    else:
-        return False
+        if detected_circles is not None:
+            return True
+        else:
+            return False
 
 
 def get_centered_contours(mask):
@@ -39,17 +37,18 @@ def get_centered_contours(mask):
 
 
 def check_red_colour(roi):
-    hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
-    # define range of blue color in HSV
-    lower_red = np.array([0, 50, 50])
-    upper_red = np.array([10, 255, 255])
-    # Threshold the HSV image to get only blue colors
-    mask = cv2.inRange(hsv, lower_red, upper_red)
-    cnts = get_centered_contours(mask)
-    if cnts != []:
-        return True
-    else:
-        return False
+    if np.shape(roi)[1] != 0:
+        hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
+        # define range of blue color in HSV
+        lower_red = np.array([0, 50, 50])
+        upper_red = np.array([10, 255, 255])
+        # Threshold the HSV image to get only blue colors
+        mask = cv2.inRange(hsv, lower_red, upper_red)
+        cnts = get_centered_contours(mask)
+        if cnts != []:
+            return True
+        else:
+            return False
 
 
 # Load Yolo
