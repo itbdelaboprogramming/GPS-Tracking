@@ -2,41 +2,21 @@ import cv2
 import numpy as np
 import time
 
-dist = lambda x1,y1,x2,y2: (x1-x2)**2+(y1-y2)**2
-prevCircle = None
 
 def check_circle(roi):
-    global prevCircle
-    if 0 in np.shape(roi):
-        return False
-    else:
-        print(np.shape(roi))
-        
+    if np.shape(roi)[1] != 0:
+
         gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
 
         # Blur using 3 * 3 kernel.
-        gray_blurred = cv2.blur(gray, (4, 4))
+        gray_blurred = cv2.blur(gray, (3, 3))
 
         # Apply Hough transform on the blurred image.
         detected_circles = cv2.HoughCircles(gray_blurred,
                                             cv2.HOUGH_GRADIENT, 1, 20, param1=50,
-                                            param2=30, minRadius=10, maxRadius=40)
+                                            param2=30, minRadius=1, maxRadius=40)
 
         if detected_circles is not None:
-
-            detected_circles = np.uint16(np.around(detected_circles))
-            chosen = None
-
-            for circle in detected_circles[0, :]:
-                a, b, r = circle[0], circle[1], circle[2]
-                if chosen is None: chosen = circle
-                if prevCircle is not None:
-                    if dist(chosen[0],chosen[1],prevCircle[0],prevCircle[1]) <= dist(circle[0],circle[1],prevCircle[0],prevCircle[1]):
-                        chosen = circle
-            
-            cv2.circle(roi, (chosen[0], chosen[1]), chosen[2], (0, 255, 0), 2)
-            
-            prevCircle = chosen
             return True
         else:
             return False
