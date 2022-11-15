@@ -59,3 +59,11 @@ while True:
         print("")
         #time.sleep(5)
         pass
+
+# Check the GPS sentence formats
+# import serial
+# with serial.Serial('/dev/ttyUSB0', baudrate=9600, timeout=1) as ser:
+#     # read 10 lines from the serial output
+#     for i in range(100);
+#         line = ser.readline().decode('ascii', errors='replace')
+#         print(line.strip())
