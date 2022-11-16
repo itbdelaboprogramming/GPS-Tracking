@@ -4,7 +4,7 @@
 #description     :Python Script Communication between GPS SE100 NMEA and Raspberry Pi
 #author          :Fajar Muhammad Noor Rozaqi
 #date            :2022/11/14
-#version         :0.1
+#version         :0.2
 #usage           :Python
 #notes           :
 #python_version  :3.8
@@ -23,40 +23,51 @@ try:
     print("Connected to GPS SE100 NMEA")
 except:
     print("Disconnected to GPS SE100 NMEA")
-
+    
 # Algorithm of GPS SE100 NMEA
 while True:
     try:
         # Decode the data from GPS SE100 NMEA serial communication
         line = ser.readline().decode('utf-8', errors='replace')
-        #print(line.strip())
+        line = line.strip()
+        #print(line)
         
-        # Parse the data by using pynmea library
-        msg = pynmea2.parse(line)
-#         print(msg)
-#         print(repr(msg))
+        # Select the $GNGGA only
+        if '$GNGGA' in line:
+            print(line)
+                
+            # Parse the data by using pynmea library
+            msg = pynmea2.parse(line)
+            #print(msg)
+            print(repr(msg))
         
-        #Timer
-        timer = datetime.datetime.now()
+            # Timer
+            timer = datetime.datetime.now()
+            
+            # Variable
+            la = msg.latitude
+            lo = msg.longitude
+            sats = msg.num_sats
+            hdop = msg.horizontal_dil
         
-        # Print the data GPS NMEA SE100
-        print("Time                             :", timer.strftime("%Y-%m-%d %H:%M:%S"))
-        print("================================")
-        print("Latitude                         :", (msg.latitude))
-        print("Longitude                        :", (msg.longitude))
-        print("Number satelite                  :", (msg.num_sats))
-        print("Horizontal Dilution of Precision :", (msg.horizontal_dil))
-#         print("GPS NMEA SE100 Data is sent")
-#         print("================================")
-        print("")
+            # Print the data GPS NMEA SE100 Radiolink
+            print("Time                             :", timer.strftime("%Y-%m-%d %H:%M:%S"))
+            #print("================================")
+            print("Latitude                         :", la)
+            print("Longitude                        :", lo)
+            print("Number satelite                  :", sats)
+            print("Horizontal Dilution of Precision :", hdop)
+            #print("GPS NMEA SE100 Data is sent")
+            #print("================================")
+            print("")
         
-        # Delay time
-        time.sleep(5)
+            # Delay time
+            time.sleep(2)
     except:
         # Disconnected
-#         print("GPS NMEA SE100 DATA is not sent")
-#         print("================================")
-#         print("")
+        #print("GPS NMEA SE100 DATA is not sent")
+        #print("================================")
+        #print("")
         #time.sleep(5)
         pass
 
