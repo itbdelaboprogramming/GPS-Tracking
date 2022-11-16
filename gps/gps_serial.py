@@ -67,3 +67,10 @@ while True:
 #     for i in range(100);
 #         line = ser.readline().decode('ascii', errors='replace')
 #         print(line.strip())
+
+# Parse the data by using pynmea library
+# msg = pynmea2.parse(line)
+# print(msg)
+# for msg in msg.split('\n'):
+# if msg.startswith('$GNGGA') :
+# print(repr(msg))
