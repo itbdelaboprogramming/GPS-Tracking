@@ -33,8 +33,8 @@ while True:
         
         # Parse the data by using pynmea library
         msg = pynmea2.parse(line)
-        print(msg)
-        print(repr(msg))
+#         print(msg)
+#         print(repr(msg))
         
         #Timer
         timer = datetime.datetime.now()
@@ -46,17 +46,17 @@ while True:
         print("Longitude                        :", (msg.longitude))
         print("Number satelite                  :", (msg.num_sats))
         print("Horizontal Dilution of Precision :", (msg.horizontal_dil))
-        print("GPS NMEA SE100 Data is sent")
-        print("================================")
+#         print("GPS NMEA SE100 Data is sent")
+#         print("================================")
         print("")
         
         # Delay time
         time.sleep(5)
     except:
         # Disconnected
-        print("GPS NMEA SE100 DATA is not sent")
-        print("================================")
-        print("")
+#         print("GPS NMEA SE100 DATA is not sent")
+#         print("================================")
+#         print("")
         #time.sleep(5)
         pass
 
