@@ -55,11 +55,28 @@ while True:
             #print("================================")
             print("Latitude                         :", la)
             print("Longitude                        :", lo)
-            print("Number satelite                  :", sats)
+            print("Number satellite                 :", sats)
             print("Horizontal Dilution of Precision :", hdop)
             #print("GPS NMEA SE100 Data is sent")
             #print("================================")
             print("")
+            
+            # Database Connection
+            db = pymysql.connect(host='192.168.18.19',
+                                 user='itbdelabo',
+                                 password='delabo0220',
+                                 db='monitoring',
+                                 charset='utf8',
+                                 cursorclass=pymysql.cursors.DictCursor)
+            cur = db.cursor()
+            
+            add_c0 = "INSERT INTO `gps_msd700`(timestamp, latitude, longitude, satellite, hdop) VALUES (%s,%s,%s,%s,%s)"
+            cur.execute(add_c0,((timer.strftime("%Y-%m-%d %H:%M:%S"),
+                                 la,
+                                 lo,
+                                 sats,
+                                 hdop)))
+            db.commit()
         
             # Delay time
             time.sleep(2)
