@@ -20,7 +20,7 @@ def check_circle(roi):
         # Apply Hough transform on the blurred image.
         detected_circles = cv2.HoughCircles(gray_blurred,
                                             cv2.HOUGH_GRADIENT, 1, 20, param1=50,
-                                            param2=30, minRadius=1, maxRadius=40)
+                                            param2=30, minRadius=10, maxRadius=40)
 
         if detected_circles is not None:
 
@@ -41,6 +41,7 @@ def check_circle(roi):
         else:
             return False
 
+
 def get_centered_contours(mask):
   # find contours
     cntrs = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -56,7 +57,9 @@ def get_centered_contours(mask):
 
 
 def check_red_colour(roi):
-    if np.shape(roi)[1] != 0:
+    if 0 in np.shape(roi):
+        return False
+    else:
         hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
         # define range of blue color in HSV
         lower_red = np.array([0, 50, 50])
@@ -81,7 +84,7 @@ output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers()]
 colors = np.random.uniform(0, 255, size=(len(classes), 3))
 
 # Loading video
-cap = cv2.VideoCapture("vidoes/kid_street_biking.mp4")
+cap = cv2.VideoCapture("videos/kid_street_biking.mp4")
 
 font = cv2.FONT_HERSHEY_PLAIN
 starting_time = time.time()

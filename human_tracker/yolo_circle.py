@@ -2,11 +2,17 @@ import cv2
 import numpy as np
 import time
 
+# initiation for check circle function
 dist = lambda x1,y1,x2,y2: (x1-x2)**2+(y1-y2)**2
 prevCircle = None
 
+# check_circle : used to tell either there's a circle or not within  a frame of a video
+# output: return true if the circle exist return false if circle doesn't exist
 def check_circle(roi):
     global prevCircle
+
+    # precaution if roi is a frame with 0 width or 0 height (either will make the cvtColor catch
+    # an error)
     if 0 in np.shape(roi):
         return False
     else:
@@ -14,7 +20,7 @@ def check_circle(roi):
         
         gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
 
-        # Blur using 3 * 3 kernel.
+        # Blur using 4 * 4 kernel.
         gray_blurred = cv2.blur(gray, (4, 4))
 
         # Apply Hough transform on the blurred image.
@@ -22,11 +28,14 @@ def check_circle(roi):
                                             cv2.HOUGH_GRADIENT, 1, 20, param1=50,
                                             param2=30, minRadius=10, maxRadius=40)
 
+        # Cycle through all detected circle and draw the circle
         if detected_circles is not None:
 
             detected_circles = np.uint16(np.around(detected_circles))
             chosen = None
 
+            # the chosen circle to be registered and drawed is the one closest in distance according
+            # to the previous state, hence reducing the generation of random circle
             for circle in detected_circles[0, :]:
                 a, b, r = circle[0], circle[1], circle[2]
                 if chosen is None: chosen = circle
@@ -41,9 +50,9 @@ def check_circle(roi):
         else:
             return False
 
-
+# get_centered_contours: get the contours of a masked image
+# output : filterd_contours
 def get_centered_contours(mask):
-  # find contours
     cntrs = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cntrs = cntrs[0] if len(cntrs) == 2 else cntrs[1]
     sorted_contours = sorted(cntrs, key=cv2.contourArea, reverse=True)
@@ -56,10 +65,14 @@ def get_centered_contours(mask):
     return filterd_contours
 
 
+# check_red_colour : used to check if there is red color within a certain frame of video
+# output : true if there is red color detected and if not return false
 def check_red_colour(roi):
-    if np.shape(roi)[1] != 0:
+    if 0 in np.shape(roi):
+        return False
+    else:
         hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
-        # define range of blue color in HSV
+        # define range of color in HSV
         lower_red = np.array([0, 50, 50])
         upper_red = np.array([10, 255, 255])
         # Threshold the HSV image to get only blue colors
@@ -82,12 +95,14 @@ layer_names = net.getLayerNames()
 output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers()]
 colors = np.random.uniform(0, 255, size=(len(classes), 3))
 
-# Loading video
+# Loading video input
 cap = cv2.VideoCapture(0)
 
 font = cv2.FONT_HERSHEY_PLAIN
 starting_time = time.time()
 frame_id = 0
+
+# main loop
 while True:
     _, frame = cap.read()
     frame_id += 1
@@ -120,7 +135,11 @@ while True:
                 x = int(center_x - w / 1.8)
                 y = int(center_y - h / 1.8)
 
+                # cropped frame using the coordinates of the rectangle surrounding an object
                 roi = frame[y:y+h, x:x+w]
+
+                # feed the cropped image (roi) to check_circle / check_red_colour to make sure
+                # only register the rectangle that passed the check_circle or check_red_colour
                 if check_circle(roi):
                     boxes.append([x, y, w, h])
                     confidences.append(float(confidence))
@@ -128,6 +147,7 @@ while True:
 
     indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.4, 0.3)
 
+    # draw the registered rectangle
     for i in range(len(boxes)):
         if i in indexes:
             x, y, w, h = boxes[i]
@@ -138,10 +158,13 @@ while True:
             cv2.putText(frame, label + " " + str(round(confidence, 2)),
                         (x, y + 30), font, 2, color, 2)
 
+    # frame calculation
     elapsed_time = time.time() - starting_time
     fps = frame_id / elapsed_time
     cv2.putText(frame, "FPS: " + str(round(fps, 2)),
                 (10, 50), font, 2, (0, 0, 0), 3)
+
+    # showed the window
     cv2.imshow("test", frame)
     key = cv2.waitKey(1)
     if key == 27:

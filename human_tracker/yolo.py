@@ -50,12 +50,14 @@ while True:
                 x = int(center_x - w / 1.8)
                 y = int(center_y - h / 1.8)
 
+                # Registering the bounding boxes
                 boxes.append([x, y, w, h])
                 confidences.append(float(confidence))
                 class_ids.append(class_id)
 
     indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.4, 0.3)
 
+    # drawing the bounding boxes
     for i in range(len(boxes)):
         if i in indexes:
             x, y, w, h = boxes[i]
@@ -66,10 +68,12 @@ while True:
             cv2.putText(frame, label + " " + str(round(confidence, 2)), (x, y + 30), font, 2, color, 2)
 
 
-
+    # frame calculation
     elapsed_time = time.time() - starting_time
     fps = frame_id / elapsed_time
     cv2.putText(frame, "FPS: " + str(round(fps, 2)), (10, 50), font, 2, (0, 0, 0), 3)
+
+    # showed the window
     cv2.imshow("test", frame)
     key = cv2.waitKey(1)
     if key == 27:
