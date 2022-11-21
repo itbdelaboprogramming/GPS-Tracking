@@ -5,7 +5,7 @@
  * File: ekf.h
  *
  * MATLAB Coder version            : 5.4
- * C/C++ source code generated on  : 04-Nov-2022 07:25:36
+ * C/C++ source code generated on  : 21-Nov-2022 13:51:11
  */
 
 #ifndef EKF_H
@@ -21,8 +21,9 @@ extern "C" {
 #endif
 
 /* Function Declarations */
-extern void ekf(double dt, double lat, double lon, double psi_1dot, double V,
-                double V_1dot, double result_ekf[4]);
+extern void ekf(boolean_T mode, double dt, double lat, double lon,
+                double psi_1dot, double V, double V_1dot, double psi0,
+                double result_ekf[4]);
 
 void x_est_not_empty_init(void);
 

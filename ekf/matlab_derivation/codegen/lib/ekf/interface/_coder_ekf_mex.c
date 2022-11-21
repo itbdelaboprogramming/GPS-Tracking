@@ -5,7 +5,7 @@
  * File: _coder_ekf_mex.c
  *
  * MATLAB Coder version            : 5.4
- * C/C++ source code generated on  : 04-Nov-2022 07:25:36
+ * C/C++ source code generated on  : 21-Nov-2022 13:51:11
  */
 
 /* Include Files */
@@ -47,11 +47,11 @@ emlrtCTX mexFunctionCreateRootTLS(void)
  * Arguments    : int32_T nlhs
  *                mxArray *plhs[1]
  *                int32_T nrhs
- *                const mxArray *prhs[6]
+ *                const mxArray *prhs[8]
  * Return Type  : void
  */
 void unsafe_ekf_mexFunction(int32_T nlhs, mxArray *plhs[1], int32_T nrhs,
-                            const mxArray *prhs[6])
+                            const mxArray *prhs[8])
 {
   emlrtStack st = {
       NULL, /* site */
@@ -61,8 +61,8 @@ void unsafe_ekf_mexFunction(int32_T nlhs, mxArray *plhs[1], int32_T nrhs,
   const mxArray *outputs;
   st.tls = emlrtRootTLSGlobal;
   /* Check for proper number of arguments. */
-  if (nrhs != 6) {
-    emlrtErrMsgIdAndTxt(&st, "EMLRT:runTime:WrongNumberOfInputs", 5, 12, 6, 4,
+  if (nrhs != 8) {
+    emlrtErrMsgIdAndTxt(&st, "EMLRT:runTime:WrongNumberOfInputs", 5, 12, 8, 4,
                         3, "ekf");
   }
   if (nlhs > 1) {

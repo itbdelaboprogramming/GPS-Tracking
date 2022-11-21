@@ -5,7 +5,7 @@
  * File: _coder_ekf_mex.h
  *
  * MATLAB Coder version            : 5.4
- * C/C++ source code generated on  : 04-Nov-2022 07:25:36
+ * C/C++ source code generated on  : 21-Nov-2022 13:51:11
  */
 
 #ifndef _CODER_EKF_MEX_H
@@ -27,7 +27,7 @@ MEXFUNCTION_LINKAGE void mexFunction(int32_T nlhs, mxArray *plhs[],
 emlrtCTX mexFunctionCreateRootTLS(void);
 
 void unsafe_ekf_mexFunction(int32_T nlhs, mxArray *plhs[1], int32_T nrhs,
-                            const mxArray *prhs[6]);
+                            const mxArray *prhs[8]);
 
 #ifdef __cplusplus
 }
