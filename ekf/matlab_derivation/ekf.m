@@ -1,28 +1,20 @@
 %% EKF GPS-Tracking
 %#codegen
-function result_ekf = ekf(mode,dt,lat,lon,psi_1dot,V,V_1dot,psi0)
+function result_ekf = ekf(mode,dt,lat,lon,psi_1dot,V,V_1dot)
 %% KALMAN FILTER VARIABLE & TUNING PARAMETER
 % dt = time increment [s]
 % zx,zy = latitude,longitude GPS measurment [deg]
 % psi_1dot = turning velocity [rad/s]
 % V = linear velocity [m/s]
 % V_1dot = linear acceleration [m/s2]
-persistent x_est p_est Cv alpha L1 pos_std psi_1dot_std V_1dot_std dx lla0
+persistent x_est p_est Cv alpha L1 pos_std V_std psi_1dot_std V_1dot_std ...
+    dx lla0 cal last status px_a py_a px_b py_b
                       
 % numerical jacobian perturbation increment
 dx = 0.0001;
 
 % GPS distance to mid section of tire [m]
 L1 = 0.356;
-
-% GPS meas standard deviation [m]
-pos_std = 10^1;
-
-% angular velocity input/meas standard deviation [rad/s]
-psi_1dot_std = 10^0;
-
-% linear accel input/meas standard deviation [m/s2]
-V_1dot_std = 8*10^0;
 
 % GPS datum (latitude [deg] longitude [deg] altitude [m] of Bandung)
 lla0 = [-6.914744, 107.609810, 800];
@@ -32,9 +24,30 @@ enu = lla2enu([lat,lon,800],lla0,'ellipsoid');
 
 % Initial state & covariance (x_est = [Px; Py; psi; V])
 if isempty(x_est)
-    x_est = [enu(1,1); enu(1,2); deg2rad(psi0); V];     
+    x_est = [enu(1,1); enu(1,2); pi()/3; V];     
     p_est = eye(4);
+    cal = 0; last = "point B"; status = "notcallib";
 end     
+
+if status == "notcallib"
+    % GPS meas standard deviation [m]
+    pos_std = 10^1;
+    % linear velocity meas standard deviation [m]
+    V_std = 10^-1;
+    % angular velocity input standard deviation [rad/s]
+    psi_1dot_std = 10^1;
+    % linear accel input standard deviation [m/s2]
+    V_1dot_std = 10^-1;
+elseif status == "callib"
+    % GPS meas standard deviation [m]
+    pos_std = 10^1;
+    % linear velocity meas standard deviation [m]
+    V_std = 10^-1;
+    % angular velocity input/meas standard deviation [rad/s]
+    psi_1dot_std = 10^-3;
+    % linear accel input/meas standard deviation [m/s2]
+    V_1dot_std = 10^-3;
+end
 
 % Skid-steering parameter
 if psi_1dot^2 < 0.1
@@ -53,13 +66,39 @@ end
 
 %% KALMAN FILTERING
 [x_prd,p_prd] = predict(x_est,p_est);
-if mode
-    % with GPS measurement
-    [x_est,p_est] = update(x_prd,p_prd,enu);
-else
+if mode == 0
     % without GPS measurement
     x_est = x_prd;
     p_est = p_prd;
+else
+    % with GPS measurement
+    [x_est,p_est] = update(x_prd,p_prd,enu);
+    % heading callibration
+    if mode == 2
+        if last == "point B"
+            cal = 1; last = "point A"; status = "notcallib";
+        elseif last == "point A"
+            cal = cal + 1;
+        end
+        px_a(cal,1) = x_est(1,1);
+        py_a(cal,1) = x_est(2,1);
+    elseif mode == 3
+        if last == "point A"
+            cal = 1; last = "point B";
+        elseif last == "point B"
+            cal = cal + 1;
+        end
+        px_b(cal,1) = x_est(1,1);
+        py_b(cal,1) = x_est(2,1);
+    elseif mode == 4
+        b = (mean(px_b)-mean(px_a))/(mean(py_b)-mean(py_a));
+        if ((mean(px_b)-mean(px_a)) > 0 && (mean(py_b)-mean(py_a)) < 0) || ((mean(px_b)-mean(px_a)) < 0 && (mean(py_b)-mean(py_a)) < 0)
+            x_est(3,1) = pi() + atan(b);
+        else
+            x_est(3,1) = atan(b);
+        end
+        status = "callib";
+    end
 end
     % Updated Measurements (from estimated state)
     lla = enu2lla([x_est(1,1),x_est(2,1),800],lla0,'ellipsoid');
@@ -105,20 +144,21 @@ end
 %% UPDATE STEP
 function [x_est,p_est] = update(x_prd,p_prd,enu)
 % Measurement Innovation
-z = [enu(1,1); enu(1,2)];
-z_prd = [x_prd(1,1); x_prd(2,1)];
+z = [enu(1,1); enu(1,2); V];
+z_prd = [x_prd(1,1); x_prd(2,1); x_prd(4,1)];
 u = z - z_prd;
 
 % Jacobian of measurement function
-jac_hx = ([ x_prd(1,1)+dx, x_prd(2,1);...
-            x_prd(1,1), x_prd(2,1)+dx;...
-            x_prd(1,1), x_prd(2,1);...
-            x_prd(1,1), x_prd(2,1)]'...
+jac_hx = ([ x_prd(1,1)+dx, x_prd(2,1), x_prd(4,1);...
+            x_prd(1,1), x_prd(2,1)+dx, x_prd(4,1);...
+            x_prd(1,1), x_prd(2,1), x_prd(4,1);...
+            x_prd(1,1), x_prd(2,1), x_prd(4,1)+dx]'...
             - [z_prd z_prd z_prd z_prd]) / dx; 
 
 % Measurement Noise Covariance
-R = [pos_std^2 0;...            
-    0 pos_std^2];
+R = [pos_std^2 0 0;...            
+    0 pos_std^2 0;...
+    0 0 V_std^2];
 
 % Kalman Gain
 K = p_prd * jac_hx' / (jac_hx * p_prd * jac_hx' + R);
