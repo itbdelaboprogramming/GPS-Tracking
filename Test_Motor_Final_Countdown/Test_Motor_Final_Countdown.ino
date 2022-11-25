@@ -2,6 +2,7 @@
 #include "encoder.h"
 #include "pidIr.h"
 #include "LPF.h"
+#include <Wire.h>
 
 // Adding mavlink library
 #include "mavlink_communication/mavlink/common/mavlink.h"
@@ -19,6 +20,10 @@
 //#define DEBUG_RECIVER
 //#define DEBUG_ROTATE
 #define DEBUG_PWM
+
+// Komunikasi I2C untuk dapat nilai dari RC
+#define ADRESS 2
+#define BYTE_NUM 4
 
 // Pin untuk baca receiver adalah pin digital biasa
 #define PIN_CH_1 48
@@ -110,10 +115,17 @@ int ch3; // output channel 3
 int moveValue; // nilai pwm gerakan maju-mundur
 int turnValue; // nilai pwm gerakan kiri-kanan
 
+//I2C data variable
+byte a;
+byte b;
+byte c;
+byte d;
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
   Serial1.begin(57600);
+  Wire.begin();
 
   // Start to set the pin mode
   motor_kiri.start();
@@ -190,6 +202,9 @@ void loop() {
   // Start timed loop for everything else (in ms)
   if (curr_millis - prev_millis >= 10) {
     float Ts = curr_millis - prev_millis;
+    
+    // Menerima sinyal dair receiver
+    receiver();
 
     // Menerima sinyal pwm dari receiver
     ch1 = pulseIn(PIN_CH_1, HIGH, 1000000*2);
@@ -226,7 +241,7 @@ void loop() {
 
     //-------------------------------------Control Motor-----------------------------------------------//
 
-    if(ch3 <= 1000){
+    if(d <= 63){
       //Serial.println("Mode Hold");
 
       pwm_ki = 0;
@@ -238,7 +253,7 @@ void loop() {
       
       motor_kiri.rotate(pwm_ki);
       motor_kanan.rotate(pwm_ka);
-    } else if(ch3 >= 1500){
+    } else if(d >= 191){
       //Serial.println("Mode Auto");
       /*
       if(curr_millis >= 5000){
@@ -271,7 +286,8 @@ void loop() {
       motor_kiri.rotate(pwm_ki);
       motor_kanan.rotate(pwm_ka);
     } else {
-      //Serial.println("Mode Manual");  
+      //Serial.println("Mode Manual");
+      /*
       if(filtered_ch1 >= 1500+PWM_THRESHOLD){
         moveValue = map(filtered_ch1, 1500+PWM_THRESHOLD, 2000, 0, MAX_RPM_MOVE);
       } else if(filtered_ch1 <= 1500-PWM_THRESHOLD){
@@ -286,8 +302,24 @@ void loop() {
         turnValue = map(filtered_ch2, 1500-PWM_THRESHOLD, 1000, 0, -MAX_RPM_TURN);
       } else {
         turnValue = 0;
+      }*/
+      if(a == 0)[
+        moveValue = map(b, 0, 255, 0, MAX_PWM_MOVE);
+        turnValue = map(c, 0, 255, 0, MAX_PWM_TURN);
+      } else if(a == 1){
+        moveValue = map(b, 0, 255, 0, -MAX_PWM_MOVE);
+        turnValue = map(c, 0, 255, 0, MAX_PWM_TURN);
+      } else if(a == 2){
+        moveValue = map(b, 0, 255, 0, MAX_PWM_MOVE);
+        turnValue = map(c, 0, 255, 0, -MAX_PWM_TURN);
+      } else if(a == 3){
+        moveValue = map(b, 0, 255, 0, -MAX_PWM_MOVE);
+        turnValue = map(c, 0, 255, 0, -MAX_PWM_TURN);
+      } else{
+        moveValue = 0;
+        turnValue = 0;
       }
-
+      
       target_speed = moveValue*6.0/1000.0; //in deg/s
       //if (moveValue == 0){
         //target_pulse = 0;
@@ -370,4 +402,12 @@ void loop() {
     Serial.println();
     #endif
   }
+}
+
+void receiver(){
+  Wire.requestFrom(ADRESS, BYTE_NUM);
+  a = Wire.read();
+  b = Wire.read();
+  c = Wire.read();
+  d = Wire.read();
 }
