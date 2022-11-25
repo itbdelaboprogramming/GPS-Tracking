@@ -15,6 +15,7 @@ cap = cv2.VideoCapture(0)
 
 starting_time = time.time()
 frame_id = 0
+
 # the output will be written to output.avi
 out = cv2.VideoWriter(
     'output.avi',
@@ -30,6 +31,7 @@ while(True):
 
     # resizing for faster detection
     frame = cv2.resize(frame, (640, 480))
+    
     # using a greyscale picture, also for faster detection
     gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
 
@@ -37,18 +39,25 @@ while(True):
     # returns the bounding boxes for the detected objects
     boxes, weights = hog.detectMultiScale(frame, winStride=(8,8) )
 
+    # vertex start and vertex end of the boundary boxes
     boxes = np.array([[x, y, x + w, y + h] for (x, y, w, h) in boxes])
 
     print(boxes)
 
+    # cycle through each vertexes of the boundary boxes
     for (xA, yA, xB, yB) in boxes:
         # display the detected boxes in the colour picture
+
+        # rectangle(mat, vertex1, vertex2, color, thickness)
         cv2.rectangle(frame, (xA, yA), (xB, yB),
                           (229, 235, 178), 2)
 
+    # counting and displaying fps
     elapsed_time = time.time() - starting_time
     fps = frame_id / elapsed_time
+    # putText(img, text, org, fontFace, fontScale, color, thickness)
     cv2.putText(frame, "FPS: " + str(round(fps, 2)), (10, 50), font, 2, (0, 0, 0), 3)
+
     # Write the output video 
     out.write(frame.astype('uint8'))
     # Display the resulting frame
