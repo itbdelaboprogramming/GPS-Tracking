@@ -4,22 +4,15 @@
 #include "LPF.h"
 #include <Wire.h>
 
-// Adding mavlink library
-#include "mavlink_communication/mavlink/common/mavlink.h"
-
-// ID System dan Component
-#define MAVLINK_SYSTEM_ID 1 
-#define MAVLINK_COMPONENT_ID 1
-
 #define LOOPTIME 10 //in ms
 
 // To enter debug mode uncomment this line below. It will print the GPS data read from GPS.
 //#define MONITOR_OMEGA
-//#define DEBUG
+#define DEBUG
 //#define FILTER
 //#define DEBUG_RECIVER
 //#define DEBUG_ROTATE
-#define DEBUG_PWM
+//#define DEBUG_PWM
 
 // Komunikasi I2C untuk dapat nilai dari RC
 #define ADRESS 2
@@ -124,8 +117,7 @@ byte d;
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
-  Serial1.begin(57600);
-  Wire.begin();
+  //Wire.begin();
 
   // Start to set the pin mode
   motor_kiri.start();
@@ -172,9 +164,9 @@ void setup() {
   #endif
 
   #ifdef DEBUG_RECIVER
-  Serial.print(F("Ch1:")); Serial.print("\t");
-  Serial.print(F("Ch2:")); Serial.print("\t");
-  Serial.print(F("Ch3:")); Serial.print("\t");
+  Serial.print("Ch1:"); Serial.print("\t");
+  Serial.print("Ch2:"); Serial.print("\t");
+  Serial.print("Ch3:"); Serial.print("\t");
   Serial.println();
   #endif
 
@@ -204,7 +196,7 @@ void loop() {
     float Ts = curr_millis - prev_millis;
     
     // Menerima sinyal dair receiver
-    receiver();
+    //receiver();
 
     // Menerima sinyal pwm dari receiver
     ch1 = pulseIn(PIN_CH_1, HIGH, 1000000*2);
@@ -276,8 +268,8 @@ void loop() {
       //pwm_ki = pid_left_pulse.compute(target_pulse_ki, curr_left_angle, MAX_PWM, Ts);
       //pwm_ka = pid_right_pulse.compute(target_pulse_ka, curr_right_angle, MAX_PWM, Ts);
       
-      pwm_ki = 25;
-      pwm_ka = 25;
+      pwm_ki = 0;
+      pwm_ka = 0;
       
       // Rotate motor
       motor_kiri.setEnable(pwm_ki);
@@ -303,7 +295,7 @@ void loop() {
       } else {
         turnValue = 0;
       }*/
-      if(a == 0)[
+      if(a == 0){
         moveValue = map(b, 0, 255, 0, MAX_PWM_MOVE);
         turnValue = map(c, 0, 255, 0, MAX_PWM_TURN);
       } else if(a == 1){
@@ -332,11 +324,11 @@ void loop() {
       target_pulse_ka = target_pulse_ka + Ts*target_speed_ka;
       target_pulse_ki = target_pulse_ki + Ts*target_speed_ki;
 
-      pwm_ka = pid_left_pulse.compute(target_pulse_ka, curr_left_angle, MAX_PWM, Ts);
-      pwm_ki = pid_right_pulse.compute(target_pulse_ki, curr_right_angle, MAX_PWM, Ts);
+      //pwm_ka = pid_left_pulse.compute(target_pulse_ka, curr_left_angle, MAX_PWM, Ts);
+      //pwm_ki = pid_right_pulse.compute(target_pulse_ki, curr_right_angle, MAX_PWM, Ts);
 
-      //pwm_ka = moveValue;
-      //pwm_ki = moveValue;
+      pwm_ka = 0;
+      pwm_ki = 0;
       
       // Rotate motor
       motor_kiri.setEnable(pwm_ki);
@@ -356,9 +348,10 @@ void loop() {
     prev_millis = curr_millis;   
 
     #ifdef DEBUG_RECIVER
-    Serial.print(ch1); Serial.print("\t");
-    Serial.print(ch2); Serial.print("\t");
-    Serial.print(ch3); Serial.print("\t");
+    Serial.print(a); Serial.print("\t");
+    Serial.print(b); Serial.print("\t");
+    Serial.print(c); Serial.print("\t");
+    Serial.print(d); Serial.print("\t");
     Serial.println();
     #endif
 
@@ -404,6 +397,7 @@ void loop() {
   }
 }
 
+/*
 void receiver(){
   Wire.requestFrom(ADRESS, BYTE_NUM);
   a = Wire.read();
@@ -411,3 +405,4 @@ void receiver(){
   c = Wire.read();
   d = Wire.read();
 }
+*/

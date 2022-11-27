@@ -30,19 +30,19 @@
 #define MOTOR_THRESHOLD 5 // Batas diam motor 5/255
 #define PWM_THRESHOLD 50
 
-int ch1; // output channel 1
-int ch2; // output channel 2
-int ch3; // output channel 3
-int moveValue; // nilai pwm gerakan maju-mundur
-int turnValue; // nilai pwm gerakan kiri-kanan
+//int ch1; // output channel 1
+//int ch2; // output channel 2
+//int ch3; // output channel 3
+//int moveValue; // nilai pwm gerakan maju-mundur
+//int turnValue; // nilai pwm gerakan kiri-kanan
 
-int forwardValue;
-int backwardValue;
-int rightValue;
-int leftValue;
+//int forwardValue;
+//int backwardValue;
+//int rightValue;
+//int leftValue;
 
-int pwmRight; // pwm motor kanan
-int pwmLeft; // pwm motor kiri
+//int pwmRight; // pwm motor kanan
+//int pwmLeft; // pwm motor kiri
 
 void setup() {
   // put your setup code here, to run once:
