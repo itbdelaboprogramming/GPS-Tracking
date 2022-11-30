@@ -29,6 +29,7 @@ class pidIr{
     float Ki;
     float Kd;
     float Ts;
+    float error_abs;
 
     float absolute(float val);
 };

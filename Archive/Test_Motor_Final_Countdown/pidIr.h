@@ -16,9 +16,9 @@
 class pidIr{
     public:
     //p=proporsional, i=integral, d=differential, Ts=sampling time
-    pidIr(float p, float i, float d, float _Ts);
+    pidIr(float p, float i, float d);
     
-    float compute(float setpoint, float feedback, float max);
+    float compute(float setpoint, float feedback, float max, float Ts);
 
     private:
     float error;
@@ -28,7 +28,6 @@ class pidIr{
     float Kp;
     float Ki;
     float Kd;
-    float Ts;
 
     float absolute(float val);
 };

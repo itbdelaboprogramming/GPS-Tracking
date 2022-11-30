@@ -24,13 +24,11 @@ class pidIr{
     float error;
     float last_error;
     float output;
-    float sum_error;
+    float last_output;
     float Kp;
     float Ki;
     float Kd;
     float Ts;
-
-    float absolute(float val);
 };
 
 #endif
