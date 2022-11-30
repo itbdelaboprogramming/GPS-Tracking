@@ -1,3 +1,12 @@
+/** 
+  Code to test wheel-odometry reading
+  
+  Author  : Achmad Syahrul Irwansyah
+  Project : GPS Tracking
+  For more information contact
+  -> email: ach.syahrul99@gmail.com
+**/
+
 #include "encoder.h"
 
 #define LOOPTIME 10 //in ms
