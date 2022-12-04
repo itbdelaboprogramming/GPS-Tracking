@@ -39,12 +39,14 @@
 #define PWM_THRESHOLD 150 // Batas diam motor 5/255
 #define MAX_PWM 30
 
-#define SONAR_NUM 2      // Number of sensors.
+#define SONAR_NUM 1      // Number of sensors.
 #define MAX_DISTANCE 200 // Maximum distance (in cm) to ping.
+#define SERVO_PIN 13
+#define RIGHT_IR 24
+#define LEFT_IR 22
 
 NewPing sonar[SONAR_NUM] = {   // Sensor object array. Each sensor's trigger pin, echo pin, and max distance to ping.
-  NewPing(24, 26, MAX_DISTANCE), //Right Sensor
-  NewPing(28, 30, MAX_DISTANCE) // Left Sensor
+  NewPing(26, 28, MAX_DISTANCE), //Right Sensor
 };
 
 Servo myservo; //create servo object to control the servo:
@@ -111,8 +113,9 @@ volatile long filtered_ch1;
 volatile long filtered_ch2;
 
 // Ultrasonic variables
-float left_sensor;
-float right_sensor;
+int right_side;
+int left_side;
+float distance;
 float servo;
 
 // Command variables
@@ -207,11 +210,12 @@ void setup() {
   #ifdef ULTRASONIC
   Serial.print("Right_Sensor");Serial.print("\t");
   Serial.print("Left_Sensor");Serial.print("\t");
+  Serial.print("Distance");Serial.print("\t");
   Serial.print("Angle");Serial.print("\t");
   Serial.println();
   #endif
 
-  delay(2000);
+  //delay(2000);
 }
 
 void loop() {
@@ -220,7 +224,7 @@ void loop() {
   curr_millis = millis();   // Bookmark the time 
 
   // Start timed loop for everything else (in ms)
-  if (curr_millis - prev_millis >= 10) {
+  if (curr_millis - prev_millis >= LOOPTIME) {
     Ts = curr_millis - prev_millis;
 
     // Menerima sinyal pwm dari receiver
@@ -261,8 +265,14 @@ void loop() {
     if(ch3 <= 1000){
       //Serial.println("Mode Hold");
 
-      pwm_ki = 0;
-      pwm_ka = 0;
+      target_speed_ki = MAX_RPM_MOVE; //in RPM
+      target_speed_ka = MAX_RPM_MOVE;
+
+      pwm_ki = pid_left_omega.compute(target_speed_ka,filtered_left_omega,max_pwm,Ts);
+      pwm_ka = pid_right_omega.compute(target_speed_ki,filtered_right_omega,max_pwm,Ts);
+
+      //pwm_ki = 0;
+      //pwm_ka = 0;
       
       // Rotate motor
       motor_kiri.setEnable(pwm_ki);
@@ -401,8 +411,9 @@ void loop() {
     #endif
 
     #ifdef ULTRASONIC
-    Serial.print(right_sensor);Serial.print("\t");
-    Serial.print(left_sensor);Serial.print("\t");
+    Serial.print(right_side);Serial.print("\t");
+    Serial.print(left_side);Serial.print("\t");
+    Serial.print(distance);Serial.print("\t");
     Serial.print(servo);Serial.print("\t");
     Serial.println();
     #endif
@@ -423,25 +434,26 @@ void forceStop () {
 
 
 void ultrasonicMode () {
-  right_sensor = sonar[0].ping_cm();
-  left_sensor = sonar[1].ping_cm();
-  right_sensor = dlpf.filter(right_sensor, Ts/1000.0);
-  left_sensor = dlpf.filter(left_sensor, Ts/1000.0);
+  right_side = digitalRead(RIGHT_IR);
+  left_side = digitalRead(LEFT_IR);
 
-  if ( right_sensor >= 10 && right_sensor <= 50 && left_sensor >= 10 && left_sensor <= 50) {
-      if (right_sensor < left_sensor && abs(right_sensor-left_sensor) > 5) {
-        servo = 45;
-        target_speed_ka = -MAX_RPM_MOVE;
-        target_speed_ki = MAX_RPM_MOVE;
-      } else if (right_sensor > left_sensor && abs(right_sensor-left_sensor) > 5){
-        servo = 135;
-        target_speed_ka = MAX_RPM_MOVE;
-        target_speed_ki = -MAX_RPM_MOVE;
-      } else {
-        servo = 90;
-        target_speed_ka = MAX_RPM_MOVE;
-        target_speed_ki = MAX_RPM_MOVE;
-      }
+  distance = sonar[0].ping_cm();
+  distance = dlpf.filter(distance, Ts/1000.0);
+
+  if (distance >= 10 && distance <= 80){
+    if (right_side == 1 && left_side == 0){
+      servo = 135;
+      target_speed_ka = MAX_RPM_MOVE;
+      target_speed_ki = -MAX_RPM_MOVE;
+    } else if (right_side == 0 && left_side == 1){
+      servo = 45;
+      target_speed_ka = -MAX_RPM_MOVE;
+      target_speed_ki = MAX_RPM_MOVE;
+    } else {
+      servo = 90;
+      target_speed_ka = MAX_RPM_MOVE;
+      target_speed_ki = MAX_RPM_MOVE;
+    } 
   } else {
     servo = 0;
     target_speed_ka = 0;
