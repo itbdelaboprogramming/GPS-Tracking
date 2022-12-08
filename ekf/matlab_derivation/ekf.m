@@ -49,9 +49,9 @@ end
     V_1dot_std = 1.5;
 if status == 1
     % GPS meas standard deviation [m]
-    pos_std = 9;
+    pos_std = 10;
     % linear velocity meas standard deviation [m]
-    V_std = 1.5;
+    V_std = 2;
     % angular velocity input/meas standard deviation [rad/s]
     psi_1dot_std = 0.1;
     % linear accel input/meas standard deviation [m/s2]

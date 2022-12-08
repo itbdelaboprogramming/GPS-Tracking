@@ -5,7 +5,7 @@
  * File: ekf.c
  *
  * MATLAB Coder version            : 5.4
- * C/C++ source code generated on  : 08-Dec-2022 10:01:37
+ * C/C++ source code generated on  : 08-Dec-2022 10:22:30
  */
 
 /* Include Files */
@@ -74,7 +74,9 @@ void ekf(double mode, double dt, double lat, double lon, double psi_1dot,
 {
   static captured_var Cv;
   static captured_var V_1dot_std;
+  static captured_var V_std;
   static captured_var alpha;
+  static captured_var pos_std;
   static captured_var psi_1dot_std;
   static rtString last;
   static const double lla0[3] = {-6.914744, 107.60981, 800.0};
@@ -169,14 +171,18 @@ void ekf(double mode, double dt, double lat, double lon, double psi_1dot,
     }
   }
   /*  GPS meas standard deviation [m] */
+  pos_std.contents = 9.0;
   /*  linear velocity meas standard deviation [m] */
+  V_std.contents = 1.5;
   /*  angular velocity input standard deviation [rad/s] */
   psi_1dot_std.contents = 1.5;
   /*  linear accel input standard deviation [m/s2] */
   V_1dot_std.contents = 1.5;
   if (status == 1.0) {
     /*  GPS meas standard deviation [m] */
+    pos_std.contents = 10.0;
     /*  linear velocity meas standard deviation [m] */
+    V_std.contents = 2.0;
     /*  angular velocity input/meas standard deviation [rad/s] */
     psi_1dot_std.contents = 0.1;
     /*  linear accel input/meas standard deviation [m/s2] */
@@ -385,15 +391,16 @@ void ekf(double mode, double dt, double lat, double lon, double psi_1dot,
             d3 * K[ret + 3];
       }
     }
-    dv[0] = 81.0;
+    i = (int)((float)pos_std.contents * (float)pos_std.contents);
+    dv[0] = i;
     dv[3] = 0.0;
     dv[6] = 0.0;
     dv[1] = 0.0;
-    dv[4] = 81.0;
+    dv[4] = i;
     dv[7] = 0.0;
     dv[2] = 0.0;
     dv[5] = 0.0;
-    dv[8] = 2.25;
+    dv[8] = V_std.contents * V_std.contents;
     for (i = 0; i < 4; i++) {
       d = p_est[i];
       d1 = p_est[i + 4];
