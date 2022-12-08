@@ -2,7 +2,7 @@
 ## Makefile generated for component 'ekf'. 
 ## 
 ## Makefile     : ekf_rtw.mk
-## Generated on : Mon Nov 21 13:51:53 2022
+## Generated on : Thu Dec 08 10:01:50 2022
 ## Final product: ./ekf.lib
 ## Product type : static-library
 ## 
@@ -183,7 +183,7 @@ DEFINES = $(DEFINES_) $(DEFINES_CUSTOM) $(DEFINES_STANDARD)
 ## SOURCE FILES
 ###########################################################################
 
-SRCS = $(START_DIR)/codegen/lib/ekf/ekf_data.c $(START_DIR)/codegen/lib/ekf/rt_nonfinite.c $(START_DIR)/codegen/lib/ekf/rtGetNaN.c $(START_DIR)/codegen/lib/ekf/rtGetInf.c $(START_DIR)/codegen/lib/ekf/ekf_initialize.c $(START_DIR)/codegen/lib/ekf/ekf_terminate.c $(START_DIR)/codegen/lib/ekf/ekf.c $(START_DIR)/codegen/lib/ekf/sind.c $(START_DIR)/codegen/lib/ekf/cosd.c $(START_DIR)/codegen/lib/ekf/ekf_rtwutil.c
+SRCS = $(START_DIR)/codegen/lib/ekf/ekf_data.c $(START_DIR)/codegen/lib/ekf/rt_nonfinite.c $(START_DIR)/codegen/lib/ekf/rtGetNaN.c $(START_DIR)/codegen/lib/ekf/rtGetInf.c $(START_DIR)/codegen/lib/ekf/ekf_initialize.c $(START_DIR)/codegen/lib/ekf/ekf_terminate.c $(START_DIR)/codegen/lib/ekf/ekf.c $(START_DIR)/codegen/lib/ekf/mrdivide_helper.c $(START_DIR)/codegen/lib/ekf/enu2lla.c $(START_DIR)/codegen/lib/ekf/sind.c $(START_DIR)/codegen/lib/ekf/cosd.c $(START_DIR)/codegen/lib/ekf/ekf_rtwutil.c
 
 ALL_SRCS = $(SRCS)
 
@@ -191,7 +191,7 @@ ALL_SRCS = $(SRCS)
 ## OBJECTS
 ###########################################################################
 
-OBJS = ekf_data.obj rt_nonfinite.obj rtGetNaN.obj rtGetInf.obj ekf_initialize.obj ekf_terminate.obj ekf.obj sind.obj cosd.obj ekf_rtwutil.obj
+OBJS = ekf_data.obj rt_nonfinite.obj rtGetNaN.obj rtGetInf.obj ekf_initialize.obj ekf_terminate.obj ekf.obj mrdivide_helper.obj enu2lla.obj sind.obj cosd.obj ekf_rtwutil.obj
 
 ALL_OBJS = $(OBJS)
 
@@ -359,6 +359,14 @@ ekf_terminate.obj : $(START_DIR)/codegen/lib/ekf/ekf_terminate.c
 
 
 ekf.obj : $(START_DIR)/codegen/lib/ekf/ekf.c
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
+
+mrdivide_helper.obj : $(START_DIR)/codegen/lib/ekf/mrdivide_helper.c
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
+
+enu2lla.obj : $(START_DIR)/codegen/lib/ekf/enu2lla.c
 	$(CC) $(CFLAGS) -o "$@" "$<"
 
 

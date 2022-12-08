@@ -5,7 +5,7 @@
  * File: main.c
  *
  * MATLAB Coder version            : 5.4
- * C/C++ source code generated on  : 21-Nov-2022 13:51:11
+ * C/C++ source code generated on  : 08-Dec-2022 10:01:37
  */
 
 /*************************************************************************/
@@ -38,24 +38,14 @@
 #include "ekf.h"
 #include "ekf_terminate.h"
 #include "rt_nonfinite.h"
+#include <string.h>
 
 /* Function Declarations */
-static boolean_T argInit_boolean_T(void);
-
 static double argInit_real_T(void);
 
 static void main_ekf(void);
 
 /* Function Definitions */
-/*
- * Arguments    : void
- * Return Type  : boolean_T
- */
-static boolean_T argInit_boolean_T(void)
-{
-  return false;
-}
-
 /*
  * Arguments    : void
  * Return Type  : double
@@ -72,12 +62,12 @@ static double argInit_real_T(void)
 static void main_ekf(void)
 {
   double result_ekf[4];
-  double dt_tmp;
+  double mode_tmp;
   /* Initialize function 'ekf' input arguments. */
-  dt_tmp = argInit_real_T();
+  mode_tmp = argInit_real_T();
   /* Call the entry-point 'ekf'. */
-  ekf(argInit_boolean_T(), dt_tmp, dt_tmp, dt_tmp, dt_tmp, dt_tmp, dt_tmp,
-      dt_tmp, result_ekf);
+  ekf(mode_tmp, mode_tmp, mode_tmp, mode_tmp, mode_tmp, mode_tmp, mode_tmp,
+      result_ekf);
 }
 
 /*

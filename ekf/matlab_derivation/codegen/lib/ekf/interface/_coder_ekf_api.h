@@ -5,7 +5,7 @@
  * File: _coder_ekf_api.h
  *
  * MATLAB Coder version            : 5.4
- * C/C++ source code generated on  : 21-Nov-2022 13:51:11
+ * C/C++ source code generated on  : 08-Dec-2022 10:01:37
  */
 
 #ifndef _CODER_EKF_API_H
@@ -25,10 +25,10 @@ extern "C" {
 #endif
 
 /* Function Declarations */
-void ekf(boolean_T mode, real_T dt, real_T lat, real_T lon, real_T psi_1dot,
-         real_T V, real_T V_1dot, real_T psi0, real_T result_ekf[4]);
+void ekf(real_T mode, real_T dt, real_T lat, real_T lon, real_T psi_1dot,
+         real_T V, real_T V_1dot, real_T result_ekf[4]);
 
-void ekf_api(const mxArray *const prhs[8], const mxArray **plhs);
+void ekf_api(const mxArray *const prhs[7], const mxArray **plhs);
 
 void ekf_atexit(void);
 

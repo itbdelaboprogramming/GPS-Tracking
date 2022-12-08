@@ -7,9 +7,10 @@ function result_ekf = ekf(mode,dt,lat,lon,psi_1dot,V,V_1dot)
 % psi_1dot = turning velocity [rad/s]
 % V = linear velocity [m/s]
 % V_1dot = linear acceleration [m/s2]
-persistent x_est p_est Cv alpha L1 pos_std V_std psi_1dot_std V_1dot_std ...
-    dx lla0 cal last status px_a py_a px_b py_b
-                      
+persistent x_est p_est Cv alpha L1 ...
+    dx lla0 cal last status px_a py_a px_b py_b ...
+    pos_std V_std psi_1dot_std V_1dot_std ...
+
 % numerical jacobian perturbation increment
 dx = 0.0001;
 
@@ -26,10 +27,18 @@ enu = lla2enu([lat,lon,800],lla0,'ellipsoid');
 if isempty(x_est)
     x_est = [enu(1,1); enu(1,2); pi()/3; V];     
     p_est = eye(4);
-    cal = 0; last = "point B"; status = "notcallib";
-end     
+    cal = 0; last = "point B"; status = 0;
+end
 
-if status == "notcallib"
+if isempty(px_a)
+    px_a = zeros(10,1);
+    py_a = zeros(10,1);
+elseif isempty(px_b)
+    px_b = zeros(10,1);
+    py_b = zeros(10,1);
+end
+
+if status == 0
     % GPS meas standard deviation [m]
     pos_std = 9;
     % linear velocity meas standard deviation [m]
@@ -38,7 +47,7 @@ if status == "notcallib"
     psi_1dot_std = 1.5;
     % linear accel input standard deviation [m/s2]
     V_1dot_std = 1.5;
-elseif status == "callib"
+elseif status == 1
     % GPS meas standard deviation [m]
     pos_std = 9;
     % linear velocity meas standard deviation [m]
@@ -64,7 +73,7 @@ else
     alpha = atan(L1/(V/psi_1dot));
 end
 
-%% KALMAN FILTERING
+% KALMAN FILTERING
 [x_prd,p_prd] = predict(x_est,p_est);
 if mode == 0
     % without GPS measurement
@@ -76,7 +85,7 @@ else
     % heading callibration
     if mode == 2
         if last == "point B"
-            cal = 1; last = "point A"; status = "notcallib";
+            cal = 1; last = "point A"; status = 0;
         elseif last == "point A"
             cal = cal + 1;
         end
@@ -97,7 +106,7 @@ else
         else
             x_est(3,1) = atan(b);
         end
-        status = "callib";
+        status = 1;
     end
 end
     % Updated Measurements (from estimated state)
