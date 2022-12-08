@@ -50,8 +50,8 @@ err_EKF = zeros(1,135);
 % Main loop
 for idx = 1:135
     
-    noise_lat = (rand()-0.5)*2/10^5 * 4;     
-    noise_lon = (rand()-0.5)*2/10^5 * 4;
+    noise_lat = (rand()-0.5)*2/10^5 * 2.7;     
+    noise_lon = (rand()-0.5)*2/10^5 * 2.7;
     noise_V = (rand()-0.5)*2/10^5 * 0.5;
     noise_acc = (rand()-0.5)*2/10^5 * 0.1;
     noise_gyro = (rand()-0.5)*2/10^5 * 0.05;
