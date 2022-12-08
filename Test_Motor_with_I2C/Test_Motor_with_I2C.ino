@@ -14,6 +14,9 @@
   -> email: ach.syahrul99@gmail.com
 **/
 
+#include <Servo.h>
+#include <NewPing.h>
+#include <math.h>
 #include "motor.h"
 #include "encoder.h"
 #include "pidIr.h"
@@ -34,20 +37,30 @@
 #define BYTE_NUM 4
 
 // Nilai max pwm maju
-#define MAX_PWM_MOVE 63 // Kecepatan max(255)/4
-#define MAX_PWM_TURN 31 // Kecepatan max(255)/8
-#define MAX_RPM_MOVE 191 // in RPM
-#define MAX_RPM_TURN 100 // in RPM
+#define MAX_RPM_MOVE 40 // in RPM
+#define MAX_RPM_TURN 30 // in RPM
 #define PWM_THRESHOLD 150 // Batas diam motor 5/255
-#define MAX_PWM 60
+#define MAX_PWM 30
+
+#define SONAR_NUM 1      // Number of sensors.
+#define MAX_DISTANCE 200 // Maximum distance (in cm) to ping.
+#define SERVO_PIN 13
+#define RIGHT_IR 24
+#define LEFT_IR 22
+
+NewPing sonar[SONAR_NUM] = {   // Sensor object array. Each sensor's trigger pin, echo pin, and max distance to ping.
+  NewPing(26, 28, MAX_DISTANCE), //Right Sensor
+};
+
+Servo myservo; //create servo object to control the servo:
 
 // Motor pin assignment
-Motor motor_kanan(5,6,8); // Motor(int RPWM, int LPWM, int EN);
-Motor motor_kiri(10,9,7);
+Motor motor_kanan(6,5,8); // Motor(int RPWM, int LPWM, int EN);
+Motor motor_kiri(9,10,7);
 
 // Encoder pin assignment (just use 2, 3, 10, 11, 12)
-Encoder enc_kiri(2,3); // Encoder(int pin_a, int pin_b);
-Encoder enc_kanan(11,12);
+Encoder enc_kiri(3,2); // Encoder(int pin_a, int pin_b);
+Encoder enc_kanan(12,11);
 
 // Encoder callback function
 void callbackKiA(){enc_kiri.doEncoderA();}
@@ -56,14 +69,14 @@ void callbackKaA(){enc_kanan.doEncoderA();}
 void callbackKaB(){enc_kanan.doEncoderB();}
 
 // Create PID object
-pidIr pid_left_angle(0.275,0.055,0.0); // pidIr(float Kp, float Ki, float Kd, float Ts);
-pidIr pid_right_angle(0.275,0.055,0.0);
+pidIr pid_left_omega(0.325,0.0012,0.512);//Kp = 0.325, Ki = 0.0012, Kd = 0.00
+pidIr pid_right_omega(0.325,0.0012,0.512);
 
-pidIr pid_left_omega(0.5,2.0,0.016);//Kp = 0.5, Ki = 2.0, Kd = 0.016
-pidIr pid_right_omega(0.5,2.0,0.016);
+pidIr pid_left_auto(0.325,0.0012,0.512);//Kp = 0.325, Ki = 0.0012, Kd = 0.00
+pidIr pid_right_auto(0.325,0.0012,0.512);
 
-pidIr pid_left_pulse(0.4,0.0,48.0);
-pidIr pid_right_pulse(0.8,0.0,64.0);
+pidIr pid_left_pulse(0.05,0.0,0.8);
+pidIr pid_right_pulse(0.05,0.0,0.0);
 
 // Create LPF object
 float fc = 3; //fc = cut-off frequency (in Hz)
@@ -79,6 +92,7 @@ LPF dlpf(1);
 // Timestamp variables
 unsigned long curr_millis;
 unsigned long prev_millis;
+float Ts;
 
 // Angle variables
 volatile long curr_left_angle;
@@ -98,6 +112,12 @@ volatile long filtered_right_omega;
 volatile long filtered_ch1;
 volatile long filtered_ch2;
 
+// Ultrasonic variables
+int right_side;
+int left_side;
+float distance;
+float servo;
+
 // Command variables
 float target_angle = 90.0; // in deg
 float target_omega = 100.0; // in RPM
@@ -110,8 +130,8 @@ float target_pulse_ka = 0;
 float target_speed_ki = 0;
 float target_pulse_ki = 0;
 
-int pwm_ka;
-int pwm_ki;
+int pwm_ka = 0;
+int pwm_ki = 0;
 
 // Receiver variables
 int ch1; // output channel 1
@@ -136,6 +156,9 @@ void setup() {
   motor_kanan.start();
   enc_kiri.start(callbackKiA, callbackKiB);
   enc_kanan.start(callbackKaA, callbackKaB);
+
+  // attaches the servo on pin 13 to the servo object
+  myservo.attach(13);
 
   // This will only run in debug mode
   #ifdef DEBUG
@@ -186,6 +209,14 @@ void setup() {
   Serial.print(F("Output_ka:")); Serial.print("\t");
   Serial.println();
   #endif
+
+  #ifdef ULTRASONIC
+  Serial.print("Right_Sensor");Serial.print("\t");
+  Serial.print("Left_Sensor");Serial.print("\t");
+  Serial.print("Distance");Serial.print("\t");
+  Serial.print("Angle");Serial.print("\t");
+  Serial.println();
+  #endif
 }
 
 void loop() {
@@ -195,7 +226,7 @@ void loop() {
 
   // Start timed loop for everything else (in ms)
   if (curr_millis - prev_millis >= 10) {
-    float Ts = curr_millis - prev_millis;
+    Ts = curr_millis - prev_millis;
 
     // Menerima sinyal dair receiver
     receiver();
@@ -237,7 +268,9 @@ void loop() {
       motor_kanan.rotate(pwm_ka);
     } else if(d >= 191){
       //Serial.println("Mode Auto");
-
+      
+      ultrasonicMode();
+      /*
       target_speed = 190.0*6.0/1000.0; //in deg/ms
       target_pulse = target_pulse + Ts*target_speed;
       
@@ -259,7 +292,9 @@ void loop() {
       motor_kanan.setEnable(pwm_ka);
       
       motor_kiri.rotate(pwm_ki);
-      motor_kanan.rotate(pwm_ka);
+      motor_kanan.rotate(pwm_ka);*/
+
+      
     } else {
       //Serial.println("Mode Manual");
       /*  
@@ -281,22 +316,23 @@ void loop() {
       */
 
       if(a == 0){
-        moveValue = map(b, 0, 255, 0, MAX_PWM_MOVE);
-        turnValue = map(c, 0, 255, 0, MAX_PWM_TURN);
+        moveValue = map(b, 0, 255, 0, MAX_RPM_MOVE);
+        turnValue = map(c, 0, 255, 0, MAX_RPM_TURN);
       } else if(a == 1){
-        moveValue = map(b, 0, 255, 0, -MAX_PWM_MOVE);
-        turnValue = map(c, 0, 255, 0, MAX_PWM_TURN);
+        moveValue = map(b, 0, 255, 0, -MAX_RPM_MOVE);
+        turnValue = map(c, 0, 255, 0, MAX_RPM_TURN);
       } else if(a == 2){
-        moveValue = map(b, 0, 255, 0, MAX_PWM_MOVE);
-        turnValue = map(c, 0, 255, 0, -MAX_PWM_TURN);
+        moveValue = map(b, 0, 255, 0, MAX_RPM_MOVE);
+        turnValue = map(c, 0, 255, 0, -MAX_RPM_TURN);
       } else if(a == 3){
-        moveValue = map(b, 0, 255, 0, -MAX_PWM_MOVE);
-        turnValue = map(c, 0, 255, 0, -MAX_PWM_TURN);
+        moveValue = map(b, 0, 255, 0, -MAX_RPM_MOVE);
+        turnValue = map(c, 0, 255, 0, -MAX_RPM_TURN);
       } else{
         moveValue = 0;
         turnValue = 0;
       }
 
+      /*
       target_speed_ka = (moveValue + turnValue)*6.0/1000.0; //in deg/s
       target_speed_ki = (moveValue - turnValue)*6.0/1000.0; //in deg/s
       target_pulse_ka = target_pulse_ka + Ts*target_speed_ka;
@@ -304,17 +340,19 @@ void loop() {
 
       pwm_ki = pid_left_pulse.compute(target_pulse_ki, curr_left_angle, MAX_PWM, Ts);
       pwm_ka = pid_right_pulse.compute(target_pulse_ka, curr_right_angle, MAX_PWM, Ts);
+      */
 
-      pwm_ka = dlpf.filter(pwm_ka,Ts/1000);
+      target_speed_ki = moveValue + turnValue; //in RPM
+      target_speed_ka = moveValue - turnValue;
 
-      //pwm_ka = moveValue;
-      //pwm_ki = moveValue;
-
+      pwm_ki = pid_left_omega.compute(target_speed_ki,filtered_left_omega,max_pwm,Ts);
+      pwm_ka = pid_right_omega.compute(target_speed_ka,filtered_right_omega,max_pwm,Ts);
+      
       if (target_speed_ka == 0) {
         forceStop();
       } else {
-        //motor_kanan.setEnable(pwm_ka);
-        //motor_kanan.rotate(pwm_ka);
+        motor_kanan.setEnable(pwm_ka);
+        motor_kanan.rotate(pwm_ka);
       }
 
       if (target_speed_ki == 0) {
@@ -395,11 +433,58 @@ void forceStop () {
   motor_kanan.rotate(pwm_ka);
 }
 
-
 void receiver(){
   Wire.requestFrom(ADRESS, BYTE_NUM);
   a = Wire.read();
   b = Wire.read();
   c = Wire.read();
   d = Wire.read();
+}
+
+void ultrasonicMode () {
+  right_side = digitalRead(RIGHT_IR);
+  left_side = digitalRead(LEFT_IR);
+
+  distance = sonar[0].ping_cm();
+  distance = dlpf.filter(distance, Ts/1000.0);
+
+  if (distance >= 10 && distance <= 80){
+    if (right_side == 1 && left_side == 0){
+      servo = 135;
+      target_speed_ka = MAX_RPM_MOVE;
+      target_speed_ki = -MAX_RPM_MOVE;
+    } else if (right_side == 0 && left_side == 1){
+      servo = 45;
+      target_speed_ka = -MAX_RPM_MOVE;
+      target_speed_ki = MAX_RPM_MOVE;
+    } else {
+      servo = 90;
+      target_speed_ka = MAX_RPM_MOVE;
+      target_speed_ki = MAX_RPM_MOVE;
+    } 
+  } else {
+    servo = 0;
+    target_speed_ka = 0;
+    target_speed_ki = 0;
+  }
+
+  pwm_ka = pid_right_auto.compute(target_speed_ka,filtered_right_omega,MAX_PWM,Ts);
+  pwm_ki = pid_left_auto.compute(target_speed_ki,filtered_left_omega,MAX_PWM,Ts);
+
+  if (target_speed_ka == 0) {
+    forceStop();
+  } else {
+    motor_kanan.setEnable(pwm_ka);
+    motor_kanan.rotate(pwm_ka);
+  }
+
+  if (target_speed_ki == 0) {
+    forceStop();
+  } else {
+    motor_kiri.setEnable(pwm_ki); 
+    motor_kiri.rotate(pwm_ki);
+  }
+  
+  myservo.write(servo);                  // sets the servo position according to the scaled value
+  delay(10);                           // waits for the servo to get there
 }
