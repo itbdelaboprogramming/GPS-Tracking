@@ -5,7 +5,7 @@
  * File: ekf_initialize.c
  *
  * MATLAB Coder version            : 5.4
- * C/C++ source code generated on  : 21-Nov-2022 13:51:11
+ * C/C++ source code generated on  : 08-Dec-2022 10:22:30
  */
 
 /* Include Files */
@@ -13,6 +13,7 @@
 #include "ekf.h"
 #include "ekf_data.h"
 #include "rt_nonfinite.h"
+#include <string.h>
 
 /* Function Definitions */
 /*
@@ -22,6 +23,7 @@
 void ekf_initialize(void)
 {
   x_est_not_empty_init();
+  ekf_init();
   isInitialized_ekf = true;
 }
 

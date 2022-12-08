@@ -33,12 +33,12 @@ end
 if isempty(px_a)
     px_a = zeros(10,1);
     py_a = zeros(10,1);
-end
-if isempty(px_b)
+elseif isempty(px_b)
     px_b = zeros(10,1);
     py_b = zeros(10,1);
 end
 
+if status == 0
     % GPS meas standard deviation [m]
     pos_std = 9;
     % linear velocity meas standard deviation [m]
@@ -47,11 +47,11 @@ end
     psi_1dot_std = 1.5;
     % linear accel input standard deviation [m/s2]
     V_1dot_std = 1.5;
-if status == 1
+elseif status == 1
     % GPS meas standard deviation [m]
-    pos_std = 10;
+    pos_std = 9;
     % linear velocity meas standard deviation [m]
-    V_std = 2;
+    V_std = 1.5;
     % angular velocity input/meas standard deviation [rad/s]
     psi_1dot_std = 0.1;
     % linear accel input/meas standard deviation [m/s2]
