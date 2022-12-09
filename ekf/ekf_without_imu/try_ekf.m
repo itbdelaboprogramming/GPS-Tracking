@@ -50,8 +50,8 @@ err_EKF = zeros(1,135);
 % Main loop
 for idx = 1:135
     
-    noise_lat = (rand()-0.5)*2/10^5 * 2.7;     
-    noise_lon = (rand()-0.5)*2/10^5 * 2.7;
+    noise_lat = (rand()-0.5)*2/10^5 * 3;     
+    noise_lon = (rand()-0.5)*2/10^5 * 3;
     noise_V = (rand()-0.5)*2/10^5 * 0.5;
     noise_acc = (rand()-0.5)*2/10^5 * 0.1;
     noise_gyro = (rand()-0.5)*2/10^5 * 0.05;
@@ -72,15 +72,15 @@ for idx = 1:135
     elseif idx == 50
         V = 0; psi_1dot = 0;  V_1dot=0; mode=4;
     elseif idx > 50 && idx < 65  
-        V = 0; psi_1dot = 1.05;  V_1dot=0; mode=1;
+        V = 0; psi_1dot = 1.005;  V_1dot=0; mode=1;
     elseif idx == 65
         V_1dot=9.8/dt;
     elseif idx > 65 && idx < 100
-        V = 9.8; psi_1dot = 0.90; V_1dot=0;
+        V = 9.8; psi_1dot = 0.9; V_1dot=0;
     elseif idx == 100
         V_1dot=-9.8/dt;
     elseif idx > 100 && idx < 115
-        V = 0; psi_1dot = -1.97;  V_1dot=0;
+        V = 0; psi_1dot = -1.93;  V_1dot=0;
     elseif idx == 116
         V_1dot=11.05/dt;
     elseif idx > 116 && idx < 130
@@ -99,8 +99,11 @@ for idx = 1:135
     end
     %}    
 
+    odo_VL = (2*V + 0.325*psi_1dot)/2;
+    odo_VR = (2*V - 0.325*psi_1dot)/2;
+
     % Call Kalman filter to estimate the position    
-    y = ekf(mode,dt,lat,lon,psi_1dot+noise_gyro,V+noise_V,V_1dot+noise_acc);
+    y = ekf(mode,dt,lat,lon,odo_VL+noise_V,odo_VR+noise_V);
     %y(3)
     z0_enu = lla2enu([lat0(idx),lon0(idx),800],lla0,'ellipsoid');
     z_enu = lla2enu([lat,lon,800],lla0,'ellipsoid');
@@ -110,7 +113,7 @@ for idx = 1:135
         [z_enu(1),z_enu(2)],...
         [y_enu(1),y_enu(2)],...
         [z0_enu(1),z0_enu(2)]);
-    pause(0.01);
+    pause(0.005);
     err_GPS(1,idx) = pos_err(z_enu(1),z_enu(2),z0_enu(1),z0_enu(2));
     err_EKF(1,idx) = pos_err(y_enu(1),y_enu(2),z0_enu(1),z0_enu(2));
     track(idx,1:2) = [z_enu(1),z_enu(2)];
