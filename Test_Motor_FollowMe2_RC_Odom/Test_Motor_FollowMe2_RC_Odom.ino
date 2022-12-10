@@ -396,20 +396,6 @@ void loop() {
   }
 }
 
-void forceStop () {
-  pwm_ki = 0;
-  pwm_ka = 0;
-      
-  // Rotate motor
-  motor_kiri.setEnable(pwm_ki);
-  motor_kanan.setEnable(pwm_ka);
-      
-  motor_kiri.rotate(pwm_ki);
-  motor_kanan.rotate(pwm_ka);
-
-  resetPID();
-}
-
 void ultrasonicMode () {
   right_side = digitalRead(RIGHT_IR);
   left_side = digitalRead(LEFT_IR);
@@ -491,6 +477,20 @@ void getPose (){
   filtered_right_omega = omega_right_lp.filter(right_omega, Ts/1000.0);
 }
 //----------------------------------------------------------------------------------------------------//
+
+void forceStop () {
+  pwm_ki = 0;
+  pwm_ka = 0;
+      
+  // Rotate motor
+  motor_kiri.setEnable(pwm_ki);
+  motor_kanan.setEnable(pwm_ka);
+      
+  motor_kiri.rotate(pwm_ki);
+  motor_kanan.rotate(pwm_ka);
+
+  resetPID();
+}
 
 void resetPID () {
   pid_right_auto.reset();
