@@ -19,6 +19,7 @@ class pidIr{
     pidIr(float p, float i, float d);
     
     float compute(float setpoint, float feedback, float max, float Ts);
+    void reset();
 
     private:
     float error;

@@ -22,10 +22,10 @@
 
 // To enter debug mode uncomment this line below. It will print the GPS data read from GPS.
 //#define DEBUG
-#define DEBUG_RECIVER
+//#define DEBUG_RECIVER
 //#define DEBUG_ROTATE
 //#define FILTER
-//#define MONITOR_OMEGA
+#define MONITOR_OMEGA
 //#define ULTRASONIC
 
 // Pin untuk baca receiver adalah pin digital biasa
@@ -53,7 +53,7 @@ Servo myservo; //create servo object to control the servo:
 
 // Motor pin assignment
 Motor motor_kanan(6,5,8); // Motor(int RPWM, int LPWM, int EN);
-Motor motor_kiri(9,10,7);
+Motor motor_kiri(10,9,7);
 
 // Encoder pin assignment (just use 2, 3, 10, 11, 12)
 Encoder enc_kiri(3,2); // Encoder(int pin_a, int pin_b);
@@ -215,7 +215,7 @@ void setup() {
   Serial.println();
   #endif
 
-  //delay(2000);
+  delay(2000);
 }
 
 void loop() {
@@ -265,14 +265,14 @@ void loop() {
     if(ch3 <= 1000){
       //Serial.println("Mode Hold");
 
-      target_speed_ki = MAX_RPM_MOVE; //in RPM
-      target_speed_ka = MAX_RPM_MOVE;
+      //target_speed_ki = MAX_RPM_MOVE; //in RPM
+      //target_speed_ka = MAX_RPM_MOVE;
 
-      pwm_ki = pid_left_omega.compute(target_speed_ka,filtered_left_omega,max_pwm,Ts);
-      pwm_ka = pid_right_omega.compute(target_speed_ki,filtered_right_omega,max_pwm,Ts);
+      //pwm_ki = pid_left_omega.compute(target_speed_ka,filtered_left_omega,max_pwm,Ts);
+      //pwm_ka = pid_right_omega.compute(target_speed_ki,filtered_right_omega,max_pwm,Ts);
 
-      //pwm_ki = 0;
-      //pwm_ka = 0;
+      pwm_ki = -20;
+      pwm_ka = -20;
       
       // Rotate motor
       motor_kiri.setEnable(pwm_ki);
@@ -430,6 +430,8 @@ void forceStop () {
       
   motor_kiri.rotate(pwm_ki);
   motor_kanan.rotate(pwm_ka);
+
+  reset();
 }
 
 
@@ -479,4 +481,14 @@ void ultrasonicMode () {
   
   myservo.write(servo);                  // sets the servo position according to the scaled value
   delay(10);                           // waits for the servo to get there
+}
+
+void reset () {
+  pid_right_auto.reset();
+  pid_left_auto.reset();
+  pid_right_omega.reset();
+  pid_left_omega.reset();
+  pid_right_pulse.reset();
+  pid_left_pulse.reset();
+  
 }

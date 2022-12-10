@@ -34,6 +34,12 @@ float pidIr::compute(float setpoint, float feedback, float max_output, float Ts)
     return output;
 };
 
+void pidIr::reset(){
+  output = 0;
+  last_error = 0;
+  sum_error = 0;
+}
+
 float pidIr::absolute(float val){
     if (val > 0) {
       return val;
