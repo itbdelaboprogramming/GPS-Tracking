@@ -37,7 +37,7 @@
 #define MAX_RPM_MOVE 40 // in RPM
 #define MAX_RPM_TURN 30 // in RPM
 #define PWM_THRESHOLD 150 // Batas diam motor 5/255
-#define MAX_PWM 30
+#define MAX_PWM 60
 
 #define SONAR_NUM 1      // Number of sensors.
 #define MAX_DISTANCE 200 // Maximum distance (in cm) to ping.
@@ -72,7 +72,7 @@ pidIr pid_right_angle(0.275,0.055,0.0);
 pidIr pid_left_omega(0.325,0.0012,0.512);//Kp = 0.325, Ki = 0.0012, Kd = 0.00
 pidIr pid_right_omega(0.325,0.0012,0.512);
 
-pidIr pid_left_auto(0.325,0.0012,0.512);//Kp = 0.325, Ki = 0.0012, Kd = 0.00
+pidIr pid_left_auto(0.325,0.0011,0.512);//Kp = 0.325, Ki = 0.0012, Kd = 0.00
 pidIr pid_right_auto(0.325,0.0012,0.512);
 
 pidIr pid_left_pulse(0.05,0.0,0.8);
@@ -271,8 +271,8 @@ void loop() {
       //pwm_ki = pid_left_omega.compute(target_speed_ka,filtered_left_omega,max_pwm,Ts);
       //pwm_ka = pid_right_omega.compute(target_speed_ki,filtered_right_omega,max_pwm,Ts);
 
-      pwm_ki = -20;
-      pwm_ka = -20;
+      pwm_ki = 0;
+      pwm_ka = 0;
       
       // Rotate motor
       motor_kiri.setEnable(pwm_ki);
@@ -338,8 +338,8 @@ void loop() {
       pwm_ka = pid_right_pulse.compute(target_pulse_ka, curr_right_angle, MAX_PWM, Ts);
       */
 
-      target_speed_ki = moveValue + turnValue; //in RPM
-      target_speed_ka = moveValue - turnValue;
+      target_speed_ki = moveValue - turnValue; //in RPM
+      target_speed_ka = moveValue + turnValue;
 
       pwm_ki = pid_left_omega.compute(target_speed_ka,filtered_left_omega,max_pwm,Ts);
       pwm_ka = pid_right_omega.compute(target_speed_ki,filtered_right_omega,max_pwm,Ts);

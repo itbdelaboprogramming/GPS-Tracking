@@ -21,10 +21,11 @@
 
 // To enter debug mode uncomment this line below. It will print the GPS data read from GPS.
 //#define DEBUG
+#define DEBUG_ODOM
 //#define DEBUG_RECIVER
 //#define DEBUG_ROTATE
 //#define FILTER
-#define MONITOR_OMEGA
+//#define MONITOR_OMEGA
 //#define ULTRASONIC
 
 // Pin untuk baca receiver adalah pin digital biasa
