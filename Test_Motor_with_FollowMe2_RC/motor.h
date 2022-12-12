@@ -19,13 +19,14 @@ class Motor{
 
     void start();
     void setEnable(int ena);
-    void rotate(int val);
+    void rotate();
     void debug();
 
     private:
     int rPWM;
     int lPWM;
     int EN;
+    int val;
 };
 
 #endif

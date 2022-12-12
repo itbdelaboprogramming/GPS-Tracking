@@ -52,7 +52,7 @@ NewPing sonar[SONAR_NUM] = {   // Sensor object array. Each sensor's trigger pin
 Servo myservo; //create servo object to control the servo:
 
 // Motor pin assignment
-Motor motor_kanan(6,5,8); // Motor(int RPWM, int LPWM, int EN);
+Motor motor_kanan(6,4,8); // Motor(int RPWM, int LPWM, int EN);
 Motor motor_kiri(10,9,7);
 
 // Encoder pin assignment (just use 2, 3, 10, 11, 12)
@@ -215,7 +215,7 @@ void setup() {
   Serial.println();
   #endif
 
-  delay(2000);
+  delay(1500);
 }
 
 void loop() {
@@ -274,12 +274,9 @@ void loop() {
       pwm_ki = 0;
       pwm_ka = 0;
       
-      // Rotate motor
-      motor_kiri.setEnable(pwm_ki);
-      motor_kanan.setEnable(pwm_ka);
+      // Rotate motor(ki,ka)
+      rotateMotor(pwm_ki,pwm_ka);
       
-      motor_kiri.rotate(pwm_ki);
-      motor_kanan.rotate(pwm_ka);
     } else if(ch3 >= 1500){
       //Serial.println("Mode Auto");
       
@@ -344,18 +341,10 @@ void loop() {
       pwm_ki = pid_left_omega.compute(target_speed_ka,filtered_left_omega,max_pwm,Ts);
       pwm_ka = pid_right_omega.compute(target_speed_ki,filtered_right_omega,max_pwm,Ts);
 
-      if (target_speed_ka == 0) {
+      if (target_speed_ka == 0 && target_speed_ki == 0) {
         forceStop();
       } else {
-        motor_kanan.setEnable(pwm_ka);
-        motor_kanan.rotate(pwm_ka);
-      }
-
-      if (target_speed_ki == 0) {
-        forceStop();
-      } else {
-        motor_kiri.setEnable(pwm_ki); 
-        motor_kiri.rotate(pwm_ki);
+        rotateMotor(pwm_ki,pwm_ka);
       }
     }
 
@@ -423,17 +412,19 @@ void loop() {
 void forceStop () {
   pwm_ki = 0;
   pwm_ka = 0;
-      
-  // Rotate motor
-  motor_kiri.setEnable(pwm_ki);
-  motor_kanan.setEnable(pwm_ka);
-      
-  motor_kiri.rotate(pwm_ki);
-  motor_kanan.rotate(pwm_ka);
-
-  reset();
+  
+  rotateMotor(pwm_ki,pwm_ka);   
+  resetPID();
 }
 
+void rotateMotor(int pwm_l, int pwm_r){
+  // Rotate motor
+  motor_kiri.setEnable(pwm_l);
+  motor_kanan.setEnable(pwm_r);
+      
+  motor_kiri.rotate();
+  motor_kanan.rotate();
+}
 
 void ultrasonicMode () {
   right_side = digitalRead(RIGHT_IR);
@@ -464,26 +455,18 @@ void ultrasonicMode () {
 
   pwm_ka = pid_right_auto.compute(target_speed_ka,filtered_right_omega,MAX_PWM,Ts);
   pwm_ki = pid_left_auto.compute(target_speed_ki,filtered_left_omega,MAX_PWM,Ts);
-
-  if (target_speed_ka == 0) {
+  
+  if (target_speed_ka == 0 && target_speed_ki == 0) {
     forceStop();
   } else {
-    motor_kanan.setEnable(pwm_ka);
-    motor_kanan.rotate(pwm_ka);
-  }
-
-  if (target_speed_ki == 0) {
-    forceStop();
-  } else {
-    motor_kiri.setEnable(pwm_ki); 
-    motor_kiri.rotate(pwm_ki);
+    rotateMotor(pwm_ki,pwm_ka);
   }
   
   myservo.write(servo);                  // sets the servo position according to the scaled value
   delay(10);                           // waits for the servo to get there
 }
 
-void reset () {
+void resetPID () {
   pid_right_auto.reset();
   pid_left_auto.reset();
   pid_right_omega.reset();
