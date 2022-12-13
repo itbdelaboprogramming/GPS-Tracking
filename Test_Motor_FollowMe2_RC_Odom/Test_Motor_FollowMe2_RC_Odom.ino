@@ -83,7 +83,6 @@ LPF omega_right_lp(fc);
 float fc_receiver = 1; //fc_receiver = cut-off frequency in receiver (in Hz) 
 LPF ch1_lp(fc_receiver);
 LPF ch2_lp(fc_receiver);
-
 LPF dlpf(1);
 
 // Timestamp variables
@@ -268,12 +267,8 @@ void loop() {
       pwm_ki = 0;
       pwm_ka = 0;
       
-      // Rotate motor
-      motor_kiri.setEnable(pwm_ki);
-      motor_kanan.setEnable(pwm_ka);
-      
-      motor_kiri.rotate(pwm_ki);
-      motor_kanan.rotate(pwm_ka);
+      // Rotate motor(ki,ka)
+      rotateMotor(pwm_ki,pwm_ka);
       
     } else if(ch3 >= 1500){
       //Serial.println("Mode Auto");
@@ -303,18 +298,10 @@ void loop() {
       pwm_ki = pid_left_omega.compute(target_speed_ka,filtered_left_omega,max_pwm,Ts);
       pwm_ka = pid_right_omega.compute(target_speed_ki,filtered_right_omega,max_pwm,Ts);
 
-      if (target_speed_ka == 0) {
+      if (target_speed_ka == 0 && target_speed_ki == 0) {
         forceStop();
       } else {
-        motor_kanan.setEnable(pwm_ka);
-        motor_kanan.rotate(pwm_ka);
-      }
-
-      if (target_speed_ki == 0) {
-        forceStop();
-      } else {
-        motor_kiri.setEnable(pwm_ki); 
-        motor_kiri.rotate(pwm_ki);
+        rotateMotor(pwm_ki,pwm_ka);
       }
     }
 
@@ -426,19 +413,11 @@ void ultrasonicMode () {
 
   pwm_ka = pid_right_auto.compute(target_speed_ka,filtered_right_omega,MAX_PWM,Ts);
   pwm_ki = pid_left_auto.compute(target_speed_ki,filtered_left_omega,MAX_PWM,Ts);
-
-  if (target_speed_ka == 0) {
+  
+  if (target_speed_ka == 0 && target_speed_ki == 0) {
     forceStop();
   } else {
-    motor_kanan.setEnable(pwm_ka);
-    motor_kanan.rotate(pwm_ka);
-  }
-
-  if (target_speed_ki == 0) {
-    forceStop();
-  } else {
-    motor_kiri.setEnable(pwm_ki); 
-    motor_kiri.rotate(pwm_ki);
+    rotateMotor(pwm_ki,pwm_ka);
   }
   
   myservo.write(servo);                  // sets the servo position according to the scaled value
@@ -478,18 +457,20 @@ void getPose (){
   filtered_right_omega = omega_right_lp.filter(right_omega, Ts/1000.0);
 }
 //----------------------------------------------------------------------------------------------------//
+void rotateMotor(int pwm_l, int pwm_r){
+  // Rotate motor
+  motor_kiri.setEnable(pwm_l);
+  motor_kanan.setEnable(pwm_r);
+      
+  motor_kiri.rotate();
+  motor_kanan.rotate();
+}
 
 void forceStop () {
   pwm_ki = 0;
   pwm_ka = 0;
-      
-  // Rotate motor
-  motor_kiri.setEnable(pwm_ki);
-  motor_kanan.setEnable(pwm_ka);
-      
-  motor_kiri.rotate(pwm_ki);
-  motor_kanan.rotate(pwm_ka);
-
+  
+  rotateMotor(pwm_ki,pwm_ka);   
   resetPID();
 }
 

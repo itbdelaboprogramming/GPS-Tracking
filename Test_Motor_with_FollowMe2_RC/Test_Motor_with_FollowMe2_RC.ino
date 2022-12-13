@@ -52,8 +52,8 @@ NewPing sonar[SONAR_NUM] = {   // Sensor object array. Each sensor's trigger pin
 Servo myservo; //create servo object to control the servo:
 
 // Motor pin assignment
-Motor motor_kanan(4,6,8); // Motor(int RPWM, int LPWM, int EN);
-Motor motor_kiri(9,10,7);
+Motor motor_kanan(6,5,8); // Motor(int RPWM, int LPWM, int EN);
+Motor motor_kiri(10,9,7);
 
 // Encoder pin assignment (just use 2, 3, 10, 11, 12)
 Encoder enc_kiri(3,2); // Encoder(int pin_a, int pin_b);
@@ -341,13 +341,7 @@ void loop() {
       pwm_ki = pid_left_omega.compute(target_speed_ki,filtered_left_omega,max_pwm,Ts);
       pwm_ka = pid_right_omega.compute(target_speed_ka,filtered_right_omega,max_pwm,Ts);
 
-      if (target_speed_ka == 0) {
-        forceStop();
-      } else {
-        rotateMotor(pwm_ki,pwm_ka);
-      }
-
-      if (target_speed_ki == 0) {
+      if (target_speed_ka == 0 && target_speed_ki == 0) {
         forceStop();
       } else {
         rotateMotor(pwm_ki,pwm_ka);
