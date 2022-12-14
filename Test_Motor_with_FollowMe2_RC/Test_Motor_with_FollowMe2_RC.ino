@@ -22,20 +22,20 @@
 
 // To enter debug mode uncomment this line below. It will print the GPS data read from GPS.
 //#define DEBUG
-//#define DEBUG_RECIVER
+#define DEBUG_RECIVER
 //#define DEBUG_ROTATE
 //#define FILTER
-#define MONITOR_OMEGA
+//#define MONITOR_OMEGA
 //#define ULTRASONIC
 
 // Pin untuk baca receiver adalah pin digital biasa
-#define PIN_CH_1 50
-#define PIN_CH_2 48
+#define PIN_CH_1 48
+#define PIN_CH_2 50
 #define PIN_CH_3 52
 
 // Nilai max pwm maju
-#define MAX_RPM_MOVE 40 // in RPM
-#define MAX_RPM_TURN 30 // in RPM
+#define MAX_RPM_MOVE 70 // in RPM
+#define MAX_RPM_TURN 40 // in RPM
 #define PWM_THRESHOLD 150 // Batas diam motor 5/255
 #define MAX_PWM 60
 
@@ -215,12 +215,11 @@ void setup() {
   Serial.println();
   #endif
 
-  delay(1500);
+  delay(3000);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-
   curr_millis = millis();   // Bookmark the time 
 
   // Start timed loop for everything else (in ms)
@@ -271,7 +270,7 @@ void loop() {
       //pwm_ki = pid_left_omega.compute(target_speed_ka,filtered_left_omega,max_pwm,Ts);
       //pwm_ka = pid_right_omega.compute(target_speed_ki,filtered_right_omega,max_pwm,Ts);
 
-      pwm_ki = 20;
+      pwm_ki = 0;
       pwm_ka = 0;
       
       // Rotate motor(ki,ka)
@@ -335,8 +334,8 @@ void loop() {
       pwm_ka = pid_right_pulse.compute(target_pulse_ka, curr_right_angle, MAX_PWM, Ts);
       */
 
-      target_speed_ki = moveValue - turnValue; //in RPM
-      target_speed_ka = moveValue + turnValue;
+      target_speed_ki = moveValue + turnValue; //in RPM
+      target_speed_ka = moveValue - turnValue;
 
       pwm_ki = pid_left_omega.compute(target_speed_ki,filtered_left_omega,max_pwm,Ts);
       pwm_ka = pid_right_omega.compute(target_speed_ka,filtered_right_omega,max_pwm,Ts);
@@ -436,16 +435,16 @@ void ultrasonicMode () {
   if (distance >= 10 && distance <= 80){
     if (right_side == 1 && left_side == 0){
       servo = 135;
-      target_speed_ka = MAX_RPM_MOVE;
-      target_speed_ki = -MAX_RPM_MOVE;
+      target_speed_ka = MAX_RPM_MOVE - 20;
+      target_speed_ki = -MAX_RPM_MOVE + 20;
     } else if (right_side == 0 && left_side == 1){
       servo = 45;
-      target_speed_ka = -MAX_RPM_MOVE;
-      target_speed_ki = MAX_RPM_MOVE;
+      target_speed_ka = -MAX_RPM_MOVE + 20;
+      target_speed_ki = MAX_RPM_MOVE - 20;
     } else {
       servo = 90;
-      target_speed_ka = MAX_RPM_MOVE;
-      target_speed_ki = MAX_RPM_MOVE;
+      target_speed_ka = MAX_RPM_MOVE - 20;
+      target_speed_ki = MAX_RPM_MOVE - 20;
     } 
   } else {
     servo = 0;
@@ -462,7 +461,7 @@ void ultrasonicMode () {
     rotateMotor(pwm_ki,pwm_ka);
   }
   
-  myservo.write(servo);                  // sets the servo position according to the scaled value
+  myservo.write(servo);                // sets the servo position according to the scaled value
   delay(10);                           // waits for the servo to get there
 }
 
@@ -473,5 +472,4 @@ void resetPID () {
   pid_left_omega.reset();
   pid_right_pulse.reset();
   pid_left_pulse.reset();
-  
 }
