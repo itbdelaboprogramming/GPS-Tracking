@@ -270,7 +270,7 @@ void loop() {
       //pwm_ki = pid_left_omega.compute(target_speed_ka,filtered_left_omega,max_pwm,Ts);
       //pwm_ka = pid_right_omega.compute(target_speed_ki,filtered_right_omega,max_pwm,Ts);
 
-      pwm_ki = 0;
+      pwm_ki = 20;
       pwm_ka = 0;
       
       // Rotate motor(ki,ka)

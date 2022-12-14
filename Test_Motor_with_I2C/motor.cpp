@@ -30,6 +30,7 @@ void Motor::start(){
 // Set "ena" to be HIGH to activate the motor
 void Motor::setEnable(int ena){
     // Set the enable pin to be HIGH when "ena" is HIGH
+    val = ena;
     if (ena >= 0) {
         analogWrite(EN,ena);
     } else {
@@ -38,7 +39,7 @@ void Motor::setEnable(int ena){
 };
 
 // Method to assign PWM value and rotate the motor
-void Motor::rotate(int val){
+void Motor::rotate(){
     // Rotate CW when the value of "val" is more than 0
     // and rotate CCW when the value is less then 0
     if (val >= 0) {

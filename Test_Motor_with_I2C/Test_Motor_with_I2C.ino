@@ -72,7 +72,7 @@ void callbackKaB(){enc_kanan.doEncoderB();}
 pidIr pid_left_omega(0.325,0.0012,0.512);//Kp = 0.325, Ki = 0.0012, Kd = 0.00
 pidIr pid_right_omega(0.325,0.0012,0.512);
 
-pidIr pid_left_auto(0.325,0.0012,0.512);//Kp = 0.325, Ki = 0.0012, Kd = 0.00
+pidIr pid_left_auto(0.325,0.0011,0.512);//Kp = 0.325, Ki = 0.0012, Kd = 0.00
 pidIr pid_right_auto(0.325,0.0012,0.512);
 
 pidIr pid_left_pulse(0.05,0.0,0.8);
@@ -260,12 +260,9 @@ void loop() {
       pwm_ki = 0;
       pwm_ka = 0;
       
-      // Rotate motor
-      motor_kiri.setEnable(pwm_ki);
-      motor_kanan.setEnable(pwm_ka);
+      // Rotate motor(ki,ka)
+      rotateMotor(pwm_ki,pwm_ka);
       
-      motor_kiri.rotate(pwm_ki);
-      motor_kanan.rotate(pwm_ka);
     } else if(d >= 191){
       //Serial.println("Mode Auto");
       
@@ -348,18 +345,10 @@ void loop() {
       pwm_ki = pid_left_omega.compute(target_speed_ki,filtered_left_omega,max_pwm,Ts);
       pwm_ka = pid_right_omega.compute(target_speed_ka,filtered_right_omega,max_pwm,Ts);
       
-      if (target_speed_ka == 0) {
+      if (target_speed_ka == 0 && target_speed_ki == 0) {
         forceStop();
       } else {
-        motor_kanan.setEnable(pwm_ka);
-        motor_kanan.rotate(pwm_ka);
-      }
-
-      if (target_speed_ki == 0) {
-        forceStop();
-      } else {
-        motor_kiri.setEnable(pwm_ki); 
-        motor_kiri.rotate(pwm_ki);
+        rotateMotor(pwm_ki,pwm_ka);
       }
     }
     //------------------------------------------------------------------------------------------------//
@@ -421,16 +410,21 @@ void loop() {
   }
 }
 
+void rotateMotor(int pwm_l, int pwm_r){
+  // Rotate motor
+  motor_kiri.setEnable(pwm_l);
+  motor_kanan.setEnable(pwm_r);
+      
+  motor_kiri.rotate();
+  motor_kanan.rotate();
+}
+
 void forceStop () {
   pwm_ki = 0;
   pwm_ka = 0;
-      
-  // Rotate motor
-  motor_kiri.setEnable(pwm_ki);
-  motor_kanan.setEnable(pwm_ka);
-      
-  motor_kiri.rotate(pwm_ki);
-  motor_kanan.rotate(pwm_ka);
+  
+  rotateMotor(pwm_ki,pwm_ka);   
+  resetPID();
 }
 
 void receiver(){
@@ -451,16 +445,16 @@ void ultrasonicMode () {
   if (distance >= 10 && distance <= 80){
     if (right_side == 1 && left_side == 0){
       servo = 135;
-      target_speed_ka = MAX_RPM_MOVE;
-      target_speed_ki = -MAX_RPM_MOVE;
+      target_speed_ka = MAX_RPM_MOVE - 20;
+      target_speed_ki = -MAX_RPM_MOVE + 20;
     } else if (right_side == 0 && left_side == 1){
       servo = 45;
-      target_speed_ka = -MAX_RPM_MOVE;
-      target_speed_ki = MAX_RPM_MOVE;
+      target_speed_ka = -MAX_RPM_MOVE + 20;
+      target_speed_ki = MAX_RPM_MOVE - 20;
     } else {
       servo = 90;
-      target_speed_ka = MAX_RPM_MOVE;
-      target_speed_ki = MAX_RPM_MOVE;
+      target_speed_ka = MAX_RPM_MOVE - 20;
+      target_speed_ki = MAX_RPM_MOVE - 20;
     } 
   } else {
     servo = 0;
@@ -471,20 +465,27 @@ void ultrasonicMode () {
   pwm_ka = pid_right_auto.compute(target_speed_ka,filtered_right_omega,MAX_PWM,Ts);
   pwm_ki = pid_left_auto.compute(target_speed_ki,filtered_left_omega,MAX_PWM,Ts);
 
-  if (target_speed_ka == 0) {
+  if (target_speed_ka == 0 && target_speed_ki == 0) {
     forceStop();
   } else {
-    motor_kanan.setEnable(pwm_ka);
-    motor_kanan.rotate(pwm_ka);
+    rotateMotor(pwm_ki,pwm_ka);
   }
 
   if (target_speed_ki == 0) {
     forceStop();
   } else {
-    motor_kiri.setEnable(pwm_ki); 
-    motor_kiri.rotate(pwm_ki);
+    rotateMotor(pwm_ki,pwm_ka);
   }
   
   myservo.write(servo);                  // sets the servo position according to the scaled value
   delay(10);                           // waits for the servo to get there
+}
+
+void resetPID () {
+  pid_right_auto.reset();
+  pid_left_auto.reset();
+  pid_right_omega.reset();
+  pid_left_omega.reset();
+  pid_right_pulse.reset();
+  pid_left_pulse.reset();
 }
