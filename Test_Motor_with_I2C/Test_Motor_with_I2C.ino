@@ -410,6 +410,14 @@ void loop() {
   }
 }
 
+void receiver(){
+  Wire.requestFrom(ADRESS, BYTE_NUM);
+  a = Wire.read();
+  b = Wire.read();
+  c = Wire.read();
+  d = Wire.read();
+}
+
 void rotateMotor(int pwm_l, int pwm_r){
   // Rotate motor
   motor_kiri.setEnable(pwm_l);
@@ -425,14 +433,6 @@ void forceStop () {
   
   rotateMotor(pwm_ki,pwm_ka);   
   resetPID();
-}
-
-void receiver(){
-  Wire.requestFrom(ADRESS, BYTE_NUM);
-  a = Wire.read();
-  b = Wire.read();
-  c = Wire.read();
-  d = Wire.read();
 }
 
 void ultrasonicMode () {
@@ -466,12 +466,6 @@ void ultrasonicMode () {
   pwm_ki = pid_left_auto.compute(target_speed_ki,filtered_left_omega,MAX_PWM,Ts);
 
   if (target_speed_ka == 0 && target_speed_ki == 0) {
-    forceStop();
-  } else {
-    rotateMotor(pwm_ki,pwm_ka);
-  }
-
-  if (target_speed_ki == 0) {
     forceStop();
   } else {
     rotateMotor(pwm_ki,pwm_ka);
