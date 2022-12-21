@@ -21,17 +21,18 @@
 
 // To enter debug mode uncomment this line below. It will print the GPS data read from GPS.
 //#define DEBUG
-#define DEBUG_ODOM
-//#define DEBUG_RECIVER
+//#define DEBUG_ODOM
+#define DEBUG_RECIVER
 //#define DEBUG_ROTATE
 //#define FILTER
 //#define MONITOR_OMEGA
 //#define ULTRASONIC
 
 // Pin untuk baca receiver adalah pin digital biasa
-#define PIN_CH_1 50
+#define PIN_CH_1 46
 #define PIN_CH_2 48
-#define PIN_CH_3 52
+#define PIN_CH_3 50
+#define PIN_CH_4 52
 
 // Constants
 #define LOOPTIME 10 //in ms
@@ -55,8 +56,8 @@ NewPing sonar[SONAR_NUM] = {   // Sensor object array. Each sensor's trigger pin
 Servo myservo; //create servo object to control the servo:
 
 // Motor pin assignment
-Motor motor_kanan(6,5,8); // Motor(int RPWM, int LPWM, int EN);
-Motor motor_kiri(10,9,7);
+Motor motor_kanan(30,31,4); // Motor(int RPWM, int LPWM, int EN);
+Motor motor_kiri(32,33,5);
 
 // Encoder pin assignment (just use 2, 3, 10, 11, 12)
 Encoder enc_kiri(3,2); // Encoder(int pin_a, int pin_b);
@@ -138,6 +139,7 @@ float Theta = 0;
 int ch1; // output channel 1
 int ch2; // output channel 2
 int ch3; // output channel 3
+int ch4; // output channel 4
 int moveValue; // nilai pwm gerakan maju-mundur
 int turnValue; // nilai pwm gerakan kiri-kanan
 
@@ -152,9 +154,13 @@ void setup() {
   enc_kanan.start(callbackKaA, callbackKaB);
 
   //Receiver pin
+  /* 
   pinMode(PIN_CH_1, INPUT);
   pinMode(PIN_CH_2, INPUT);
   pinMode(PIN_CH_3, INPUT);
+  pinMode(PIN_CH_4, INPUT);
+  */
+  setModeReceiver();
 
   // attaches the servo on pin 13 to the servo object
   myservo.attach(13);
@@ -238,14 +244,21 @@ void loop() {
     Ts = curr_millis - prev_millis;
 
     // Menerima sinyal pwm dari receiver
+    /*
     ch1 = pulseIn(PIN_CH_1, HIGH, 1000000*2);
     ch2 = pulseIn(PIN_CH_2, HIGH, 1000000*2);
     ch3 = pulseIn(PIN_CH_3, HIGH, 1000000*2);
+    ch4 = pulseIn(PIN_CH_4, HIGH, 1000000*2);
+    */
 
     // Membatasi nilai pwm yang terbaca
+    /*
     ch1 = constrain(ch1, 1000, 2000);
     ch2 = constrain(ch2, 1000, 2000);
     ch3 = constrain(ch3, 1000, 2000);
+    ch4 = constrain(ch4, 1000, 2000);
+    */
+    receiver();
 
     filtered_ch1 = ch1_lp.filter(ch1, Ts/1000.0);
     filtered_ch2 = ch2_lp.filter(ch2, Ts/1000.0);
@@ -275,7 +288,8 @@ void loop() {
       ultrasonicMode();
       
     } else {
-      //Serial.println("Mode Manual");  
+      //Serial.println("Mode Manual");
+      /*
       if(filtered_ch1 >= 1500+PWM_THRESHOLD){
         moveValue = map(filtered_ch1, 1500+PWM_THRESHOLD, 2000, 0, MAX_RPM_MOVE);
       } else if(filtered_ch1 <= 1500-PWM_THRESHOLD){
@@ -291,6 +305,10 @@ void loop() {
       } else {
         turnValue = 0;
       }
+      */
+
+      moveValue = tuningReceiverSignal(filtered_ch1, MAX_RPM_MOVE);
+      turnValue = tuningReceiverSignal(filtered_ch2, MAX_RPM_TURN);
 
       target_speed_ki = moveValue + turnValue; //in RPM
       target_speed_ka = moveValue - turnValue;
@@ -318,6 +336,7 @@ void loop() {
     Serial.print(ch1); Serial.print("\t");
     Serial.print(ch2); Serial.print("\t");
     Serial.print(ch3); Serial.print("\t");
+    Serial.print(ch4); Serial.print("\t");
     Serial.println();
     #endif
 
@@ -487,4 +506,33 @@ float radian (float degree){
 
 float degree (float radian){
   return radian*180.0/PI;
+}
+
+void setModeReceiver(){
+  pinMode(PIN_CH_1, INPUT);
+  pinMode(PIN_CH_2, INPUT);
+  pinMode(PIN_CH_3, INPUT);
+  pinMode(PIN_CH_4, INPUT);
+}
+
+void receiver(){
+  ch1 = pulseIn(PIN_CH_1, HIGH, 1000000*2);
+  ch2 = pulseIn(PIN_CH_2, HIGH, 1000000*2);
+  ch3 = pulseIn(PIN_CH_3, HIGH, 1000000*2);
+  ch4 = pulseIn(PIN_CH_4, HIGH, 1000000*2);
+
+  ch1 = constrain(ch1, 1000, 2000);
+  ch2 = constrain(ch2, 1000, 2000);
+  ch3 = constrain(ch3, 1000, 2000);
+  ch4 = constrain(ch4, 1000, 2000);
+}
+
+int tuningReceiverSignal(int ch_value, int max_value){
+  if(ch_value >= 1500 + PWM_THRESHOLD){
+    return map(ch_value, 1500 + PWM_THRESHOLD, 2000, 0, max_value);
+  } else if(ch_value <= 1500 - PWM_THRESHOLD){
+    return map(ch_value, 1500 - PWM_THRESHOLD, 1000, 0, -max_value);
+  } else {
+    return 0;
+  }
 }
