@@ -30,11 +30,11 @@ px_a = np.zeros((10,1)) # position X at point A
 py_a = np.zeros((10,1)) # position y at point A
 px_b = np.zeros((10,1)) # position X at point B
 py_b = np.zeros((10,1)) # position y at point B
-head_a = None   # headings at point A (uncalibrated)
-head_b = None   # headings at point B (uncalibrated)
+head_a = 0   # headings at point A (uncalibrated)
+head_b = 0   # headings at point B (uncalibrated)
 # Tuning parameter:
-gps_std = None  # GPS measurments' standard deviation
-odo_std = None  # odometry measurments' standard deviation
+gps_std = 10  # GPS measurments' standard deviation
+odo_std = 10  # odometry measurments' standard deviation
 
 # numerical jacobian perturbation increment
 dx = 0.0001
@@ -67,23 +67,22 @@ def wrapAngle(angle):
     return wrap
 
 ## PREDICTION STEP
-def predict(x_est,p_est,Cv,Bv,alpha,odo_V,odo_psi_1dot,dt):
+def predict(x_est,p_est,odo_V,odo_psi_1dot,dt):
     global odo_std,dx,L2
     # Predicted state
-    x_prd = np.array([[x_est[0,0] + (dt * Cv * odo_V * np.sin(x_est[2,0] - alpha)) + Bv*(np.sin(x_est[2,0])-np.sin(x_est[2,0] + dt * odo_psi_1dot))],\
-        [x_est[1,0] + (dt * Cv * odo_V * np.cos(x_est[2,0] - alpha)) + Bv*(np.cos(x_est[2,0])-np.cos(x_est[2,0] + dt * odo_psi_1dot))],\
+    x_prd = np.array([[x_est[0,0] + (dt * odo_V * np.sin(x_est[2,0]))],\
+        [x_est[1,0] + (dt * odo_V * np.cos(x_est[2,0]))],\
             [wrapAngle(x_est[2,0] + (dt * odo_psi_1dot))]])
     # Jacobian of system function (predicted state)
-    #print([x_prd[0,0],x_prd[0,0]])
-    jac_fx = np.subtract(np.transpose(np.array([[x_est[0,0] + dx + dt * Cv * odo_V * np.sin(x_est[2,0] - alpha) + Bv*(np.sin(x_est[2,0])-np.sin(x_est[2,0] + dt * odo_psi_1dot)),\
-        x_est[1,0] + dt * Cv * odo_V * np.cos(x_est[2,0] - alpha) + Bv*(np.cos(x_est[2,0])-np.cos(x_est[2,0] + dt * odo_psi_1dot)),\
+    jac_fx = np.subtract(np.transpose(np.array([[x_est[0,0]+dx + dt * odo_V * np.sin(x_est[2,0]),\
+        x_est[1,0] + dt * odo_V * np.cos(x_est[2,0]),\
             wrapAngle(x_est[2,0] + dt * odo_psi_1dot)],\
-                [x_est[0,0] + dt * Cv * odo_V * np.sin(x_est[2,0] - alpha) + Bv*(np.sin(x_est[2,0])-np.sin(x_est[2,0] + dt * odo_psi_1dot)),\
-                    x_est[1,0] + dx + dt * Cv * odo_V * np.cos(x_est[2,0] - alpha) + Bv*(np.cos(x_est[2,0])-np.cos(x_est[2,0] + dt * odo_psi_1dot)),\
+                [x_est[0,0] + dt * odo_V * np.sin(x_est[2,0]),\
+                    x_est[1,0]+dx + dt * odo_V * np.cos(x_est[2,0]),\
                         wrapAngle(x_est[2,0] + dt * odo_psi_1dot)],\
-                            [x_est[0,0] + dt * Cv * odo_V * np.sin(x_est[2,0] + dx - alpha) + Bv*(np.sin(x_est[2,0] + dx)-np.sin(x_est[2,0]+dx + dt * odo_psi_1dot)),\
-                                x_est[1,0] + dt * Cv * odo_V * np.cos(x_est[2,0] + dx - alpha) + Bv*(np.cos(x_est[2,0] + dx)-np.cos(x_est[2,0]+dx + dt * odo_psi_1dot)),\
-                                    wrapAngle(x_est[2,0] + dx + dt * odo_psi_1dot)]])),\
+                            [x_est[0,0] + dt * odo_V * np.sin(x_est[2,0]+dx),\
+                                x_est[1,0] + dt * odo_V * np.cos(x_est[2,0]+dx),\
+                                    wrapAngle(x_est[2,0]+dx + dt * odo_psi_1dot)]])),\
                                         np.array([[x_prd[0,0], x_prd[0,0], x_prd[0,0]],\
                                             [x_prd[1,0], x_prd[1,0], x_prd[1,0]],\
                                                 [x_prd[2,0], x_prd[2,0], x_prd[2,0]]])) / dx
@@ -97,9 +96,9 @@ def predict(x_est,p_est,Cv,Bv,alpha,odo_V,odo_psi_1dot,dt):
     
 ## UPDATE STEP  
 def update(x_prd,p_prd,enu):
-    global gps_std,dx
+    global gps_std,dx,L1
     # Measurement Innovation
-    z = np.array([[enu[0]], [enu[1]]])
+    z = np.array([[enu[0] + L1*np.sin(x_prd[2,0])], [enu[1] + L1*np.cos(x_prd[2,0])]])
     z_prd = np.array([[x_prd[0,0]], [x_prd[1,0]]])
     u = np.subtract(z,z_prd)
     # Jacobian of measurement function
@@ -135,34 +134,17 @@ def filtering(mode,dt,lat,lon,odo_VL,odo_VR):
     odo_V = (odo_VL + odo_VR) / 2
     odo_psi_1dot = (odo_VL - odo_VR) / L2
     
-    # Skid-steering parameter
-    if odo_psi_1dot**2 < 0.1:
-        Cv = 1
-        Bv = 0
-        alpha = 0
-    else:
-        if odo_V**2 < 0.1 and odo_psi_1dot > 0:
-            Cv = 0
-            Bv = L1
-            alpha = np.pi / 2
-        else:
-            if odo_V**2 < 0.1 and odo_psi_1dot < 0:
-                Cv = 0
-                Bv = L1
-                alpha = - np.pi / 2
-            else:
-                Cv = np.sqrt(L1**2 + (odo_V / odo_psi_1dot)**2) / (odo_V / odo_psi_1dot)
-                Bv = 0
-                alpha = np.arctan(L1 / (odo_V / odo_psi_1dot))
     
     # KALMAN FILTERING
-    x_prd,p_prd = predict(x_est,p_est,Cv,Bv,alpha,odo_V,odo_psi_1dot,dt)
+    x_prd,p_prd = predict(x_est,p_est,odo_V,odo_psi_1dot,dt)
     #print(p_prd)
     #print(p_est)
     if mode == 0:
         # without GPS measurement
         x_est = x_prd
         p_est = p_prd
+        if last == 'point A':
+            head_b = head_b + (dt * odo_psi_1dot)
     else:
         # with GPS measurement
         x_est,p_est = update(x_prd,p_prd,enu)

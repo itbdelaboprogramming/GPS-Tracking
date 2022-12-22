@@ -15,26 +15,23 @@
 import numpy as np
 import pymap3d as pm
 
-## KALMAN FILTER VARIABLES
+## KALMAN FILTER VARIABLE & TUNING PARAMETER
 # Variable initialization
-x_est = np.array([[None],[None],[None]])    # estimated states (Px,Py,psi)
-p_est = np.eye(3)                           # estimated states' covariance matrix
-x_prd = np.array([[None],[None],[None]])    # predicted states (P'x,P'y,psi')
-p_prd = np.eye(3)                           # predicted states' covariance matrix
-# Calibration Procedure Parameter:
-cal = 0             # headings callibration data index 
-last = 'point B'    # headings callibration position marker
-status = 0          # headings callibration status
-# calibration calculation parameter:
-px_a = np.zeros((10,1)) # position X at point A
-py_a = np.zeros((10,1)) # position y at point A
-px_b = np.zeros((10,1)) # position X at point B
-py_b = np.zeros((10,1)) # position y at point B
-head_a = None   # headings at point A (uncalibrated)
-head_b = None   # headings at point B (uncalibrated)
-# Tuning parameter:
-gps_std = None  # GPS measurments' standard deviation
-odo_std = None  # odometry measurments' standard deviation
+x_est = np.array([[None],[None],[None]])
+p_est = np.eye(3)
+x_prd = np.array([[None],[None],[None]])
+p_prd = np.eye(3)
+cal = 0
+last = 'point B'
+status = 0
+px_a = np.zeros((10,1))
+py_a = np.zeros((10,1))
+px_b = np.zeros((10,1))
+py_b = np.zeros((10,1))
+head_a = 0
+head_b = 0
+gps_std = 1
+odo_std = 1
 
 # numerical jacobian perturbation increment
 dx = 0.0001
@@ -50,18 +47,18 @@ def setPar(status,x_init,enu):
     global gps_std, odo_std, x_est
     # GPS meas standard deviation [m]
     gps_std = 5
-    # odometry meas standard deviation [m/s]
+    # odometry linear velocity meas standard deviation [m/s]
     odo_std = 5
     if status == 1:
         # GPS meas standard deviation [m]
         gps_std = 10
-        # odometry meas standard deviation [m/s]
+        # odometry linear velocity meas standard deviation [m/s]
         odo_std = 0.1
 
     if x_init == None:
         x_est = np.array([[enu[0]],[enu[1]],[0]])
 
-##  ~wrapAngle [to make sure 0 < psi < 2*pi]
+##  ~wrapAngle [to make sure -pi/2 < psi < pi/2]
 def wrapAngle(angle): 
     wrap = angle%(2*np.pi)
     return wrap
