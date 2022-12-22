@@ -56,8 +56,8 @@ Motor motor_kanan(6,5,8); // Motor(int LPWM, int RPWM, int EN);
 Motor motor_kiri(10,9,7); // Motor(int RPWM, int LPWM, int EN);
 
 // Encoder pin assignment (just use 2, 3, 10, 11, 12)
-Encoder enc_kiri(3,2); // Encoder(int pin_a, int pin_b);
-Encoder enc_kanan(12,11); // Encoder(int pin_b, int pin_a);
+Encoder enc_kiri(3,2); // Encoder(int pin_b, int pin_a);
+Encoder enc_kanan(12,11); // Encoder(int pin_a, int pin_b);
 
 // Encoder callback function
 void callbackKiA(){enc_kiri.doEncoderA();}
