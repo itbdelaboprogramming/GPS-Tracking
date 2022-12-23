@@ -447,16 +447,21 @@ void getPose (){
   double a = (dAngR + dAngL)/(dAngR - dAngL)*WHEEL_DISTANCE/2.0;
 
   //Updating the pose of the vehicle for diff. drive
-  if (dAngL == dAngR) {
+  /*
+  if (pow((dAngL-dAngR),2) < 0.0001 ) {
     posX = posX + WHEEL_RADIUS/2.0*(dAngR + dAngL)*cos(Theta);
-    posY = posY + WHEEL_RADIUS/2.0*(dAngR + dAngL)*cos(Theta);
-  } else if (dAngL == -dAngR) {
+    posY = posY + WHEEL_RADIUS/2.0*(dAngR + dAngL)*sin(Theta);
+  } else if ((pow(abs(dAngL-dAngR)-abs(2*dAngL),2) < 0.0001) || (pow(abs(dAngL-dAngR)-abs(2*dAngR),2) < 0.0001)) {
     Theta = Theta + (dAngR - dAngL)*WHEEL_RADIUS/WHEEL_DISTANCE;
   } else {
     posX = posX - a*sin(Theta) + a*sin(Theta + (dAngR - dAngL)*WHEEL_RADIUS/WHEEL_DISTANCE);
     posY = posY + a*cos(Theta) - a*cos(Theta + (dAngR - dAngL)*WHEEL_RADIUS/WHEEL_DISTANCE);
     Theta = Theta + (dAngR - dAngL)*WHEEL_RADIUS/WHEEL_DISTANCE;
   }
+  */
+  posX = posX + WHEEL_RADIUS/2.0*(dAngR + dAngL)*sin(Theta);
+  posY = posY + WHEEL_RADIUS/2.0*(dAngR + dAngL)*cos(Theta);
+  Theta = Theta + (dAngR - dAngL)*WHEEL_RADIUS/WHEEL_DISTANCE;
 
   // Omega
   left_omega = (curr_left_angle-prev_left_angle)/(Ts/1000.0)/6.0; //in RPM
