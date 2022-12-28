@@ -8,6 +8,15 @@ prevCircle = None
 prevX = None
 prevArea = None
 
+# check_depth_direction: used to tell front/back direction of an object
+def check_depth_direction(prevarea, curarea):
+    if abs(curarea-prevarea) <= 300:
+        return "idle"
+    elif curarea-prevarea < -300:
+        return "front"
+    else:
+        return "back"
+
 # check_horizontal_direction: used to tell direction of an object
 def check_horizontal_direction(curx, width):
     center = width/2
@@ -202,6 +211,7 @@ while True:
                 
                 # direction of the detected object
                 direction = check_horizontal_direction(center_x, width)
+                depth = check_depth_direction(prevArea, area)
                 # direction = check_horizontal_direction_fixed(prevX, center_x)
 
                 # cropped frame using the coordinates of the rectangle surrounding an object
