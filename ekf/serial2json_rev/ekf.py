@@ -36,6 +36,10 @@ head_b = 0   # headings at point B (uncalibrated)
 gps_std = 10  # GPS measurments' standard deviation
 odo_std = 10  # odometry measurments' standard deviation
 
+# general arc motion variables
+s_fwd = None    # forward displacement at local coordinate
+s_str = None    # striding displacement at local coordinate
+
 # numerical jacobian perturbation increment
 dx = 0.0001
 # GPS distance to mid section of tire [m]
@@ -67,21 +71,21 @@ def wrapAngle(angle):
     return wrap
 
 ## PREDICTION STEP
-def predict(x_est,p_est,odo_V,odo_psi_1dot,dt):
-    global odo_std,dx,L2
+def predict(x_est,p_est,odo_psi_1dot,dt):
+    global odo_std,dx,L2,s_fwd,s_str
     # Predicted state
-    x_prd = np.array([[x_est[0,0] + (dt * odo_V * np.sin(x_est[2,0]))],\
-        [x_est[1,0] + (dt * odo_V * np.cos(x_est[2,0]))],\
+    x_prd = np.array([[x_est[0,0] + (s_fwd * np.cos(x_est[2,0])) - (s_str * np.sin(x_est[2,0]))],\
+        [x_est[1,0] + (s_fwd * np.sin(x_est[2,0])) + (s_str * np.cos(x_est[2,0]))],\
             [wrapAngle(x_est[2,0] + (dt * odo_psi_1dot))]])
     # Jacobian of system function (predicted state)
-    jac_fx = np.subtract(np.transpose(np.array([[x_est[0,0]+dx + dt * odo_V * np.sin(x_est[2,0]),\
-        x_est[1,0] + dt * odo_V * np.cos(x_est[2,0]),\
+    jac_fx = np.subtract(np.transpose(np.array([[x_est[0,0]+dx + (s_fwd * np.cos(x_est[2,0])) - (s_str * np.sin(x_est[2,0])),\
+        x_est[1,0] + (s_fwd * np.sin(x_est[2,0])) + (s_str * np.cos(x_est[2,0])),\
             wrapAngle(x_est[2,0] + dt * odo_psi_1dot)],\
-                [x_est[0,0] + dt * odo_V * np.sin(x_est[2,0]),\
-                    x_est[1,0]+dx + dt * odo_V * np.cos(x_est[2,0]),\
+                [x_est[0,0] + (s_fwd * np.cos(x_est[2,0])) - (s_str * np.sin(x_est[2,0])),\
+                    x_est[1,0]+dx + (s_fwd * np.sin(x_est[2,0])) + (s_str * np.cos(x_est[2,0])),\
                         wrapAngle(x_est[2,0] + dt * odo_psi_1dot)],\
-                            [x_est[0,0] + dt * odo_V * np.sin(x_est[2,0]+dx),\
-                                x_est[1,0] + dt * odo_V * np.cos(x_est[2,0]+dx),\
+                            [x_est[0,0] + (s_fwd * np.cos(x_est[2,0]+dx)) - (s_str * np.sin(x_est[2,0]+dx)),\
+                                x_est[1,0] + (s_fwd * np.sin(x_est[2,0]+dx)) + (s_str * np.cos(x_est[2,0]+dx)),\
                                     wrapAngle(x_est[2,0]+dx + dt * odo_psi_1dot)]])),\
                                         np.array([[x_prd[0,0], x_prd[0,0], x_prd[0,0]],\
                                             [x_prd[1,0], x_prd[1,0], x_prd[1,0]],\
@@ -98,7 +102,7 @@ def predict(x_est,p_est,odo_V,odo_psi_1dot,dt):
 def update(x_prd,p_prd,enu):
     global gps_std,dx,L1
     # Measurement Innovation
-    z = np.array([[enu[0] + L1*np.sin(x_prd[2,0])], [enu[1] + L1*np.cos(x_prd[2,0])]])
+    z = np.array([[enu[0] + L1*np.cos(x_prd[2,0])], [enu[1] + L1*np.sin(x_prd[2,0])]])
     z_prd = np.array([[x_prd[0,0]], [x_prd[1,0]]])
     u = np.subtract(z,z_prd)
     # Jacobian of measurement function
@@ -122,7 +126,7 @@ def filtering(mode,dt,lat,lon,odo_VL,odo_VR):
     global dx,L1,L2,lla0,\
         x_est,p_est,x_prd,p_prd,\
             cal,last,status,px_a,py_a,px_b,py_b,head_a,head_b,\
-                gps_std,odo_std
+                gps_std,odo_std,s_fwd,s_str
 
     # GPS coordinate conversion from latitude,longitude [deg] to east-x,north-y [m]
     enu = pm.geodetic2enu(lat,lon,lla0[2],lla0[0],lla0[1],lla0[2])
@@ -133,12 +137,18 @@ def filtering(mode,dt,lat,lon,odo_VL,odo_VR):
     # odometry measurement
     odo_V = (odo_VL + odo_VR) / 2
     odo_psi_1dot = (odo_VL - odo_VR) / L2
-    
+    # arc motion in local coordinate
+    if odo_psi_1dot^2 < 0.6^2: # lower threshold for linear motion
+        odo_psi_1dot = odo_psi_1dot*0.3
+    else:
+        if odo_psi_1dot^2 > 2.36^2: # upper threshold for rotation in place
+            odo_psi_1dot = odo_psi_1dot*0.3
+    # general arc motion
+    s_fwd = (odo_V/odo_psi_1dot) * np.sin(dt*odo_psi_1dot)
+    s_str = (odo_V/odo_psi_1dot) * (1-np.cos(dt*odo_psi_1dot))
     
     # KALMAN FILTERING
-    x_prd,p_prd = predict(x_est,p_est,odo_V,odo_psi_1dot,dt)
-    #print(p_prd)
-    #print(p_est)
+    x_prd,p_prd = predict(x_est,p_est,odo_psi_1dot,dt)
     if mode == 0:
         # without GPS measurement
         x_est = x_prd
@@ -177,8 +187,8 @@ def filtering(mode,dt,lat,lon,odo_VL,odo_VR):
                     #head_B = x_est(3,1);
                 else:
                     if mode == 4:
-                        b = (np.mean(px_b) - np.mean(px_a)) / (np.mean(py_b) - np.mean(py_a))
-                        if ((np.mean(px_b) - np.mean(px_a)) > 0 and (np.mean(py_b) - np.mean(py_a)) < 0) or ((np.mean(px_b) - np.mean(px_a)) < 0 and (np.mean(py_b) - np.mean(py_a)) < 0):
+                        b = (np.mean(py_b) - np.mean(py_a)) / (np.mean(px_b) - np.mean(px_a))
+                        if ((np.mean(py_b) - np.mean(py_a)) > 0 and (np.mean(px_b) - np.mean(px_a)) < 0) or ((np.mean(py_b) - np.mean(py_a)) < 0 and (np.mean(px_b) - np.mean(px_a)) < 0):
                             x_est[2,0] = ((head_b - head_a) + 2 * (np.pi + np.arctan(b))) / 2
                         else:
                             x_est[2,0] = ((head_b - head_a) + 2 * np.arctan(b)) / 2
