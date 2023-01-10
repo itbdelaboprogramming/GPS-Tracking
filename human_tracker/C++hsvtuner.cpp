@@ -12,8 +12,8 @@ int main(int argc, char** argv) {
     int Saturation_Upper_Value = 0;//initial saturation(upper)//
     int Value_Lower = 0;//initial value (lower)//
     int Value_Upper = 0;//initial saturation(upper)//
-    createTrackbar("Hue_Lower", "Adjust", &Hue_Lower_Value, 255);//track-bar for lower hue//
-    createTrackbar("Hue_Upper", "Adjust", &Hue_Lower_Upper_Value, 255);//track-bar for lower-upper hue//
+    createTrackbar("Hue_Lower", "Adjust", &Hue_Lower_Value, 180);//track-bar for lower hue//
+    createTrackbar("Hue_Upper", "Adjust", &Hue_Lower_Upper_Value, 180);//track-bar for lower-upper hue//
     createTrackbar("Sat_Lower", "Adjust", &Saturation_Lower_Value, 255);//track-bar for lower saturation//
     createTrackbar("Sat_Upper", "Adjust", &Saturation_Upper_Value, 255);//track-bar for higher saturation//
     createTrackbar("Val_Lower", "Adjust", &Value_Lower, 255);//track-bar for lower value//
