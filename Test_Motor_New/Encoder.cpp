@@ -11,7 +11,7 @@
 **/
 
 #include <PinChangeInterrupt.h>
-#include "encoder.h"
+#include "Encoder.h"
 
 Encoder::Encoder(int pin_a, int pin_b){
     enc_pin_a = pin_a;

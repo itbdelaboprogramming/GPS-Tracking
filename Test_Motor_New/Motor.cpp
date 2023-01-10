@@ -10,7 +10,7 @@
 **/
 
 #include <Arduino.h>
-#include "motor.h"
+#include "Motor.h"
 
 // Assigning each pin to the Class
 Motor::Motor(int ren, int len, int pwm){
