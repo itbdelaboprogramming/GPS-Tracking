@@ -310,11 +310,11 @@ void loop() {
       moveValue = tuningReceiverSignal(filtered_ch1, MAX_RPM_MOVE);
       turnValue = tuningReceiverSignal(filtered_ch2, MAX_RPM_TURN);
 
-      target_speed_ki = moveValue + turnValue; //in RPM
-      target_speed_ka = moveValue - turnValue;
+      target_speed_ka = moveValue + turnValue; //in RPM
+      target_speed_ki = moveValue - turnValue;
 
-      pwm_ki = pid_left_omega.compute(target_speed_ka,filtered_left_omega,max_pwm,Ts);
-      pwm_ka = pid_right_omega.compute(target_speed_ki,filtered_right_omega,max_pwm,Ts);
+      pwm_ki = pid_left_omega.compute(target_speed_ki,filtered_left_omega,max_pwm,Ts);
+      pwm_ka = pid_right_omega.compute(target_speed_ka,filtered_right_omega,max_pwm,Ts);
 
       if (target_speed_ka == 0 && target_speed_ki == 0) {
         forceStop();
@@ -535,4 +535,25 @@ int tuningReceiverSignal(int ch_value, int max_value){
   } else {
     return 0;
   }
+}
+
+void debug(){
+  #ifdef DEBUG_RECIVER
+  Serial.print(ch1); Serial.print("\t");
+  Serial.print(ch2); Serial.print("\t");
+  Serial.print(ch3); Serial.print("\t");
+  Serial.print(ch4); Serial.print("\t");
+  #endif
+
+  #ifdef DEBUG_OMEGA_RIGHT
+  Serial.print(filtered_right_omega); Serial.print("\t");
+  Serial.print(target_speed_ka); Serial.print("\t");
+  #endif
+
+  #ifdef DEBUG_OMEGA_LEFT
+  Serial.print(filtered_left_omega); Serial.print("\t");
+  Serial.print(target_speed_ki); Serial.print("\t");
+  #endif
+
+  Serial.println();
 }
