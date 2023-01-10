@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
         dilate(detection_screen, detection_screen, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));//morphological opening for removing small object from foreground//
         dilate(detection_screen, detection_screen, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));//morphological closing for filling up small holes in foreground//
         erode(detection_screen, detection_screen, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));//morphological closing for filling up small holes in foreground//
-        imshow("Threesholded Image", detection_screen);//showing detected object//
+        imshow("Thresholded Image", detection_screen);//showing detected object//
         imshow("Original", actual_Image);//showing actual image//
         if (waitKey(30) == 27) { //if esc is press break the loop//
             break;
