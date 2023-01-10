@@ -1,0 +1,52 @@
+/*
+ * Academic License - for use in teaching, academic research, and meeting
+ * course requirements at degree granting institutions only.  Not for
+ * government, commercial, or other organizational use.
+ * File: _coder_ekf_api.h
+ *
+ * MATLAB Coder version            : 5.4
+ * C/C++ source code generated on  : 09-Dec-2022 11:36:23
+ */
+
+#ifndef _CODER_EKF_API_H
+#define _CODER_EKF_API_H
+
+/* Include Files */
+#include "emlrt.h"
+#include "tmwtypes.h"
+#include <string.h>
+
+/* Variable Declarations */
+extern emlrtCTX emlrtRootTLSGlobal;
+extern emlrtContext emlrtContextGlobal;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* Function Declarations */
+void ekf(real_T mode, real_T dt, real_T lat, real_T lon, real_T odo_VL,
+         real_T odo_VR, real_T result_ekf[3]);
+
+void ekf_api(const mxArray *const prhs[6], const mxArray **plhs);
+
+void ekf_atexit(void);
+
+void ekf_initialize(void);
+
+void ekf_terminate(void);
+
+void ekf_xil_shutdown(void);
+
+void ekf_xil_terminate(void);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
+/*
+ * File trailer for _coder_ekf_api.h
+ *
+ * [EOF]
+ */
