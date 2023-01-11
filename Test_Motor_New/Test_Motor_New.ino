@@ -2,6 +2,7 @@
 #include "Encoder.h"
 #include "LPF.h"
 #include "pidIr.h"
+#include <NewPing.h>
 
 // For Debugging, uncomment one of these
 #define RECEIVER_RAW
@@ -38,20 +39,31 @@
 #define LEFT_ENC_PIN_A 3
 #define LEFT_ENC_PIN_B 2
 
+// Infrared and Ultrasonic PIN
+#define RIGHT_IR_PIN 24
+#define LEFT_IR_PIN 22
+#define ULTRASONIC_TRIGGER_PIN 26
+#define ULTRASONIC_ECHO_PIN 28
+
 // Constants
-#define LOOP_TIME 10            // in milliseconds
-#define PERIOD_TIME 20000       // in microseconds
-#define RECEIVER_CUT_OFF 1      // in Hertz (Hz)
-#define ENCODER_CUT_OFF 3       // in Hertz (Hz)
-#define PWM_THRESHOLD 150       // in microseconds of receiver signal
-#define MAX_RPM_MOVE 40         // in RPM for longitudinal movement
-#define MAX_RPM_TURN 30         // in RPM for rotational movement
-#define WHEEL_RADIUS 5.0        // in cm
-#define WHEEL_DISTANCE 33.0     // in cm
+#define LOOP_TIME 10                // in milliseconds
+#define PERIOD_TIME 20000           // in microseconds
+#define RECEIVER_CUT_OFF 1          // in Hertz (Hz)
+#define ENCODER_CUT_OFF 3           // in Hertz (Hz)
+#define ULTRASONIC_CUT_OFF 1        // in Hertz (Hz)
+#define PWM_THRESHOLD 150           // in microseconds of receiver signal
+#define MAX_RPM_MOVE 40             // in RPM for longitudinal movement
+#define MAX_RPM_TURN 30             // in RPM for rotational movement
+#define WHEEL_RADIUS 5.0            // in cm
+#define WHEEL_DISTANCE 33.0         // in cm
+#define MAX_DISTANCE 200            // in cm (maximum distance for ultrasonic)
+#define LOWER_DISTANCE_BOUND 10     // in cm
+#define UPPER_DISTANCE_BOUND 80     // in cm
 
 #define KP_RIGHT_MOTOR 0.325
 #define KI_RIGHT_MOTOR 0.0012
 #define KD_RIGHT_MOTOR 0.512
+
 #define KP_LEFT_MOTOR 0.325
 #define KI_LEFT_MOTOR 0.0012
 #define KD_LEFT_MOTOR 0.512
@@ -68,8 +80,12 @@ LPF Ch_2_lpf(RECEIVER_CUT_OFF);
 LPF RightRPM_lpf(ENCODER_CUT_OFF);
 LPF LeftRPM_lpf(ENCODER_CUT_OFF);
 
+LPF Ultrasonic_lpf(ULTRASONIC_CUT_OFF);
+
 pidIr RightMotorPID(KP_RIGHT_MOTOR, KI_RIGHT_MOTOR, KD_RIGHT_MOTOR);
 pidIr LeftMotorPID(KP_LEFT_MOTOR, KI_LEFT_MOTOR, KD_LEFT_MOTOR);
+
+NewPing Sonar(ULTRASONIC_TRIGGER_PIN, ULTRASONIC_ECHO_PIN, MAX_DISTANCE);
 
 void callbackRA(){RightEncoder.doEncoderA();}
 void callbackRB(){RightEncoder.doEncoderB();}
@@ -98,6 +114,10 @@ int left_pwm = 0;
 float pose_x = 0;           // in cm
 float pose_y = 0;           // in cm
 float pose_theta = 0;       // in rad
+
+int right_ir;
+int left_ir;
+float distance;
 
 unsigned long time_now = 0;
 unsigned long time_last = 0;
@@ -134,9 +154,11 @@ void loop(){
 
         calculatePose();
 
-        if(ch_4_value >= 1500){
+        if(ch_4_value <= 1500){
             // EKF Callibration
 
+        } else {
+            
         }
 
         if(ch_3_value <= 1250){
@@ -144,7 +166,7 @@ void loop(){
             vehicleStop();
         } else if(ch_3_value >= 1750){
             // Mode AUTO
-
+            ultrasonicMode();
         } else {
             // Mode MANUAL
             move_value = tuneReceiverSignaltoRPM(ch_1_filtered, MAX_RPM_MOVE);
@@ -216,6 +238,56 @@ void calculatePose(){
     pose_x = pose_x + WHEEL_RADIUS/2.0 * (delta_angle_right + delta_angle_left) * sin(pose_theta);
     pose_y = pose_y + WHEEL_RADIUS/2.0 * (delta_angle_right + delta_angle_left) * cos(pose_theta);
     pose_theta = pose_theta + (delta_angle_right - delta_angle_left) * WHEEL_RADIUS/WHEEL_DISTANCE;
+}
+
+void ultrasonicMode(){
+    right_ir = digitalRead(RIGHT_IR_PIN);
+    left_ir = digitalRead(LEFT_IR_PIN);
+
+    distance = Sonar.ping_cm();
+    distance = Ultrasonic_lpf.filter(distance, dt);
+
+    if(distance >= LOWER_DISTANCE_BOUND && distance <= UPPER_DISTANCE_BOUND){
+        if(right_ir == 1 && left_ir == 0){
+            turnRight();
+        } else if(right_ir == 0 && left_ir == 1){
+            turnLeft();
+        } else {
+            goForward();
+        }
+    } else {
+        vehicleStop();
+    }
+}
+
+void turnRight(){
+    right_rpm_target = MAX_RPM_TURN;
+    left_rpm_target = -MAX_RPM_TURN;
+
+    right_pwm = RightMotorPID.compute(right_rpm_target, right_rpm_filtered, dt);
+    left_pwm = LeftMotorPID.compute(right_rpm_target, right_rpm_filtered, dt);
+
+    vehicleGo(right_pwm, left_pwm);
+}
+
+void turnLeft(){
+    right_rpm_target = -MAX_RPM_TURN;
+    left_rpm_target = MAX_RPM_TURN;
+
+    right_pwm = RightMotorPID.compute(right_rpm_target, right_rpm_filtered, dt);
+    left_pwm = LeftMotorPID.compute(right_rpm_target, right_rpm_filtered, dt);
+
+    vehicleGo(right_pwm, left_pwm);
+}
+
+void goForward(){
+    right_rpm_target = MAX_RPM_MOVE;
+    left_rpm_target = MAX_RPM_MOVE;
+
+    right_pwm = RightMotorPID.compute(right_rpm_target, right_rpm_filtered, dt);
+    left_pwm = LeftMotorPID.compute(right_rpm_target, right_rpm_filtered, dt);
+
+    vehicleGo(right_pwm, left_pwm);
 }
 
 void debugHeader(){
