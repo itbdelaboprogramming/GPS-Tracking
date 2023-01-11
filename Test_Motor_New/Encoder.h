@@ -35,6 +35,11 @@ class Encoder {
     float getAngleRad(){return (float)enc_pulse/GEAR_RATIO * REVOLUTION_RADIAN;};
     float getAngleRev(){return (float)enc_pulse/GEAR_RATIO;};
 
+    long getLastPulse(){return enc_pulse_last;};
+    float getLastDeg(){return (float)enc_pulse_last/GEAR_RATIO * REVOLUTION_DEGREE;};
+    float getLastRad(){return (float)enc_pulse_last/GEAR_RATIO * REVOLUTION_RADIAN;};
+    float getLastRev(){return (float)enc_pulse_last/GEAR_RATIO;};
+
     float getOmegaPPS(){return enc_omega_pps;};
     float getOmegaDPS(){return enc_omega_pps * REVOLUTION_DEGREE/GEAR_RATIO;};
     float getOmegaRPS(){return enc_omega_pps * REVOLUTION_RADIAN/GEAR_RATIO;};

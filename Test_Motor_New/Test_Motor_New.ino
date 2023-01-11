@@ -13,6 +13,8 @@
 //#define MOTOR_SPEED_DPS
 //#define MOTOR_SPEED_RPS
 //#define MOTOR_SPEED_RPM
+//#define TARGET_RPM
+//#define PWM_RESPONSE
 
 // Receiver PIN
 #define PIN_CH_1 46
@@ -44,6 +46,8 @@
 #define PWM_THRESHOLD 150       // in microseconds of receiver signal
 #define MAX_RPM_MOVE 40         // in RPM for longitudinal movement
 #define MAX_RPM_TURN 30         // in RPM for rotational movement
+#define WHEEL_RADIUS 5.0        // in cm
+#define WHEEL_DISTANCE 33.0     // in cm
 
 #define KP_RIGHT_MOTOR 0.325
 #define KI_RIGHT_MOTOR 0.0012
@@ -85,10 +89,15 @@ float left_rpm_filtered;
 
 int move_value;
 int turn_value;
-float right_rpm_target;
-float left_rpm_target;
-int right_pwm;
-int left_pwm;
+float right_rpm_target = 0;
+float left_rpm_target = 0;
+int right_pwm = 0;
+int left_pwm = 0;
+
+// Vehicle Pose or State
+float pose_x = 0;           // in cm
+float pose_y = 0;           // in cm
+float pose_theta = 0;       // in rad
 
 unsigned long time_now = 0;
 unsigned long time_last = 0;
@@ -122,6 +131,13 @@ void loop(){
 
         right_rpm_filtered = RightRPM_lpf.filter(RightEncoder.getOmegaRPM(), dt);
         left_rpm_filtered = LeftRPM_lpf.filter(LeftEncoder.getOmegaRPM(), dt);
+
+        calculatePose();
+
+        if(ch_4_value >= 1500){
+            // EKF Callibration
+
+        }
 
         if(ch_3_value <= 1250){
             // Mode HOLD
@@ -193,6 +209,15 @@ void resetPID(){
     LeftMotorPID.reset();
 }
 
+void calculatePose(){
+    float delta_angle_right = RightEncoder.getAngleRad() - RightEncoder.getLastRad();
+    float delta_angle_left = LeftEncoder.getAngleRad() - LeftEncoder.getLastRad();
+
+    pose_x = pose_x + WHEEL_RADIUS/2.0 * (delta_angle_right + delta_angle_left) * sin(pose_theta);
+    pose_y = pose_y + WHEEL_RADIUS/2.0 * (delta_angle_right + delta_angle_left) * cos(pose_theta);
+    pose_theta = pose_theta + (delta_angle_right - delta_angle_left) * WHEEL_RADIUS/WHEEL_DISTANCE;
+}
+
 void debugHeader(){
     #ifdef RECEIVER_RAW
     Serial.print(F("Ch 1:")); Serial.print("\t");
@@ -239,6 +264,16 @@ void debugHeader(){
     #ifdef MOTOR_SPEED_RPM
     Serial.print(F("Right RPM:")); Serial.print("\t");
     Serial.print(F("Left RPM:")); Serial.print("\t");
+    #endif
+
+    #ifdef TARGET_RPM
+    Serial.print(F("Right Target")); Serial.print("\t");
+    Serial.print(F("Left Target")); Serial.print("\t");
+    #endif
+
+    #ifdef PWM_RESPONSE
+    Serial.print(F("Right PWM")); Serial.print("\t");
+    Serial.print(F("Left PWM")); Serial.print("\t");
     #endif
 
     Serial.println();
@@ -290,6 +325,16 @@ void debug(){
     #ifdef MOTOR_SPEED_RPM
     Serial.print(RightEncoder.getOmegaRPM()); Serial.print("\t");
     Serial.print(LeftEncoder.getOmegaRPM()); Serial.print("\t");
+    #endif
+
+    #ifdef TARGET_RPM
+    Serial.print(right_rpm_target); Serial.print("\t");
+    Serial.print(left_rpm_target); Serial.print("\t");
+    #endif
+
+    #ifdef PWM_RESPONSE
+    Serial.print(right_pwm); Serial.print("\t");
+    Serial.print(left_pwm); Serial.print("\t");
     #endif
     
     Serial.println();
