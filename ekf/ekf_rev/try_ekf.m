@@ -101,10 +101,10 @@ for idx = 1:numPts
     %}
     %mode
 
-    odo_VL = (2*V + 0.325*psi_1dot)/2;
-    odo_VR = (2*V - 0.325*psi_1dot)/2;
-    w = (odo_VL-odo_VR)/0.325;
-    v = (odo_VL+odo_VR)/2;
+    odo_VL = (2*V - 0.325*psi_1dot)/2;
+    odo_VR = (2*V + 0.325*psi_1dot)/2;
+    w = (odo_VR-odo_VL)/0.325;
+    v = (odo_VR+odo_VL)/2;
 
     % Call Kalman filter to estimate the position    
     y = ekf(mode,dt,lat,lon,odo_VL+noise_VL,odo_VR+noise_VR);

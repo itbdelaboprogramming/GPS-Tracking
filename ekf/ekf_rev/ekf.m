@@ -1,6 +1,7 @@
 %% EKF GPS-Tracking
 %#codegen
 
+% mode = toggle between procedures in EKF algorithm
 % dt = time increment [s]
 % lat,lon = latitude,longitude GPS measurment [deg]
 % odo_VL,odo_VR = left & right velocity from odometry measurement
@@ -28,7 +29,7 @@ enu = lla2enu([lat,lon,800],lla0,'ellipsoid');
 
 % Initial state & covariance
 if isempty(x_est)
-    x_est = [enu(1,1); enu(1,2); 0];     
+    x_est = [enu(1,1); enu(1,2); pi()/2];     
     p_est = eye(3);
     cal = 0; last = "point B"; status = 0;
 end
@@ -58,18 +59,24 @@ end
 
 % CONVERT VARIABLE (odometry)
 % odo_V = forwart velocity [m/s]
-odo_V = (odo_VL + odo_VR)/2;
-% odo_ psi_1dot = turning velocity [rad/s]
-odo_psi_1dot = (odo_VL - odo_VR)/L2;
+odo_V = (odo_VR + odo_VL)/2;
+% odo_w = turning velocity [rad/s]
+odo_w = (odo_VR - odo_VL)/L2;
+
 % arc motion in local coordinate
-if odo_psi_1dot^2 < 0.6^2 % lower threshold for linear motion
-    odo_psi_1dot = odo_psi_1dot*0.3;
-elseif odo_psi_1dot^2 > 2.36^2 % upper threshold for rotation in place
-    odo_psi_1dot = odo_psi_1dot*0.3;
+if odo_w == 0
+    s_fwd = odo_V*dt;
+    s_str = 0;
+else
+    if odo_w^2 < 0.6^2 % lower threshold for linear motion
+        odo_w = odo_w*0.3;
+    elseif odo_w^2 > 2.36^2 % upper threshold for rotation in place
+        odo_w = odo_w*0.3;
+    end
+    r = odo_V/odo_w;
+    s_fwd = r * sin(dt*odo_w);
+    s_str = r * (1-cos(dt*odo_w));
 end
-% general arc motion
-s_fwd = (odo_V/odo_psi_1dot) * sin(dt*odo_psi_1dot);
-s_str = (odo_V/odo_psi_1dot) * (1-cos(dt*odo_psi_1dot));
 
 % KALMAN FILTERING
 [x_prd,p_prd] = predict(x_est,p_est);
@@ -78,14 +85,14 @@ if mode == 0
     x_est = x_prd;
     p_est = p_prd;
     if last == "point A"
-        head_b = head_b + (dt * odo_psi_1dot);
+        head_b = head_b + (dt * odo_w);
     end
 else
     % with GPS measurement
     [x_est,p_est] = update(x_prd,p_prd,enu);
     % heading callibration
     if mode == 1 && last == "point A"
-        head_b = head_b + (dt * odo_psi_1dot);
+        head_b = head_b + (dt * odo_w);
     elseif mode == 2
         if last == "point B"
             cal = 1; last = "point A"; status = 0;
@@ -105,11 +112,12 @@ else
         px_b(cal,1) = x_est(1,1);
         py_b(cal,1) = x_est(2,1);
     elseif mode == 4
-        b = ((mean(py_b)-mean(py_a))/mean(px_b)-mean(px_a));
-        if ((mean(py_b)-mean(py_a)) > 0 && (mean(px_b)-mean(px_a)) < 0) || ((mean(py_b)-mean(py_a)) < 0 && (mean(px_b)-mean(px_a)) < 0)
-            x_est(3,1) = ((head_b-head_a) + 2*(pi() + atan(b)))/2;
+        m = ((mean(py_b)-mean(py_a))/mean(px_b)-mean(px_a));
+        if ((mean(py_b)-mean(py_a)) > 0 && (mean(px_b)-mean(px_a)) < 0) ...
+                || ((mean(py_b)-mean(py_a)) < 0 && (mean(px_b)-mean(px_a)) > 0)
+            x_est(3,1) = ((head_b-head_a) + 2*(pi() + atan(m)))/2;
         else
-            x_est(3,1) = ((head_b-head_a) + 2*atan(b))/2;
+            x_est(3,1) = ((head_b-head_a) + 2*atan(m))/2;
         end
         status = 1;
     end
@@ -123,36 +131,36 @@ function [x_prd,p_prd] = predict(x_est,p_est)
 %{
 % LINEAR KINEMATICS
 % Predicted state
-x_prd =[x_est(1, 1) + dt * odo_V * cos(x_est(3, 1) + (dt * odo_psi_1dot)/2);...            
-        x_est(2, 1) + dt * odo_V * sin(x_est(3, 1) + (dt * odo_psi_1dot)/2);...
-        wrapAngle(x_est(3, 1) + (dt * odo_psi_1dot))];
+x_prd =[x_est(1, 1) + dt * odo_V * cos(x_est(3, 1) + (dt * odo_w)/2);...            
+        x_est(2, 1) + dt * odo_V * sin(x_est(3, 1) + (dt * odo_w)/2);...
+        wrapAngle(x_est(3, 1) + (dt * odo_w))];
 % Jacobian of system function (predicted state)
-jac_fx = ([x_est(1, 1)+dx + dt * odo_V * cos(x_est(3, 1) + (dt * odo_psi_1dot)/2),...
-          x_est(2, 1) + dt * odo_V * sin(x_est(3, 1) + (dt * odo_psi_1dot)/2),...
-          wrapAngle(x_est(3, 1) + dt * odo_psi_1dot);...
-          x_est(1, 1) + dt * odo_V * cos(x_est(3, 1) + (dt * odo_psi_1dot)/2),...
-          x_est(2, 1)+dx + dt * odo_V * sin(x_est(3, 1) + (dt * odo_psi_1dot)/2),...
-          wrapAngle(x_est(3, 1) + dt * odo_psi_1dot);...
-          x_est(1, 1) + dt * odo_V * cos(x_est(3, 1)+dx + (dt * odo_psi_1dot)/2),...
-          x_est(2, 1) + dt * odo_V * sin(x_est(3, 1)+dx + (dt * odo_psi_1dot)/2),...
-          wrapAngle(x_est(3, 1)+dx + dt * odo_psi_1dot)]'...
+jac_fx = ([x_est(1, 1)+dx + dt * odo_V * cos(x_est(3, 1) + (dt * odo_w)/2),...
+          x_est(2, 1) + dt * odo_V * sin(x_est(3, 1) + (dt * odo_w)/2),...
+          wrapAngle(x_est(3, 1) + dt * odo_w);...
+          x_est(1, 1) + dt * odo_V * cos(x_est(3, 1) + (dt * odo_w)/2),...
+          x_est(2, 1)+dx + dt * odo_V * sin(x_est(3, 1) + (dt * odo_w)/2),...
+          wrapAngle(x_est(3, 1) + dt * odo_w);...
+          x_est(1, 1) + dt * odo_V * cos(x_est(3, 1)+dx + (dt * odo_w)/2),...
+          x_est(2, 1) + dt * odo_V * sin(x_est(3, 1)+dx + (dt * odo_w)/2),...
+          wrapAngle(x_est(3, 1)+dx + dt * odo_w)]'...
           - [x_prd x_prd x_prd]) / dx;
 %}
 % ARC MOTION KINEMATICS
 % Predicted state
 x_prd =[x_est(1, 1) + s_fwd * cos(x_est(3, 1)) - s_str * sin(x_est(3, 1)) ;...            
         x_est(2, 1) + s_fwd * sin(x_est(3, 1)) + s_str * cos(x_est(3, 1)) ;...
-        wrapAngle(x_est(3, 1) + (dt * odo_psi_1dot))];
+        wrapAngle(x_est(3, 1) + (dt * odo_w))];
 % Jacobian of system function (predicted state)
 jac_fx = ([x_est(1, 1)+dx + s_fwd * cos(x_est(3, 1)) - s_str * sin(x_est(3, 1)) ,...
           x_est(2, 1) + s_fwd * sin(x_est(3, 1)) + s_str * cos(x_est(3, 1)) ,...
-          wrapAngle(x_est(3, 1) + dt * odo_psi_1dot);...
+          wrapAngle(x_est(3, 1) + dt * odo_w);...
           x_est(1, 1) + s_fwd * cos(x_est(3, 1)) - s_str * sin(x_est(3, 1)) ,...
           x_est(2, 1)+dx + s_fwd * sin(x_est(3, 1)) + s_str * cos(x_est(3, 1)) ,...
-          wrapAngle(x_est(3, 1) + dt * odo_psi_1dot);...
+          wrapAngle(x_est(3, 1) + dt * odo_w);...
           x_est(1, 1) + s_fwd * cos(x_est(3, 1)+dx) - s_str * sin(x_est(3, 1)+dx) ,...
           x_est(2, 1) + s_fwd * sin(x_est(3, 1)+dx) + s_str * cos(x_est(3, 1)+dx) ,...
-          wrapAngle(x_est(3, 1)+dx + dt * odo_psi_1dot)]'...
+          wrapAngle(x_est(3, 1)+dx + dt * odo_w)]'...
           - [x_prd x_prd x_prd]) / dx;
 %}
 % Predicted State Noise Covariance
@@ -191,7 +199,7 @@ x_est = x_prd + K * u;
 p_est = (eye(size(K*jac_hx)) - K * jac_hx) * p_prd;
 end
 
-%%  ~wrapAngle [to make sure -pi/2 < psi < pi/2]
+%%  ~wrapAngle [to make sure -pi/2 < theta < pi/2]
 function wrap = wrapAngle(angle)
     wrap = mod(angle,2*pi());
 end

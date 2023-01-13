@@ -35,6 +35,7 @@ head_b = None   # headings at point B (uncalibrated)
 # Tuning parameter:
 gps_std = None  # GPS measurments' standard deviation
 odo_std = None  # odometry measurments' standard deviation
+
 # numerical jacobian perturbation increment
 dx = 0.0001
 # GPS distance to mid section of tire [m]
@@ -47,9 +48,6 @@ lla0 = np.array([-6.914744,107.60981,800])
 # Tuning Parameter
 def setPar(status,x_init,enu):
     global gps_std, odo_std, x_est
-    if x_init == None:
-        x_est = np.array([[enu[0]],[enu[1]],[0]])
-
     # GPS meas standard deviation [m]
     gps_std = 5
     # odometry meas standard deviation [m/s]
@@ -59,6 +57,9 @@ def setPar(status,x_init,enu):
         gps_std = 10
         # odometry meas standard deviation [m/s]
         odo_std = 0.1
+
+    if x_init == None:
+        x_est = np.array([[enu[0]],[enu[1]],[0]])
 
 ##  ~wrapAngle [to make sure 0 < psi < 2*pi]
 def wrapAngle(angle): 
@@ -72,8 +73,8 @@ def predict(x_est,p_est,Cv,Bv,alpha,odo_V,odo_psi_1dot,dt):
     x_prd = np.array([[x_est[0,0] + (dt * Cv * odo_V * np.sin(x_est[2,0] - alpha)) + Bv*(np.sin(x_est[2,0])-np.sin(x_est[2,0] + dt * odo_psi_1dot))],\
         [x_est[1,0] + (dt * Cv * odo_V * np.cos(x_est[2,0] - alpha)) + Bv*(np.cos(x_est[2,0])-np.cos(x_est[2,0] + dt * odo_psi_1dot))],\
             [wrapAngle(x_est[2,0] + (dt * odo_psi_1dot))]])
-    
     # Jacobian of system function (predicted state)
+    #print([x_prd[0,0],x_prd[0,0]])
     jac_fx = np.subtract(np.transpose(np.array([[x_est[0,0] + dx + dt * Cv * odo_V * np.sin(x_est[2,0] - alpha) + Bv*(np.sin(x_est[2,0])-np.sin(x_est[2,0] + dt * odo_psi_1dot)),\
         x_est[1,0] + dt * Cv * odo_V * np.cos(x_est[2,0] - alpha) + Bv*(np.cos(x_est[2,0])-np.cos(x_est[2,0] + dt * odo_psi_1dot)),\
             wrapAngle(x_est[2,0] + dt * odo_psi_1dot)],\
@@ -86,12 +87,10 @@ def predict(x_est,p_est,Cv,Bv,alpha,odo_V,odo_psi_1dot,dt):
                                         np.array([[x_prd[0,0], x_prd[0,0], x_prd[0,0]],\
                                             [x_prd[1,0], x_prd[1,0], x_prd[1,0]],\
                                                 [x_prd[2,0], x_prd[2,0], x_prd[2,0]]])) / dx
-    
     # Predicted State Noise Covariance
     Q = [[(odo_std * dt)**2, 0, 0],\
         [0, (odo_std * dt)**2, 0],\
             [0, 0, (odo_std / L2)**2]]
-    
     # Predicted State Total Covariance
     p_prd = np.add(np.matmul(np.matmul(jac_fx, p_est), np.transpose(jac_fx)), np.array(Q))
     return x_prd,p_prd
