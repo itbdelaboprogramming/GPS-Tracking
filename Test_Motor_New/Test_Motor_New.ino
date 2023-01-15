@@ -165,21 +165,21 @@ void loop(){
 
         if(ch_4_value >= 1500 && ch_4_value <= 2000){
             // EKF Callibration
-            //in_calib_mode = true;
-            //calibMode();
+            in_calib_mode = true;
+            calibMode();
         } else {
-            //in_calib_mode = false;
-            //time_callib = 0;
+            in_calib_mode = false;
+            time_callib = 0;
         }
 
-        if(ch_3_value <= 1250){
+        if(ch_3_value <= 1250 && !in_calib_mode){
             // Mode HOLD
             vehicleStop();
             //vehicleGo(0, 0); //vehicleGo(pwm_right,pwm_left);
-        } else if(ch_3_value >= 1750){
+        } else if(ch_3_value >= 1750 !in_calib_mode){
             // Mode AUTO
             ultrasonicMode();
-        } else {
+        } else if(!in_calib_mode){
             // Mode MANUAL
             move_value = tuneReceiverSignaltoRPM(ch_1_filtered, MAX_RPM_MOVE);
             turn_value = tuneReceiverSignaltoRPM(ch_2_filtered, MAX_RPM_TURN);
