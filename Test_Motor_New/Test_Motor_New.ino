@@ -154,11 +154,13 @@ void loop(){
 
         calculatePose();
 
-        if(ch_4_value <= 1500){
+        if(ch_4_value >= 1500 && ch_4_value <= 2000){
             // EKF Callibration
-
+            in_calib_mode = true;
+            calibMode();
         } else {
-            
+            in_calib_mode = false;
+            time_callib = 0;
         }
 
         if(ch_3_value <= 1250){
@@ -288,6 +290,10 @@ void goForward(){
     left_pwm = LeftMotorPID.compute(right_rpm_target, right_rpm_filtered, dt);
 
     vehicleGo(right_pwm, left_pwm);
+}
+
+void calibMode(){
+    
 }
 
 void debugHeader(){
