@@ -16,12 +16,9 @@
 //#define MOTOR_SPEED_RPM
 //#define TARGET_RPM
 //#define PWM_RESPONSE
-//#define ERROR_PID
-//#define SUM_ERROR_PID
 #define VEHICLE_POSITION
 #define VEHICLE_SPEED
-#define MOTOR_LAST_ANGLE_PULSE
-#define MOTOR_PULSE_DIFFERENCE
+
 
 // Receiver PIN
 #define PIN_CH_1 46
@@ -541,7 +538,7 @@ void debug(){
     #endif
     
     #ifdef VEHICLE_SPEED
-    Serial.print(velocity_right)); Serial.print("\t");
+    Serial.print(velocity_right); Serial.print("\t");
     Serial.print(velocity_left); Serial.print("\t");
     #endif
 
@@ -551,8 +548,8 @@ void debug(){
     #endif
 
     #ifdef MOTOR_PULSE_DIFFERENCE
-    Serial.print(RightEncoder.getPulse()-RightEncoder.getLastPulse()); Serial.print("\t");
-    Serial.print(LeftEncoder.getPulse()-LeftEncoder.getLastPulse()); Serial.print("\t");
+    Serial.print(RightEncoder.getDeltaPulse()); Serial.print("\t");
+    Serial.print(LeftEncoder.getDeltaPulse()); Serial.print("\t");
     #endif
 
     Serial.println();
