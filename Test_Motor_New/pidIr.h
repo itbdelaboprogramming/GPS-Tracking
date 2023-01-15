@@ -19,6 +19,10 @@ class pidIr{
 
     float compute(float setpoint, float feedback, float max_response, float Ts);
     void reset();
+    void printError();
+    void printSumError();
+    void getError(){return error;};
+    void getSumError(){return sum_error;};
 
     private:
     float error;

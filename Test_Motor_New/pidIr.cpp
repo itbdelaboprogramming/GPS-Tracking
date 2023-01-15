@@ -35,3 +35,11 @@ void pidIr::reset(){
     last_error = 0;
     sum_error = 0;
 }
+
+void pidIr::printError(){
+    Serial.print(error); Serial.print("\t");
+}
+
+void pidIr::printSumError(){
+    Serial.print(sum_error); Serial.print("\t");
+}

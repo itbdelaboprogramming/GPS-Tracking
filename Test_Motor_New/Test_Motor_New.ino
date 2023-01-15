@@ -16,6 +16,8 @@
 #define MOTOR_SPEED_RPM
 #define TARGET_RPM
 #define PWM_RESPONSE
+#define ERROR_PID
+#define SUM_ERROR_PID
 
 // Receiver PIN
 #define PIN_CH_1 46
@@ -362,6 +364,16 @@ void debugHeader(){
     Serial.print(F("Left_PWM")); Serial.print("\t");
     #endif
 
+    #ifdef ERROR_PID
+    Serial.print(F("Error Right")); Serial.print("\t");
+    Serial.print(F("Error Left")); Serial.print("\t");
+    #endif
+
+    #ifdef SUM_ERROR_PID
+    Serial.print(F("Sum Error Right")); Serial.print("\t");
+    Serial.print(F("Sum Error Left")); Serial.print("\t");
+    #endif
+
     Serial.println();
 }
 
@@ -421,6 +433,16 @@ void debug(){
     #ifdef PWM_RESPONSE
     Serial.print(right_pwm); Serial.print("\t");
     Serial.print(left_pwm); Serial.print("\t");
+    #endif
+
+    #ifdef ERROR_PID
+    Serial.print(RightMotorPID.getError()); Serial.print("\t");
+    Serial.print(LeftMotorPID.getError()); Serial.print("\t");
+    #endif
+
+    #ifdef SUM_ERROR_PID
+    Serial.print(RightMotorPID.getSumError()); Serial.print("\t");
+    Serial.print(LeftMotorPID.getSumError()); Serial.print("\t");
     #endif
     
     Serial.println();
