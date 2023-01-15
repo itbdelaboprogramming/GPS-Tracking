@@ -22,16 +22,16 @@
 // To enter debug mode uncomment this line below. It will print the GPS data read from GPS.
 //#define DEBUG
 //#define DEBUG_ODOM
-#define DEBUG_RECIVER
+//#define DEBUG_RECIVER
 //#define DEBUG_ROTATE
 //#define FILTER
-//#define MONITOR_OMEGA
+#define MONITOR_OMEGA
 //#define ULTRASONIC
 
 // Pin untuk baca receiver adalah pin digital biasa
-#define PIN_CH_1 48
-#define PIN_CH_2 50
-#define PIN_CH_3 52
+#define PIN_CH_1 46
+#define PIN_CH_2 48
+#define PIN_CH_3 50
 
 // Constants
 #define LOOPTIME 10 //in ms
@@ -240,8 +240,8 @@ void loop() {
   if (curr_millis - prev_millis >= LOOPTIME) {
     Ts = curr_millis - prev_millis;
 
-    // Menerima sinyal pwm dari receiver
     /*
+    // Menerima sinyal pwm dari receiver
     ch1 = pulseIn(PIN_CH_1, HIGH, 1000000*2);
     ch2 = pulseIn(PIN_CH_2, HIGH, 1000000*2);
     ch3 = pulseIn(PIN_CH_3, HIGH, 1000000*2);
@@ -271,7 +271,7 @@ void loop() {
       //pwm_ka = pid_right_omega.compute(target_speed_ki,filtered_right_omega,max_pwm,Ts);
 
       pwm_ki = 0;
-      pwm_ka = 0;
+      pwm_ka = 20;
       
       // Rotate motor(ki,ka)
       rotateMotor(pwm_ki,pwm_ka);

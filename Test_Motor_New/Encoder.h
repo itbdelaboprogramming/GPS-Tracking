@@ -21,7 +21,6 @@
 
 #define ARRAY_SIZE 5
 #define CUT_OFF_FREQ_ENC 3.0
-#define PI 3.141592653
 
 class Encoder {
     public:
@@ -59,6 +58,6 @@ class Encoder {
     long last_ms;
     long current_ms;
     float enc_omega_pps;
-}
+};
 
 #endif

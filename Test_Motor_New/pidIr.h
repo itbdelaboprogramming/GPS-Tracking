@@ -28,6 +28,6 @@ class pidIr{
     float kP;
     float kI;
     float kD;
-}
+};
 
 #endif

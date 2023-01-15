@@ -40,7 +40,7 @@ void Encoder::start(void(*userFuncA)(void),void(*userFuncB)(void)){
     } else {
       Serial.print("Get the right pin.");
     }   
-}
+};
 
 void Encoder::measureOmega(){
     enc_pulse_current = enc_pulse;
@@ -53,7 +53,7 @@ void Encoder::measureOmega(){
 
     enc_pulse_last = enc_pulse_current;
     last_ms = current_ms;
-}
+};
 
 void Encoder::doEncoderA(){
     if (digitalRead(enc_pin_a) == HIGH){
@@ -69,7 +69,7 @@ void Encoder::doEncoderA(){
             enc_pulse = enc_pulse - 1;          // CCW
         }
     }
-}
+};
 
 void Encoder::doEncoderB(){
     if (digitalRead(enc_pin_b) == HIGH){
@@ -85,4 +85,4 @@ void Encoder::doEncoderB(){
             enc_pulse = enc_pulse - 1;          // CCW
         }
     }
-}
+};

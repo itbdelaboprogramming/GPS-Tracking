@@ -11,7 +11,8 @@
 #ifndef LPF_H
 #define LPF_H
 
-#define PI 3.141592653
+#include <Arduino.h>
+//#define PI 3.141592653
 
 class LPF{
     public:
