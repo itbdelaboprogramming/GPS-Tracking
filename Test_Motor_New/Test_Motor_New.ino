@@ -13,9 +13,9 @@
 //#define MOTOR_SPEED_PPS
 //#define MOTOR_SPEED_DPS
 //#define MOTOR_SPEED_RPS
-#define MOTOR_SPEED_RPM
-#define TARGET_RPM
-#define PWM_RESPONSE
+//#define MOTOR_SPEED_RPM
+//#define TARGET_RPM
+//#define PWM_RESPONSE
 //#define ERROR_PID
 //#define SUM_ERROR_PID
 
@@ -49,7 +49,7 @@
 
 // Constants
 #define LOOP_TIME 10                // in milliseconds
-#define PERIOD_TIME 2*pow(10,6)         // in microseconds
+#define PERIOD_TIME 2*pow(10,6)     // in microseconds
 #define RECEIVER_CUT_OFF 1          // in Hertz (Hz)
 #define ENCODER_CUT_OFF 3           // in Hertz (Hz)
 #define ULTRASONIC_CUT_OFF 1        // in Hertz (Hz)
@@ -339,7 +339,7 @@ void calibMode(){
         left_rpm_target = MAX_RPM_MOVE;
 
         right_pwm = RightMotorPID.compute(right_rpm_target, right_rpm_filtered, MAX_PWM, dt);
-        left_pwm = LeftMotorPID.compute(right_rpm_target, right_rpm_filtered, MAX_PWM, dt);
+        left_pwm = LeftMotorPID.compute(left_rpm_target, left_rpm_filtered, MAX_PWM, dt);
 
         vehicleGo(right_pwm, left_pwm);
     }
