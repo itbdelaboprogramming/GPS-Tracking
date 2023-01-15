@@ -258,7 +258,6 @@ void calculatePose(){
     pose_y = pose_y + WHEEL_RADIUS/2.0 * (delta_angle_right + delta_angle_left) * cos(pose_theta);
     pose_theta = pose_theta + (delta_angle_right - delta_angle_left) * WHEEL_RADIUS/WHEEL_DISTANCE;
 
-    //pose_theta = wrapAngleFloatRadian(pose_theta);
     pose_theta = wrapAngleFloatDegree(pose_theta);
 
     velocity_right = right_rpm_filtered * PI/30.0 * WHEEL_RADIUS;
@@ -450,11 +449,6 @@ void debugHeader(){
     Serial.print(F("Vehicle_Speed_Left")); Serial.print("\t");
     #endif
 
-    #ifdef MOTOR_LAST_ANGLE_PULSE
-    Serial.print(F("Right_Last_Pulse:")); Serial.print("\t");
-    Serial.print(F("Left_Last_Pulse:")); Serial.print("\t");
-    #endif
-
     #ifdef MOTOR_PULSE_DIFFERENCE
     Serial.print(F("Right_Pulse_diffference")); Serial.print("\t");
     Serial.print(F("Left_Pulse_diffference")); Serial.print("\t");
@@ -534,17 +528,12 @@ void debug(){
     #ifdef VEHICLE_POSITION
     Serial.print(pose_x); Serial.print("\t");
     Serial.print(pose_y); Serial.print("\t");
-    Serial.print(pose_theta); Serial.print("\t");
+    Serial.print(pose_theta/PI*180.0); Serial.print("\t");
     #endif
     
     #ifdef VEHICLE_SPEED
     Serial.print(velocity_right); Serial.print("\t");
     Serial.print(velocity_left); Serial.print("\t");
-    #endif
-
-    #ifdef MOTOR_LAST_ANGLE_PULSE
-    Serial.print(RightEncoder.getLastPulse()); Serial.print("\t");
-    Serial.print(LeftEncoder.getLastPulse()); Serial.print("\t");
     #endif
 
     #ifdef MOTOR_PULSE_DIFFERENCE
