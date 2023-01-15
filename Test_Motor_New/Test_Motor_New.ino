@@ -261,6 +261,9 @@ void calculatePose(){
     pose_y = pose_y + WHEEL_RADIUS/2.0 * (delta_angle_right + delta_angle_left) * cos(pose_theta);
     pose_theta = pose_theta + (delta_angle_right - delta_angle_left) * WHEEL_RADIUS/WHEEL_DISTANCE;
 
+    //pose_theta = wrapAngleFloatRadian(pose_theta);
+    pose_theta = wrapAngleFloatDegree(pose_theta);
+
     velocity_right = right_rpm_filtered * PI/30.0 * WHEEL_RADIUS;
     velocity_left = left_rpm_filtered * PI/30.0 * WHEEL_RADIUS;
 }
@@ -348,6 +351,26 @@ void calibMode(){
         left_pwm = LeftMotorPID.compute(left_rpm_target, left_rpm_filtered, MAX_PWM, dt);
 
         vehicleGo(right_pwm, left_pwm);
+    }
+}
+
+float wrapAngleFloatDegree(float value){
+    if(value >= 2*360){
+        return value - 360;
+    } else if(value < 0){
+        return value + 360;
+    } else {
+        return value;
+    }
+}
+
+float wrapAngleFloatRadian(float value){
+    if(value >= 2*PI){
+        return value - 2 * PI;
+    } else if(value < 0){
+        return value + 2 * PI;
+    } else {
+        return value;
     }
 }
 
