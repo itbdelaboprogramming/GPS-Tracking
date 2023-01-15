@@ -18,6 +18,8 @@
 #define PWM_RESPONSE
 //#define ERROR_PID
 //#define SUM_ERROR_PID
+#define VEHICLE_POSITION
+#define VEHICLE_SPEED
 
 // Receiver PIN
 #define PIN_CH_1 46
@@ -413,6 +415,17 @@ void debugHeader(){
     Serial.print(F("Sum_Error_Left")); Serial.print("\t");
     #endif
 
+    #ifdef VEHICLE_POSITION
+    Serial.print(F("Vehicle_X_Pose")); Serial.print("\t");
+    Serial.print(F("Vehicle_Y_Pose")); Serial.print("\t");
+    Serial.print(F("Vehicle_Theta")); Serial.print("\t");
+    #endif
+
+    #ifdef VEHICLE_SPEED
+    Serial.print(F("Vehicle_Speed_Right")); Serial.print("\t");
+    Serial.print(F("Vehicle_Speed_Left")); Serial.print("\t");
+    #endif
+
     Serial.println();
 }
 
@@ -483,6 +496,17 @@ void debug(){
     Serial.print(RightMotorPID.getSumError()); Serial.print("\t");
     Serial.print(LeftMotorPID.getSumError()); Serial.print("\t");
     #endif
+
+    #ifdef VEHICLE_POSITION
+    Serial.print(pose_x); Serial.print("\t");
+    Serial.print(pose_y); Serial.print("\t");
+    Serial.print(pose_theta); Serial.print("\t");
+    #endif
     
+    #ifdef VEHICLE_SPEED
+    Serial.print(velocity_right)); Serial.print("\t");
+    Serial.print(velocity_left); Serial.print("\t");
+    #endif
+
     Serial.println();
 }
