@@ -117,6 +117,9 @@ int left_pwm = 0;
 float pose_x = 0;           // in cm
 float pose_y = 0;           // in cm
 float pose_theta = 0;       // in rad
+float velocity_right = 0;   // in cm/s
+float velocity_left = 0;    // in cm/s
+bool in_calib_mode = false; 
 
 int right_ir;
 int left_ir;
@@ -124,6 +127,7 @@ float distance;
 
 unsigned long time_now = 0;
 unsigned long time_last = 0;
+unsigned long time_callib = 0;
 float dt;
 
 void setup(){
@@ -250,6 +254,9 @@ void calculatePose(){
     pose_x = pose_x + WHEEL_RADIUS/2.0 * (delta_angle_right + delta_angle_left) * sin(pose_theta);
     pose_y = pose_y + WHEEL_RADIUS/2.0 * (delta_angle_right + delta_angle_left) * cos(pose_theta);
     pose_theta = pose_theta + (delta_angle_right - delta_angle_left) * WHEEL_RADIUS/WHEEL_DISTANCE;
+
+    velocity_right = right_rpm_filtered * PI/30.0 * WHEEL_RADIUS;
+    velocity_left = left_rpm_filtered * PI/30.0 * WHEEL_RADIUS;
 }
 
 void ultrasonicMode(){
@@ -303,7 +310,39 @@ void ultrasonicGoForward(){
 }
 
 void calibMode(){
-    
+    if(time_callib < 5000){
+        time_callib += dt;
+        Serial.print(velocity_left); Serial.print(",");
+        Serial.print(velocity_right); Serial.print(",");
+        Serial.println(2);
+        vehicleStop();
+    } else if(time_callib > 15000){
+        time_callib += dt;
+        vehicleStop();
+
+        if(time_callib > 20000){
+            Serial.print(velocity_left); Serial.print(",");
+            Serial.print(velocity_right); Serial.print(",");
+            Serial.println(4);
+        } else {
+            Serial.print(velocity_left); Serial.print(",");
+            Serial.print(velocity_right); Serial.print(",");
+            Serial.println(3);
+        }
+    } else {
+        time_callib += dt;
+        Serial.print(velocity_left); Serial.print(",");
+        Serial.print(velocity_right); Serial.print(",");
+        Serial.println(0);
+
+        right_rpm_target = MAX_RPM_MOVE;
+        left_rpm_target = MAX_RPM_MOVE;
+
+        right_pwm = RightMotorPID.compute(right_rpm_target, right_rpm_filtered, MAX_PWM, dt);
+        left_pwm = LeftMotorPID.compute(right_rpm_target, right_rpm_filtered, MAX_PWM, dt);
+
+        vehicleGo(right_pwm, left_pwm);
+    }
 }
 
 void debugHeader(){
@@ -365,13 +404,13 @@ void debugHeader(){
     #endif
 
     #ifdef ERROR_PID
-    Serial.print(F("Error Right")); Serial.print("\t");
-    Serial.print(F("Error Left")); Serial.print("\t");
+    Serial.print(F("Error_Right")); Serial.print("\t");
+    Serial.print(F("Error_Left")); Serial.print("\t");
     #endif
 
     #ifdef SUM_ERROR_PID
-    Serial.print(F("Sum Error Right")); Serial.print("\t");
-    Serial.print(F("Sum Error Left")); Serial.print("\t");
+    Serial.print(F("Sum_Error_Right")); Serial.print("\t");
+    Serial.print(F("Sum_Error_Left")); Serial.print("\t");
     #endif
 
     Serial.println();
