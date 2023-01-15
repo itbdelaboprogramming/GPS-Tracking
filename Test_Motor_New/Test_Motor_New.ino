@@ -20,6 +20,8 @@
 //#define SUM_ERROR_PID
 #define VEHICLE_POSITION
 #define VEHICLE_SPEED
+#define MOTOR_LAST_ANGLE_PULSE
+#define MOTOR_PULSE_DIFFERENCE
 
 // Receiver PIN
 #define PIN_CH_1 46
@@ -426,6 +428,16 @@ void debugHeader(){
     Serial.print(F("Vehicle_Speed_Left")); Serial.print("\t");
     #endif
 
+    #ifdef MOTOR_LAST_ANGLE_PULSE
+    Serial.print(F("Right_Last_Pulse:")); Serial.print("\t");
+    Serial.print(F("Left_Last_Pulse:")); Serial.print("\t");
+    #endif
+
+    #ifdef MOTOR_PULSE_DIFFERENCE
+    Serial.print(F("Right_Pulse_diffference")); Serial.print("\t");
+    Serial.print(F("Left_Pulse_diffference")); Serial.print("\t");
+    #endif
+
     Serial.println();
 }
 
@@ -506,6 +518,16 @@ void debug(){
     #ifdef VEHICLE_SPEED
     Serial.print(velocity_right)); Serial.print("\t");
     Serial.print(velocity_left); Serial.print("\t");
+    #endif
+
+    #ifdef MOTOR_LAST_ANGLE_PULSE
+    Serial.print(RightEncoder.getLastPulse()); Serial.print("\t");
+    Serial.print(LeftEncoder.getLastPulse()); Serial.print("\t");
+    #endif
+
+    #ifdef MOTOR_PULSE_DIFFERENCE
+    Serial.print(RightEncoder.getPulse()-RightEncoder.getLastPulse()); Serial.print("\t");
+    Serial.print(LeftEncoder.getPulse()-LeftEncoder.getLastPulse()); Serial.print("\t");
     #endif
 
     Serial.println();
