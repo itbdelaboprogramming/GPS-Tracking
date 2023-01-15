@@ -46,8 +46,8 @@ void Encoder::measureOmega(){
     enc_pulse_current = enc_pulse;
     current_ms = millis();
 
-    long delta_enc_pulse = enc_pulse_current - enc_pulse_last;
-    long delta_time_ms = current_ms -  last_ms;
+    delta_enc_pulse = enc_pulse_current - enc_pulse_last;
+    delta_time_ms = current_ms -  last_ms;
 
     enc_omega_pps = (float)delta_enc_pulse/delta_time_ms * S_TO_MS_CONVERTER;
 

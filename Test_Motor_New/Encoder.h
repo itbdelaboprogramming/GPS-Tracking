@@ -39,6 +39,12 @@ class Encoder {
     float getLastRad(){return (float)enc_pulse_last/GEAR_RATIO * REVOLUTION_RADIAN;};
     float getLastRev(){return (float)enc_pulse_last/GEAR_RATIO;};
 
+    long getDeltaPulse(){return delta_enc_pulse;};
+    long fetDeltaTime(){return delta_time_ms;};
+    float geDeltaDeg(){return (float)delta_enc_pulse/GEAR_RATIO * REVOLUTION_DEGREE;};
+    float getDeltaRad(){return (float)delta_enc_pulse/GEAR_RATIO * REVOLUTION_RADIAN;};
+    float getDeltaRev(){return (float)delta_enc_pulse/GEAR_RATIO;};
+
     float getOmegaPPS(){return enc_omega_pps;};
     float getOmegaDPS(){return enc_omega_pps * REVOLUTION_DEGREE/GEAR_RATIO;};
     float getOmegaRPS(){return enc_omega_pps * REVOLUTION_RADIAN/GEAR_RATIO;};
@@ -57,6 +63,8 @@ class Encoder {
     long enc_pulse_current;
     long last_ms;
     long current_ms;
+    long delta_enc_pulse;
+    long delta_time_ms;
     float enc_omega_pps;
 };
 
