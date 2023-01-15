@@ -5,7 +5,7 @@
 #include <NewPing.h>
 
 // For Debugging, uncomment one of these
-#define RECEIVER_RAW
+//#define RECEIVER_RAW
 //#define MOTOR_ANGLE_PULSE
 //#define MOTOR_ANGLE_DEGREE
 //#define MOTOR_ANGLE_RADIAN
@@ -13,9 +13,9 @@
 //#define MOTOR_SPEED_PPS
 //#define MOTOR_SPEED_DPS
 //#define MOTOR_SPEED_RPS
-//#define MOTOR_SPEED_RPM
-//#define TARGET_RPM
-//#define PWM_RESPONSE
+#define MOTOR_SPEED_RPM
+#define TARGET_RPM
+#define PWM_RESPONSE
 
 // Receiver PIN
 #define PIN_CH_1 46
@@ -24,13 +24,13 @@
 #define PIN_CH_4 52
 
 // Motor PIN
-#define RIGHT_MOTOR_REN_PIN 31
-#define RIGHT_MOTOR_LEN_PIN 30
-#define RIGHT_MOTOR_PWM_PIN 4
+#define RIGHT_MOTOR_REN_PIN 6
+#define RIGHT_MOTOR_LEN_PIN 5
+#define RIGHT_MOTOR_PWM_PIN 8
 
-#define LEFT_MOTOR_REN_PIN 31
-#define LEFT_MOTOR_LEN_PIN 30
-#define LEFT_MOTOR_PWM_PIN 4
+#define LEFT_MOTOR_REN_PIN 10
+#define LEFT_MOTOR_LEN_PIN 9
+#define LEFT_MOTOR_PWM_PIN 7
 
 // Encoder PIN
 #define RIGHT_ENC_PIN_A 12
@@ -47,7 +47,7 @@
 
 // Constants
 #define LOOP_TIME 10                // in milliseconds
-#define PERIOD_TIME 20000           // in microseconds
+#define PERIOD_TIME 2*pow(10,6)         // in microseconds
 #define RECEIVER_CUT_OFF 1          // in Hertz (Hz)
 #define ENCODER_CUT_OFF 3           // in Hertz (Hz)
 #define ULTRASONIC_CUT_OFF 1        // in Hertz (Hz)
@@ -59,6 +59,7 @@
 #define MAX_DISTANCE 200            // in cm (maximum distance for ultrasonic)
 #define LOWER_DISTANCE_BOUND 10     // in cm
 #define UPPER_DISTANCE_BOUND 80     // in cm
+#define MAX_PWM 30                  // saturation PWM for action control (0-255)
 
 #define KP_RIGHT_MOTOR 0.325
 #define KI_RIGHT_MOTOR 0.0012
@@ -135,6 +136,8 @@ void setup(){
     LeftEncoder.start(callbackLA, callbackLB);
 
     debugHeader();
+
+    delay(2000);
 }
 
 void loop(){
@@ -166,6 +169,7 @@ void loop(){
         if(ch_3_value <= 1250){
             // Mode HOLD
             vehicleStop();
+            //vehicleGo(0, 0); //vehicleGo(pwm_right,pwm_left);
         } else if(ch_3_value >= 1750){
             // Mode AUTO
             ultrasonicMode();
@@ -177,10 +181,14 @@ void loop(){
             right_rpm_target = move_value + turn_value;
             left_rpm_target = move_value - turn_value;
 
-            right_pwm = RightMotorPID.compute(right_rpm_target, right_rpm_filtered, dt);
-            left_pwm = LeftMotorPID.compute(right_rpm_target, right_rpm_filtered, dt);
+            right_pwm = RightMotorPID.compute(right_rpm_target, right_rpm_filtered, MAX_PWM, dt);
+            left_pwm = LeftMotorPID.compute(right_rpm_target, right_rpm_filtered, MAX_PWM, dt);
 
-            vehicleGo(right_pwm, left_pwm);
+            if (right_rpm_target == 0 && left_rpm_target == 0){
+              vehicleStop();
+            } else {
+              vehicleGo(right_pwm, left_pwm); 
+            }
         }
 
         time_last = time_now;
@@ -211,7 +219,7 @@ int tuneReceiverSignaltoRPM(int receiver_signal, int max_rpm){
     if(receiver_signal >= 1500 + PWM_THRESHOLD){
         return map(receiver_signal, 1500 + PWM_THRESHOLD, 2000, 0, max_rpm);
     } else if(receiver_signal <= 1500 - PWM_THRESHOLD){
-        return map(receiver_signal, 1500 - PWM_THRESHOLD, 1000, 0, max_rpm);
+        return map(receiver_signal, 1500 - PWM_THRESHOLD, 1000, 0, -max_rpm);
     } else {
         return 0;
     }
@@ -251,43 +259,43 @@ void ultrasonicMode(){
 
     if(distance >= LOWER_DISTANCE_BOUND && distance <= UPPER_DISTANCE_BOUND){
         if(right_ir == 1 && left_ir == 0){
-            turnRight();
+            ultrasonicTurnRight();
         } else if(right_ir == 0 && left_ir == 1){
-            turnLeft();
+            ultrasonicTurnLeft();
         } else {
-            goForward();
+            ultrasonicGoForward();
         }
     } else {
         vehicleStop();
     }
 }
 
-void turnRight(){
+void ultrasonicTurnRight(){
     right_rpm_target = MAX_RPM_TURN;
     left_rpm_target = -MAX_RPM_TURN;
 
-    right_pwm = RightMotorPID.compute(right_rpm_target, right_rpm_filtered, dt);
-    left_pwm = LeftMotorPID.compute(right_rpm_target, right_rpm_filtered, dt);
+    right_pwm = RightMotorPID.compute(right_rpm_target, right_rpm_filtered, MAX_PWM, dt);
+    left_pwm = LeftMotorPID.compute(right_rpm_target, right_rpm_filtered, MAX_PWM, dt);
 
     vehicleGo(right_pwm, left_pwm);
 }
 
-void turnLeft(){
+void ultrasonicTurnLeft(){
     right_rpm_target = -MAX_RPM_TURN;
     left_rpm_target = MAX_RPM_TURN;
 
-    right_pwm = RightMotorPID.compute(right_rpm_target, right_rpm_filtered, dt);
-    left_pwm = LeftMotorPID.compute(right_rpm_target, right_rpm_filtered, dt);
+    right_pwm = RightMotorPID.compute(right_rpm_target, right_rpm_filtered, MAX_PWM, dt);
+    left_pwm = LeftMotorPID.compute(right_rpm_target, right_rpm_filtered, MAX_PWM, dt);
 
     vehicleGo(right_pwm, left_pwm);
 }
 
-void goForward(){
+void ultrasonicGoForward(){
     right_rpm_target = MAX_RPM_MOVE;
     left_rpm_target = MAX_RPM_MOVE;
 
-    right_pwm = RightMotorPID.compute(right_rpm_target, right_rpm_filtered, dt);
-    left_pwm = LeftMotorPID.compute(right_rpm_target, right_rpm_filtered, dt);
+    right_pwm = RightMotorPID.compute(right_rpm_target, right_rpm_filtered, MAX_PWM, dt);
+    left_pwm = LeftMotorPID.compute(right_rpm_target, right_rpm_filtered, MAX_PWM, dt);
 
     vehicleGo(right_pwm, left_pwm);
 }
@@ -298,60 +306,60 @@ void calibMode(){
 
 void debugHeader(){
     #ifdef RECEIVER_RAW
-    Serial.print(F("Ch 1:")); Serial.print("\t");
-    Serial.print(F("Ch 2:")); Serial.print("\t");
-    Serial.print(F("Ch 3:")); Serial.print("\t");
-    Serial.print(F("Ch 4:")); Serial.print("\t");
+    Serial.print(F("Ch1:")); Serial.print("\t");
+    Serial.print(F("Ch2:")); Serial.print("\t");
+    Serial.print(F("Ch3:")); Serial.print("\t");
+    Serial.print(F("Ch4:")); Serial.print("\t");
     #endif
 
     #ifdef MOTOR_ANGLE_PULSE
-    Serial.print(F("Right Pulse:")); Serial.print("\t");
-    Serial.print(F("Left Pulse:")); Serial.print("\t");
+    Serial.print(F("Right_Pulse:")); Serial.print("\t");
+    Serial.print(F("Left_Pulse:")); Serial.print("\t");
     #endif
 
     #ifdef MOTOR_ANGLE_DEGREE
-    Serial.print(F("Right Deg:")); Serial.print("\t");
-    Serial.print(F("Left Deg:")); Serial.print("\t");
+    Serial.print(F("Right_Deg:")); Serial.print("\t");
+    Serial.print(F("Left_Deg:")); Serial.print("\t");
     #endif
 
     #ifdef MOTOR_ANGLE_RADIAN
-    Serial.print(F("Right Rad:")); Serial.print("\t");
-    Serial.print(F("Left Rad:")); Serial.print("\t");
+    Serial.print(F("Right_Rad:")); Serial.print("\t");
+    Serial.print(F("Left_Rad:")); Serial.print("\t");
     #endif
 
     #ifdef MOTOR_ANGLE_REVOLUTION
-    Serial.print(F("Right Rev:")); Serial.print("\t");
-    Serial.print(F("Left Rev:")); Serial.print("\t");
+    Serial.print(F("Right_Rev:")); Serial.print("\t");
+    Serial.print(F("Left_Rev:")); Serial.print("\t");
     #endif
 
     #ifdef MOTOR_SPEED_PPS
-    Serial.print(F("Right PPS:")); Serial.print("\t");
-    Serial.print(F("Left PPS:")); Serial.print("\t");
+    Serial.print(F("Right_PPS:")); Serial.print("\t");
+    Serial.print(F("Left_PPS:")); Serial.print("\t");
     #endif
 
     #ifdef MOTOR_SPEED_DPS
-    Serial.print(F("Right DPS:")); Serial.print("\t");
-    Serial.print(F("Left DPS:")); Serial.print("\t");
+    Serial.print(F("Right_DPS:")); Serial.print("\t");
+    Serial.print(F("Left_DPS:")); Serial.print("\t");
     #endif
 
     #ifdef MOTOR_SPEED_RPS
-    Serial.print(F("Right RPS:")); Serial.print("\t");
-    Serial.print(F("Left RPS:")); Serial.print("\t");
+    Serial.print(F("Right_RPS:")); Serial.print("\t");
+    Serial.print(F("Left_RPS:")); Serial.print("\t");
     #endif
 
     #ifdef MOTOR_SPEED_RPM
-    Serial.print(F("Right RPM:")); Serial.print("\t");
-    Serial.print(F("Left RPM:")); Serial.print("\t");
+    Serial.print(F("Right_RPM:")); Serial.print("\t");
+    Serial.print(F("Left_RPM:")); Serial.print("\t");
     #endif
 
     #ifdef TARGET_RPM
-    Serial.print(F("Right Target")); Serial.print("\t");
-    Serial.print(F("Left Target")); Serial.print("\t");
+    Serial.print(F("Right_Target")); Serial.print("\t");
+    Serial.print(F("Left_Target")); Serial.print("\t");
     #endif
 
     #ifdef PWM_RESPONSE
-    Serial.print(F("Right PWM")); Serial.print("\t");
-    Serial.print(F("Left PWM")); Serial.print("\t");
+    Serial.print(F("Right_PWM")); Serial.print("\t");
+    Serial.print(F("Left_PWM")); Serial.print("\t");
     #endif
 
     Serial.println();
@@ -401,8 +409,8 @@ void debug(){
     #endif
 
     #ifdef MOTOR_SPEED_RPM
-    Serial.print(RightEncoder.getOmegaRPM()); Serial.print("\t");
-    Serial.print(LeftEncoder.getOmegaRPM()); Serial.print("\t");
+    Serial.print(right_rpm_filtered); Serial.print("\t");
+    Serial.print(left_rpm_filtered); Serial.print("\t");
     #endif
 
     #ifdef TARGET_RPM

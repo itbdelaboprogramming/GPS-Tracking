@@ -11,7 +11,7 @@
 #include "LPF.h"
 
 LPF::LPF(float _cut_off_frequency){
-    cut_off_frequency = _cut_off_frequency
+    cut_off_frequency = _cut_off_frequency;
     filtered = 0;
     last_filtered = 0;
 };
