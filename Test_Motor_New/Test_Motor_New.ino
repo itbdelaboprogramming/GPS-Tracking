@@ -252,8 +252,10 @@ void resetPID(){
 }
 
 void calculatePose(){
-    float delta_angle_right = RightEncoder.getAngleRad() - RightEncoder.getLastRad();
-    float delta_angle_left = LeftEncoder.getAngleRad() - LeftEncoder.getLastRad();
+    //float delta_angle_right = RightEncoder.getAngleRad() - RightEncoder.getLastRad();
+    //float delta_angle_left = LeftEncoder.getAngleRad() - LeftEncoder.getLastRad();
+    float delta_angle_right = RightEncoder.getDeltaRad();
+    float delta_angle_left = LeftEncoder.getDeltaRad();
 
     pose_x = pose_x + WHEEL_RADIUS/2.0 * (delta_angle_right + delta_angle_left) * sin(pose_theta);
     pose_y = pose_y + WHEEL_RADIUS/2.0 * (delta_angle_right + delta_angle_left) * cos(pose_theta);
