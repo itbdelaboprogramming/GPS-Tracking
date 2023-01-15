@@ -16,8 +16,8 @@
 #define MOTOR_SPEED_RPM
 #define TARGET_RPM
 #define PWM_RESPONSE
-#define ERROR_PID
-#define SUM_ERROR_PID
+//#define ERROR_PID
+//#define SUM_ERROR_PID
 
 // Receiver PIN
 #define PIN_CH_1 46
@@ -161,11 +161,11 @@ void loop(){
 
         if(ch_4_value >= 1500 && ch_4_value <= 2000){
             // EKF Callibration
-            in_calib_mode = true;
-            calibMode();
+            //in_calib_mode = true;
+            //calibMode();
         } else {
-            in_calib_mode = false;
-            time_callib = 0;
+            //in_calib_mode = false;
+            //time_callib = 0;
         }
 
         if(ch_3_value <= 1250){
@@ -184,7 +184,7 @@ void loop(){
             left_rpm_target = move_value - turn_value;
 
             right_pwm = RightMotorPID.compute(right_rpm_target, right_rpm_filtered, MAX_PWM, dt);
-            left_pwm = LeftMotorPID.compute(right_rpm_target, right_rpm_filtered, MAX_PWM, dt);
+            left_pwm = LeftMotorPID.compute(left_rpm_target, left_rpm_filtered, MAX_PWM, dt);
 
             if (right_rpm_target == 0 && left_rpm_target == 0){
               vehicleStop();
@@ -277,7 +277,7 @@ void ultrasonicTurnRight(){
     left_rpm_target = -MAX_RPM_TURN;
 
     right_pwm = RightMotorPID.compute(right_rpm_target, right_rpm_filtered, MAX_PWM, dt);
-    left_pwm = LeftMotorPID.compute(right_rpm_target, right_rpm_filtered, MAX_PWM, dt);
+    left_pwm = LeftMotorPID.compute(left_rpm_target, left_rpm_filtered, MAX_PWM, dt);
 
     vehicleGo(right_pwm, left_pwm);
 }
@@ -287,7 +287,7 @@ void ultrasonicTurnLeft(){
     left_rpm_target = MAX_RPM_TURN;
 
     right_pwm = RightMotorPID.compute(right_rpm_target, right_rpm_filtered, MAX_PWM, dt);
-    left_pwm = LeftMotorPID.compute(right_rpm_target, right_rpm_filtered, MAX_PWM, dt);
+    left_pwm = LeftMotorPID.compute(left_rpm_target, left_rpm_filtered, MAX_PWM, dt);
 
     vehicleGo(right_pwm, left_pwm);
 }
@@ -297,7 +297,7 @@ void ultrasonicGoForward(){
     left_rpm_target = MAX_RPM_MOVE;
 
     right_pwm = RightMotorPID.compute(right_rpm_target, right_rpm_filtered, MAX_PWM, dt);
-    left_pwm = LeftMotorPID.compute(right_rpm_target, right_rpm_filtered, MAX_PWM, dt);
+    left_pwm = LeftMotorPID.compute(left_rpm_target, left_rpm_filtered, MAX_PWM, dt);
 
     vehicleGo(right_pwm, left_pwm);
 }
@@ -365,13 +365,13 @@ void debugHeader(){
     #endif
 
     #ifdef ERROR_PID
-    Serial.print(F("Error Right")); Serial.print("\t");
-    Serial.print(F("Error Left")); Serial.print("\t");
+    Serial.print(F("Error_Right")); Serial.print("\t");
+    Serial.print(F("Error_Left")); Serial.print("\t");
     #endif
 
     #ifdef SUM_ERROR_PID
-    Serial.print(F("Sum Error Right")); Serial.print("\t");
-    Serial.print(F("Sum Error Left")); Serial.print("\t");
+    Serial.print(F("Sum_Error_Right")); Serial.print("\t");
+    Serial.print(F("Sum_Error_Left")); Serial.print("\t");
     #endif
 
     Serial.println();

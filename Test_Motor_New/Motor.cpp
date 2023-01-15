@@ -51,4 +51,4 @@ void Motor::stop(){
   digitalWrite(right_en_pin, LOW);
   digitalWrite(left_en_pin, LOW);
   analogWrite(pwm_pin, 0);
-}
+};
