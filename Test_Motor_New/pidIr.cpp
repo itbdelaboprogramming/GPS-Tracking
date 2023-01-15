@@ -18,7 +18,7 @@ pidIr::pidIr(float p, float i, float d){
     kD = d;
     last_error = 0;
     sum_error = 0;
-}
+};
 
 float pidIr::compute(float setpoint, float feedback, float max_response, float Ts){
     error = setpoint - feedback;
@@ -28,18 +28,18 @@ float pidIr::compute(float setpoint, float feedback, float max_response, float T
     last_error = error;
 
     return constrain(output, -max_response, max_response);
-}
+};
 
 void pidIr::reset(){
     output = 0;
     last_error = 0;
     sum_error = 0;
-}
+};
 
 void pidIr::printError(){
     Serial.print(error); Serial.print("\t");
-}
+};
 
 void pidIr::printSumError(){
     Serial.print(sum_error); Serial.print("\t");
-}
+};

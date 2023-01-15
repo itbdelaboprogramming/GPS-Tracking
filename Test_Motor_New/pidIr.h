@@ -21,8 +21,8 @@ class pidIr{
     void reset();
     void printError();
     void printSumError();
-    void getError(){return error;};
-    void getSumError(){return sum_error;};
+    float getError(){return error;};
+    float getSumError(){return sum_error;};
 
     private:
     float error;
