@@ -176,7 +176,7 @@ void loop(){
             // Mode HOLD
             vehicleStop();
             //vehicleGo(0, 0); //vehicleGo(pwm_right,pwm_left);
-        } else if(ch_3_value >= 1750 !in_calib_mode){
+        } else if(ch_3_value >= 1750 && !in_calib_mode){
             // Mode AUTO
             ultrasonicMode();
         } else if(!in_calib_mode){
