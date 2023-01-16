@@ -40,7 +40,7 @@ class Encoder {
     float getLastRev(){return (float)enc_pulse_last/GEAR_RATIO;};
 
     long getDeltaPulse(){return delta_enc_pulse;};
-    long fetDeltaTime(){return delta_time_ms;};
+    long getDeltaTime(){return delta_time_ms;};
     float getDeltaDeg(){return (float)delta_enc_pulse/GEAR_RATIO * REVOLUTION_DEGREE;};
     float getDeltaRad(){return (float)delta_enc_pulse/GEAR_RATIO * REVOLUTION_RADIAN;};
     float getDeltaRev(){return (float)delta_enc_pulse/GEAR_RATIO;};
