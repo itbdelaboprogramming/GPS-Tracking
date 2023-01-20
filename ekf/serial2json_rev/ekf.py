@@ -53,13 +53,15 @@ lla0 = np.array([-6.914744,107.60981,800])
 # Initialization & Tuning Parameter
 def setPar(status,x_init,enu):
     global gps_std, odo_std, x_est
+    # initial state taken from GPS measurement
     if x_init == None:
         x_est = np.array([[enu[0]],[enu[1]],[0]])
-
+    # 1st SET of standard deviation (used before & during heading calibration)
     # GPS meas standard deviation [m]
     gps_std = 5
     # odometry meas standard deviation [m/s]
     odo_std = 5
+    # 2nd set of standard deviation (used after heading calibration)
     if status == 1:
         # GPS meas standard deviation [m]
         gps_std = 10

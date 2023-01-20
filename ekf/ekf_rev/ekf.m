@@ -29,7 +29,7 @@ enu = lla2enu([lat,lon,800],lla0,'ellipsoid');
 
 % Initial state & covariance
 if isempty(x_est)
-    x_est = [enu(1,1); enu(1,2); pi()/2];     
+    x_est = [enu(1,1); enu(1,2); -pi()/2];     
     p_est = eye(3);
     cal = 0; last = "point B"; status = 0;
 end
@@ -45,14 +45,15 @@ if isempty(head_a)
     head_a = 0;
     head_b = 0;
 end
-
+% 1st SET of standard deviation (used before & during heading calibration)
 % GPS meas standard deviation [m]
 gps_std = 4;
 % odometry linear velocity meas standard deviation [m/s]
-odo_std = 3;
+odo_std = 5;
+% 2nd SET of standard deviation (used after heading calibration)
 if status == 1
     % GPS meas standard deviation [m]
-    gps_std = 7;
+    gps_std = 3;
     % odometry linear velocity meas standard deviation [m/s]
     odo_std = 0.1;
 end
@@ -60,7 +61,7 @@ end
 % CONVERT VARIABLE (odometry)
 % odo_V = forwart velocity [m/s]
 odo_V = (odo_VR + odo_VL)/2;
-% odo_w = turning velocity [rad/s]
+% odo_w = turning velocity [rzad/s]
 odo_w = (odo_VR - odo_VL)/L2;
 
 % arc motion in local coordinate
