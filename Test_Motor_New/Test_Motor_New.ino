@@ -13,11 +13,11 @@
 //#define MOTOR_SPEED_PPS
 //#define MOTOR_SPEED_DPS
 //#define MOTOR_SPEED_RPS
-//#define MOTOR_SPEED_RPM
-//#define TARGET_RPM
-//#define PWM_RESPONSE
-#define VEHICLE_POSITION
-#define VEHICLE_SPEED
+#define MOTOR_SPEED_RPM
+#define TARGET_RPM
+#define PWM_RESPONSE
+//#define VEHICLE_POSITION
+//#define VEHICLE_SPEED
 
 
 // Receiver PIN
@@ -62,7 +62,7 @@
 #define MAX_DISTANCE 200            // in cm (maximum distance for ultrasonic)
 #define LOWER_DISTANCE_BOUND 10     // in cm
 #define UPPER_DISTANCE_BOUND 80     // in cm
-#define MAX_PWM 30                  // saturation PWM for action control (0-255)
+#define MAX_PWM 60                  // saturation PWM for action control (0-255)
 
 #define KP_RIGHT_MOTOR 0.325
 #define KI_RIGHT_MOTOR 0.0012
@@ -179,7 +179,8 @@ void loop(){
             //vehicleGo(0, 0); //vehicleGo(pwm_right,pwm_left);
         } else if(ch_3_value >= 1750 && !in_calib_mode){
             // Mode AUTO
-            ultrasonicMode();
+            //ultrasonicMode();
+            ultrasonicGoForward();
         } else if(!in_calib_mode){
             // Mode MANUAL
             move_value = tuneReceiverSignaltoRPM(ch_1_filtered, MAX_RPM_MOVE);
@@ -192,9 +193,9 @@ void loop(){
             left_pwm = LeftMotorPID.compute(left_rpm_target, left_rpm_filtered, MAX_PWM, dt);
 
             if (right_rpm_target == 0 && left_rpm_target == 0){
-              vehicleStop();
+                vehicleStop();
             } else {
-              vehicleGo(right_pwm, left_pwm); 
+                vehicleGo(right_pwm, left_pwm); 
             }
         }
 
@@ -249,8 +250,6 @@ void resetPID(){
 }
 
 void calculatePose(){
-    //float delta_angle_right = RightEncoder.getAngleRad() - RightEncoder.getLastRad();
-    //float delta_angle_left = LeftEncoder.getAngleRad() - LeftEncoder.getLastRad();
     float delta_angle_right = RightEncoder.getDeltaRad();
     float delta_angle_left = LeftEncoder.getDeltaRad();
 
@@ -352,9 +351,9 @@ void calibMode(){
 
 float wrapAngleFloatDegree(float value){
     if(value >= 2*360){
-        return value - 360;
+        return wrapAngleFloatDegree(value - 360);
     } else if(value < 0){
-        return value + 360;
+        return wrapAngleFloatDegree(value + 360);
     } else {
         return value;
     }
@@ -362,9 +361,9 @@ float wrapAngleFloatDegree(float value){
 
 float wrapAngleFloatRadian(float value){
     if(value >= 2*PI){
-        return value - 2 * PI;
+        return wrapAngleFloatRadian(value - 2 * PI);
     } else if(value < 0){
-        return value + 2 * PI;
+        return wrapAngleFloatRadian(value + 2 * PI);
     } else {
         return value;
     }

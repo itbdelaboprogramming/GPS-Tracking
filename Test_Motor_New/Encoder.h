@@ -19,9 +19,6 @@
 #define S_TO_MS_CONVERTER 1000.0
 #define M_TO_S_CONVERTER 60.0
 
-#define ARRAY_SIZE 5
-#define CUT_OFF_FREQ_ENC 3.0
-
 class Encoder {
     public:
     Encoder(int pin_a, int pin_b);

@@ -24,7 +24,7 @@ Encoder::Encoder(int pin_a, int pin_b){
 
 void Encoder::start(void(*userFuncA)(void),void(*userFuncB)(void)){
     // Print information that encoder reading is starting
-    Serial.println("Encoder Begin");
+    //Serial.println("Encoder Begin");
 
     // Set the pin as input pin Arduino
     pinMode(getPinA(), INPUT_PULLUP);
