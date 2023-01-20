@@ -55,11 +55,12 @@ def setPar(status,x_init,enu):
     global gps_std, odo_std, x_est
     if x_init == None:
         x_est = np.array([[enu[0]],[enu[1]],[0]])
-
+    # 1st SET of standard deviation (used before & during heading calibration)
     # GPS meas standard deviation [m]
     gps_std = 5
     # odometry meas standard deviation [m/s]
     odo_std = 5
+    # 2nd SET of standard deviation (used after heading calibration)
     if status == 1:
         # GPS meas standard deviation [m]
         gps_std = 10
