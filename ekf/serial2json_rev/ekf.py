@@ -22,9 +22,9 @@ p_est = np.eye(3)                           # estimated states' covariance matri
 x_prd = np.array([[None],[None],[None]])    # predicted states (P'x,P'y,theta')
 p_prd = np.eye(3)                           # predicted states' covariance matrix
 # Calibration Procedure Parameter:
-cal = 0             # headings callibration data index
+cal = 0             # headings callibration data index 
 last = 'point B'    # headings callibration position marker
-status = 0          # headings callibration status [0 = not calibrated, 1 = calibrated]
+status = 0          # headings callibration status
 # calibration calculation parameter:
 px_a = np.zeros((10,1)) # position X at point A
 py_a = np.zeros((10,1)) # position y at point A
@@ -56,20 +56,12 @@ def setPar(status,x_init,enu):
     # initial state taken from GPS measurement
     if x_init == None:
         x_est = np.array([[enu[0]],[enu[1]],[0]])
-<<<<<<< HEAD
     # 1st SET of standard deviation (used before & during heading calibration)
-=======
-    ## 1st set of standard deviation [used before & during calibration]
->>>>>>> d7a88c75f8e61888f2e3edce5ea3bce65ece43e4
     # GPS meas standard deviation [m]
     gps_std = 5
     # odometry meas standard deviation [m/s]
     odo_std = 5
-<<<<<<< HEAD
-    # 2nd SET of standard deviation (used after heading calibration)
-=======
-    ## 2nd set of standard deviation [used after calibration]
->>>>>>> d7a88c75f8e61888f2e3edce5ea3bce65ece43e4
+    # 2nd set of standard deviation (used after heading calibration)
     if status == 1:
         # GPS meas standard deviation [m]
         gps_std = 10
@@ -135,12 +127,7 @@ def update(x_prd,p_prd,enu):
     p_est = np.matmul(np.subtract(np.eye(3,3), np.matmul(K,jac_hx)), p_prd)
     return x_est,p_est
 
-# mode = toggle between procedures in EKF algorithm 
-#       [0 = wihout GPS meas.(bypass update state),
-#        1 = with GPS meas.,
-#        2 = calibration at point A,
-#        3 = calibration at point B,
-#        4 = calculate initial heading (calibration)]
+# mode = toggle between procedures in EKF algorithm
 # dt = time increment [s]
 # lat,lon = latitude,longitude GPS measurment [deg]
 # odo_VL,odo_VR = left & right velocity from odometry measurement
