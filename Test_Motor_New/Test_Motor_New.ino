@@ -13,11 +13,12 @@
 //#define MOTOR_SPEED_PPS
 //#define MOTOR_SPEED_DPS
 //#define MOTOR_SPEED_RPS
-#define MOTOR_SPEED_RPM
-#define TARGET_RPM
-#define PWM_RESPONSE
+//#define MOTOR_SPEED_RPM
+//#define TARGET_RPM
+//#define PWM_RESPONSE
 //#define VEHICLE_POSITION
 //#define VEHICLE_SPEED
+#define SEND_DATA_TO_RASPI
 
 
 // Receiver PIN
@@ -125,6 +126,7 @@ bool in_calib_mode = false;
 int right_ir;
 int left_ir;
 float distance;
+int data_id = 1;
 
 unsigned long time_now = 0;
 unsigned long time_last = 0;
@@ -142,7 +144,7 @@ void setup(){
     RightEncoder.start(callbackRA, callbackRB);
     LeftEncoder.start(callbackLA, callbackLB);
 
-    debugHeader();
+    //debugHeader();
 
     delay(2000);
 }
@@ -170,6 +172,7 @@ void loop(){
             calibMode();
         } else {
             in_calib_mode = false;
+            data_id = 1;
             time_callib = 0;
         }
 
@@ -316,28 +319,40 @@ void ultrasonicGoForward(){
 void calibMode(){
     if(time_callib < 5000){
         time_callib += dt;
+        data_id = 2;
+        /*
         Serial.print(velocity_left); Serial.print(",");
         Serial.print(velocity_right); Serial.print(",");
         Serial.println(2);
+        */
         vehicleStop();
     } else if(time_callib > 15000){
         time_callib += dt;
         vehicleStop();
 
         if(time_callib > 20000){
+            data_id = 4;
+            /*
             Serial.print(velocity_left); Serial.print(",");
             Serial.print(velocity_right); Serial.print(",");
             Serial.println(4);
+            */
         } else {
+            data_id = 3;
+            /*
             Serial.print(velocity_left); Serial.print(",");
             Serial.print(velocity_right); Serial.print(",");
             Serial.println(3);
+            */
         }
     } else {
         time_callib += dt;
+        data_id = 0;
+        /*
         Serial.print(velocity_left); Serial.print(",");
         Serial.print(velocity_right); Serial.print(",");
         Serial.println(0);
+        */
 
         right_rpm_target = MAX_RPM_MOVE;
         left_rpm_target = MAX_RPM_MOVE;
@@ -538,6 +553,12 @@ void debug(){
     #ifdef MOTOR_PULSE_DIFFERENCE
     Serial.print(RightEncoder.getDeltaPulse()); Serial.print("\t");
     Serial.print(LeftEncoder.getDeltaPulse()); Serial.print("\t");
+    #endif
+
+    #ifdef SEND_DATA_TO_RASPI
+    Serial.print(velocity_left); Serial.print(",");
+    Serial.print(velocity_right); Serial.print(",");
+    Serial.print(data_id);
     #endif
 
     Serial.println();
