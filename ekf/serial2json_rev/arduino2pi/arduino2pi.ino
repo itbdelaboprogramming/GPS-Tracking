@@ -15,4 +15,6 @@ void loop() {
   Serial.println(odo_turning_velocity); Serial.print(",");
   Serial.println(mode);
   //delay(100);
+  Serial.print(mode);
+  delay(100);
 }
