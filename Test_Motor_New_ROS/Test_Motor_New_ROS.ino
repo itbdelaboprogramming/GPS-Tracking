@@ -216,8 +216,7 @@ void loop(){
         }
 
         //Publish wheel_speed and ekf_state
-        pubWheelSpeed();
-        pubEKFState();
+        pubEKFData();
         
         time_last = time_now;
         debug();
@@ -387,21 +386,17 @@ void calibMode(){
     }
 }
 
-void pubWheelSpeed (){
+void pubEKFData (){
   //Assign the wheel speed value
   wheel_speed.linear.x = velocity_right;
   wheel_speed.linear.y = velocity_left;
-
-  //Publish the message
-  wheel_speed_pub.publish(&wheel_speed);
-}
-
-void pubEKFState (){
-  //Assign the EKF state value
   ekf_state.data = data_id;
 
   //Publish the message
+  wheel_speed_pub.publish(&wheel_speed);
   ekf_state_pub.publish(&ekf_state);
+
+  nh.spinOnce();
 }
 
 float wrapAngleFloatDegree(float value){
