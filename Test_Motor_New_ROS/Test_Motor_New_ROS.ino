@@ -1,3 +1,7 @@
+#include <ros.h>
+#include <geometry_msgs/Twist.h>
+#include <std_msgs/UInt8.h>
+
 #include "Motor.h"
 #include "Encoder.h"
 #include "LPF.h"
@@ -18,7 +22,7 @@
 //#define PWM_RESPONSE
 //#define VEHICLE_POSITION
 //#define VEHICLE_SPEED
-#define SEND_DATA_TO_RASPI
+#define EKF_DATA
 
 
 // Receiver PIN
@@ -133,8 +137,22 @@ unsigned long time_last = 0;
 unsigned long time_callib = 0;
 float dt;
 
+//ROS Communication
+ros::NodeHandle nh;
+
+geometry_msgs::Twist wheel_speed;
+std_msgs::UInt8 ekf_state;
+
+ros::Publisher wheel_speed_pub("wheel_speed", &wheel_speed);
+ros::Publisher ekf_state_pub("ekf_state", &ekf_state);
+
 void setup(){
     Serial.begin(9600);
+
+    //Initiate ROS node
+    nh.initNode();
+    nh.advertise(wheel_speed_pub);
+    nh.advertise(ekf_state_pub);
     
     RightMotor.begin();
     LeftMotor.begin();
@@ -144,7 +162,7 @@ void setup(){
     RightEncoder.start(callbackRA, callbackRB);
     LeftEncoder.start(callbackLA, callbackLB);
 
-    //debugHeader();
+    debugHeader();
 
     delay(2000);
 }
@@ -157,13 +175,8 @@ void loop(){
 
         ch_1_filtered = Ch_1_lpf.filter(ch_1_value, dt);
         ch_2_filtered = Ch_2_lpf.filter(ch_2_value, dt);
-        
-        RightEncoder.measureOmega();
-        LeftEncoder.measureOmega();
 
-        right_rpm_filtered = RightRPM_lpf.filter(RightEncoder.getOmegaRPM(), dt);
-        left_rpm_filtered = LeftRPM_lpf.filter(LeftEncoder.getOmegaRPM(), dt);
-
+        //Calculate the robot position and velocity
         calculatePose();
 
         if(ch_4_value >= 1500 && ch_4_value <= 2000){
@@ -202,6 +215,9 @@ void loop(){
             }
         }
 
+        //Publish wheel_speed and ekf_state
+        pubEKFData();
+        
         time_last = time_now;
         debug();
     }
@@ -261,6 +277,12 @@ void calculatePose(){
     pose_theta = pose_theta + (delta_angle_right - delta_angle_left) * WHEEL_RADIUS/WHEEL_DISTANCE;
 
     pose_theta = wrapAngleFloatDegree(pose_theta);
+
+    RightEncoder.measureOmega();
+    LeftEncoder.measureOmega();
+
+    right_rpm_filtered = RightRPM_lpf.filter(RightEncoder.getOmegaRPM(), dt);
+    left_rpm_filtered = LeftRPM_lpf.filter(LeftEncoder.getOmegaRPM(), dt);
 
     velocity_right = right_rpm_filtered * PI/30.0 * WHEEL_RADIUS;
     velocity_left = left_rpm_filtered * PI/30.0 * WHEEL_RADIUS;
@@ -362,6 +384,19 @@ void calibMode(){
 
         vehicleGo(right_pwm, left_pwm);
     }
+}
+
+void pubEKFData (){
+  //Assign the wheel speed value
+  wheel_speed.linear.x = velocity_right;
+  wheel_speed.linear.y = velocity_left;
+  ekf_state.data = data_id;
+
+  //Publish the message
+  wheel_speed_pub.publish(&wheel_speed);
+  ekf_state_pub.publish(&ekf_state);
+
+  nh.spinOnce();
 }
 
 float wrapAngleFloatDegree(float value){
@@ -468,6 +503,12 @@ void debugHeader(){
     Serial.print(F("Left_Pulse_diffference")); Serial.print("\t");
     #endif
 
+    #ifdef EKF_DATA
+    Serial.print(F("Right_Wheel_Speed")); Serial.print(",");
+    Serial.print(F("Left_Wheel_Speed")); Serial.print(",");
+    Serial.print(F("EKF_State")); Serial.print(",");
+    #endif
+
     Serial.println();
 }
 
@@ -555,9 +596,9 @@ void debug(){
     Serial.print(LeftEncoder.getDeltaPulse()); Serial.print("\t");
     #endif
 
-    #ifdef SEND_DATA_TO_RASPI
-    Serial.print(velocity_left); Serial.print(",");
+    #ifdef EKF_DATA
     Serial.print(velocity_right); Serial.print(",");
+    Serial.print(velocity_left); Serial.print(",");
     Serial.print(data_id);
     #endif
 
