@@ -36,20 +36,20 @@
 #define RIGHT_MOTOR_LEN_PIN 5
 #define RIGHT_MOTOR_PWM_PIN 8
 
-#define LEFT_MOTOR_REN_PIN 10
-#define LEFT_MOTOR_LEN_PIN 9
+#define LEFT_MOTOR_REN_PIN 9
+#define LEFT_MOTOR_LEN_PIN 10
 #define LEFT_MOTOR_PWM_PIN 7
 
 // Encoder PIN
-#define RIGHT_ENC_PIN_A 12
-#define RIGHT_ENC_PIN_B 11
+#define RIGHT_ENC_PIN_A 11
+#define RIGHT_ENC_PIN_B 12
 
 #define LEFT_ENC_PIN_A 3
 #define LEFT_ENC_PIN_B 2
 
 // Infrared and Ultrasonic PIN
-#define RIGHT_IR_PIN 24
 #define LEFT_IR_PIN 22
+#define RIGHT_IR_PIN 24
 #define ULTRASONIC_TRIGGER_PIN 26
 #define ULTRASONIC_ECHO_PIN 28
 
@@ -78,9 +78,9 @@
 #define KD_LEFT_MOTOR 0.512
 
 Motor RightMotor(RIGHT_MOTOR_REN_PIN, RIGHT_MOTOR_LEN_PIN, RIGHT_MOTOR_PWM_PIN);
-Motor LeftMotor(LEFT_MOTOR_REN_PIN, LEFT_MOTOR_LEN_PIN, LEFT_MOTOR_PWM_PIN);
+Motor LeftMotor(LEFT_MOTOR_LEN_PIN, LEFT_MOTOR_REN_PIN, LEFT_MOTOR_PWM_PIN);
 
-Encoder RightEncoder(RIGHT_ENC_PIN_A, RIGHT_ENC_PIN_B);
+Encoder RightEncoder(RIGHT_ENC_PIN_B, RIGHT_ENC_PIN_A); //it is inverted to get a right rotation sign
 Encoder LeftEncoder(LEFT_ENC_PIN_A, LEFT_ENC_PIN_B);
 
 LPF Ch_1_lpf(RECEIVER_CUT_OFF);
@@ -191,8 +191,8 @@ void loop(){
 
         if(ch_3_value <= 1250 && !in_calib_mode){
             // Mode HOLD
-            vehicleStop();
-            //vehicleGo(0, 0); //vehicleGo(pwm_right,pwm_left);
+            //vehicleStop();
+            vehicleGo(20, 20); //vehicleGo(pwm_right,pwm_left);
         } else if(ch_3_value >= 1750 && !in_calib_mode){
             // Mode AUTO
             //ultrasonicMode();
