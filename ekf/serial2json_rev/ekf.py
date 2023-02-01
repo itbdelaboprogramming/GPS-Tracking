@@ -152,10 +152,10 @@ def filtering(mode,dt,lat,lon,odo_VL,odo_VR):
         s_fwd = odo_V*dt
         s_str = 0
     else:
-        if odo_w^2 < 0.6^2: # lower threshold for linear motion
+        if odo_w**2 < 0.6**2: # lower threshold for linear motion
             odo_w = odo_w*0.3
         else:
-            if odo_w^2 > 2.36^2: # upper threshold for rotation in place
+            if odo_w**2 > 2.36**2: # upper threshold for rotation in place
                 odo_w = odo_w*0.3
         # general arc motion
         r = odo_V/odo_w
@@ -197,8 +197,8 @@ def filtering(mode,dt,lat,lon,odo_VL,odo_VR):
                     else:
                         if last == 'point B':
                             cal = cal + 1
-                    px_b[cal,1] = x_est[0,0]
-                    py_b[cal,1] = x_est[1,0]
+                    px_b[cal,0] = x_est[0,0]
+                    py_b[cal,0] = x_est[1,0]
                     #head_B = x_est(3,1);
                 else:
                     if mode == 4:
