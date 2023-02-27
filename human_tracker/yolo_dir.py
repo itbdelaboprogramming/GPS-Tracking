@@ -141,16 +141,17 @@ output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers()]
 colors = np.random.uniform(0, 255, size=(len(classes), 3))
 
 # Loading video
-cap = cv2.VideoCapture(0)
+#Realsense has 3 mode of camera, so find the 3 modes
+cap = cv2.VideoCapture(8)
 
 font = cv2.FONT_HERSHEY_PLAIN
 starting_time = time.time()
-frame_id = 0
+frame_id = 1
 
 # main loop
 while True:
     _, frame = cap.read()
-    frame_id += 1
+    # frame_id += 1
 
     height, width, channels = frame.shape
     print(height, width)
@@ -242,10 +243,12 @@ while True:
                         (x, y + 30), font, 2, color, 2)
 
     # frame calculation
-    elapsed_time = time.time() - starting_time
+    current_time = time.time()
+    elapsed_time = current_time - starting_time
     fps = frame_id / elapsed_time
     cv2.putText(frame, "FPS: " + str(round(fps, 2)),
                 (10, 50), font, 2, (0, 0, 0), 3)
+    starting_time = current_time
 
     # showed the window
     cv2.imshow("test", frame)

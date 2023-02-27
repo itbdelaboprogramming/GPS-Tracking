@@ -246,12 +246,12 @@ while not rospy.is_shutdown():
             x, y, w, h = boxes[i]
             label = str(classes[class_ids[i]])
             confidence = confidences[i]
-            direction = directions[i]
+            
             color = colors[class_ids[i]]
             cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
 
             # putText(img, text, org, fontFace, fontScale, color, thickness)
-            cv2.putText(frame, label + " " + str(round(confidence, 2)) + ", " + direction,
+            cv2.putText(frame, label + " " + str(round(confidence, 2)),
                         (x, y + 30), font, 2, color, 2)
 
     # frame calculation
