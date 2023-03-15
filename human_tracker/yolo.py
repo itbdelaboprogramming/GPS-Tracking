@@ -3,11 +3,11 @@ import numpy as np
 import time
 
 # Load Yolo using cv2 Deep Neural Network module
-net = cv2.dnn.readNet("weights/yolov3-tiny.weights", "cfg/yolov3-tiny.cfg")
+net = cv2.dnn.readNet("weights/yolov3-tiny.weights", "cfg/yolov3-tiny-test.cfg")
 classes = []
 
 # Load coco using cv2 Deep Neural Network module
-with open("lib/coco.names", "r") as f:
+with open("lib/coco_test.names", "r") as f:
     classes = [line.strip() for line in f.readlines()]
 layer_names = net.getLayerNames()
 output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers()]
@@ -33,7 +33,7 @@ while True:
     # blobFromImage(image[, scalefactor[, size[, mean[, swapRB[, crop[, ddepth]]]]]]) 
     # create a 4D blob from a frame (scalefactor 1/255 scaling image pixels to 0-1, size provided by YOLO)
     blob = cv2.dnn.blobFromImage(
-        frame, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
+        frame, 1/18, (416, 416), (0, 0, 0), True, crop=False)
 
     net.setInput(blob)
 
