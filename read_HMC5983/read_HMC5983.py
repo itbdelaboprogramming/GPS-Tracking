@@ -37,6 +37,8 @@ def confit(value):
 
 while True:
     HMC5983.write_byte_data(ADDRESS, MODREG, 0x01)
+    HMC5983.write_byte_data(ADDRESS, CONRA, 0x10)
+    HMC5983.write_byte_data(ADDRESS, CONRB, 0x20)
     block = HMC5983.read_i2c_block_data(ADDRESS, DOXMSB, 32)
 
     x_msb = block[0]
