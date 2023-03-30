@@ -1,7 +1,7 @@
 """
 #!/usr/bin/env python
 #title           :SE100.py
-#description     :Python Script to Read GPS Data from Radiolink-SE100 GPS Module (Both Geodetic-Coordinate and Heading)
+#description     :Python Script to Read GPS Data from Radiolink-SE100 GPS Module Using Raspberry Pi (Both Geodetic-Coordinate and Heading)
 #author          :Achmad Syahrul Irwansyah
 #date            :2023/03/31
 #version         :0.2
