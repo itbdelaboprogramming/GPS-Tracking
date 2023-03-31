@@ -20,6 +20,8 @@ import pynmea2 #library for parsing GPS NMEA format
 import datetime #library for date & time
 
 
+
+
 # Address of HMC5983
 ADDRESS = 0x1E
 
@@ -136,6 +138,7 @@ if __name__ == "__main__":
             read_gps()
             read_imu()
             print(timer.strftime("%Y-%m-%d %H:%M:%S"),", ",la,", ",lo,", ",round(heading,2),", ",sats,", ",hdop)
+
 
             time.sleep(0.5)
     except:
