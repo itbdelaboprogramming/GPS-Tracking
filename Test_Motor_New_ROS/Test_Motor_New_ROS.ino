@@ -191,12 +191,12 @@ void loop(){
 
         if(ch_3_value <= 1250 && !in_calib_mode){
             // Mode HOLD
-            //vehicleStop();
-            vehicleGo(20, 20); //vehicleGo(pwm_right,pwm_left);
+            vehicleStop();
+            //vehicleGo(20, 20); //vehicleGo(pwm_right,pwm_left);
         } else if(ch_3_value >= 1750 && !in_calib_mode){
             // Mode AUTO
-            //ultrasonicMode();
-            ultrasonicGoForward();
+            ultrasonicMode();
+            //ultrasonicGoForward();
         } else if(!in_calib_mode){
             // Mode MANUAL
             move_value = tuneReceiverSignaltoRPM(ch_1_filtered, MAX_RPM_MOVE);
