@@ -28,7 +28,7 @@ sio.connect("http://localhost:3000")
 
 # Serial communication
 try:
-    ser = serial.Serial('/dev/ttyUSB0', baudrate=9600, timeout=1)
+    ser = serial.Serial('/dev/ttyUSB1', baudrate=9600, timeout=1)
     print("Connected to GPS SE100 NMEA")
 except:
     print("Disconnected to GPS SE100 NMEA")
@@ -65,7 +65,7 @@ while True:
                 gps_data = {"latitude" : lat, "longitude" : lon}
                 gps2json = json.dumps(gps_data)
                 print(gps2json)
-                sio.emit("gps",gps2json)
+                sio.emit("location",gps2json)
         
                 # Print the data GPS NMEA SE100 Radiolink
                 #print("Time                             :", timer.strftime("%Y-%m-%d %H:%M:%S"))
