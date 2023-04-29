@@ -1,5 +1,6 @@
 import os
 import argparse
+import cv2
 from config.definition import ROOT_DIR
 
 dnn_model = os.path.join(ROOT_DIR, 'weights/yolov3-tiny.weights')
@@ -9,12 +10,19 @@ parser = argparse.ArgumentParser(
     description= 'This program will detect human',
     epilog= 'Hope this works'
 )
-
-#parser.add_argument("mode", choices=['i', 'v'] , help="Input mode for human detection, i for image and v for video")
-#parser.add_argument("source", help="De")
-parser.add_argument('-i', '--image', action='store_true')
-parser.add_argument('source', default='0')
+group = parser.add_mutually_exclusive_group()
+group.add_argument('-c', '--camera', type=int, default=0, help='Camera device id')
+group.add_argument('-i', '--image', action='store_true', help='Image directory')
 args = parser.parse_args()
-print(args)
-print(args.image)
-print(args.source)
+
+if args.image:
+    image_path = input('Enter the path to the image: ')
+    print(image_path)
+
+weight_path = os.path.join(ROOT_DIR, 'weights/yolov3-tiny.weights')
+cfg_path = os.path.join(ROOT_DIR, 'cfg/yolov3-tiny.cfg')
+print("Loading model from ", weight_path, "and", cfg_path)
+net = cv2.dnn.readNet(weight_path, cfg_path)
+confidance_threshold = 0.2
+nms_threshold = 0.5
+
