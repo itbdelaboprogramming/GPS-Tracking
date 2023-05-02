@@ -142,7 +142,7 @@ colors = np.random.uniform(0, 255, size=(len(classes), 3))
 
 # Loading video
 #Realsense has 3 mode of camera, so find the 3 modes
-cap = cv2.VideoCapture(8)
+cap = cv2.VideoCapture(0)
 
 font = cv2.FONT_HERSHEY_PLAIN
 starting_time = time.time()
