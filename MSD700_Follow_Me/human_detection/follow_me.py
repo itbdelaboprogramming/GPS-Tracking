@@ -1,8 +1,23 @@
 from device_camera import *
 from darknet_yolo import *
+import argparse
+
+parser = argparse.ArgumentParser(
+    description= 'This program will detect human',
+    epilog= 'Hope this works'
+)
+group = parser.add_mutually_exclusive_group()
+group.add_argument('-c', '--camera', type=int, default=0, help='Camera device id')
+group.add_argument('-i', '--image', action='store_true', help='Image directory')
+args = parser.parse_args()
+#print(args)
+
+if args.image:
+    image_path = input('Enter the path to the image: ')
+    print(image_path)
 
 net = DarknetDNN()
-camera = DeviceCamera()
+camera = DeviceCamera(device_id=args.camera)
 
 while True:
     #Get frame from camera

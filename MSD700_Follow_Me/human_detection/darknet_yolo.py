@@ -11,7 +11,7 @@ class DarknetDNN:
         self.dnn_config = os.path.join(ROOT_DIR, dnn_config)
         self.dnn_name_lists = os.path.join(ROOT_DIR, "coco.names")
         print("Loading model from ", self.dnn_model)
-        print("Loading model from ", self.dnn_config)
+        print("Loading config from ", self.dnn_config)
         print("Loading names from ", self.dnn_name_lists)
         self.net = cv2.dnn.readNet(self.dnn_model, self.dnn_config)
         self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
