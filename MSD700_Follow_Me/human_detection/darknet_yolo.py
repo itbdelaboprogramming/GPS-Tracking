@@ -1,7 +1,10 @@
 import os
 import cv2
 import numpy as np
-from config.definition import ROOT_DIR
+#from config.definition import ROOT_DIR
+
+#ROOT_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), '..'))
+ROOT_DIR = os.path.dirname(__file__)
 
 class DarknetDNN:
     def __init__(self, dnn_model = "weights/yolov3-tiny.weights", dnn_config = "cfg/yolov3-tiny.cfg"):
