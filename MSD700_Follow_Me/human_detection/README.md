@@ -18,7 +18,24 @@ venv\Scripts\Activate.ps1
 
 6. Go back to GPS-Tracking/MSD700_Follow_Me/human_detection directory
 7. Run `follow_me.py` script
-If succcess, the terminal will print the information about darknet model and the device camera used. A pop up will appear in the screen and show the frame from the camera.
+If succcess, the terminal will print the information about darknet model and the device camera used. A pop up will appear in the screen and show the frame from the camera. To exit the script just press `ESC` key in your keyboard.
+
+These are the example of the script's output when running in Windows Machine.
+```powershell
+Initiating Darknet ...
+Loading model from  D:\Nakayama Iron Works\GPS-Tracking\MSD700_Follow_Me\human_detection\weights/yolov3-tiny.weights
+Loading config from  D:\Nakayama Iron Works\GPS-Tracking\MSD700_Follow_Me\human_detection\cfg/yolov3-tiny.cfg
+Loading names from  D:\Nakayama Iron Works\GPS-Tracking\MSD700_Follow_Me\human_detection\coco.names
+Loading camera ...
+Starting on device  0
+Frame width:  640
+Frame height:  480
+Frame channel:  3
+[ WARN:0@5.379] global net_impl.cpp:174 cv::dnn::dnn4_v20221220::Net::Impl::setUpNet DNN module was not built with CUDA backend; switching to CPU
+Key 27 is pressed.
+Stream end here
+```
+
 If you want to use another camera and not your default one, try to run the script with `-c <device-id>` flag. 
 ```powershell
 python follow_me.py -c 4
