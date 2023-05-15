@@ -410,7 +410,7 @@ The confidence_threshold and nms_threshold (Non-Maximum Suppression) parameters 
 
 The value for these two variable is chosen randomly for now, but in the future for improvement can be used another value.
 
-###### Methods
+###### Methods and Function
 
 1. `detect_object()`
 
@@ -520,4 +520,56 @@ The code also filters out objects that are not labeled as "Person" by checking i
 
 If the confidence score is greater than the `confidence_threshold` and the object is labeled as "Person", the code calculates the coordinates of the bounding box for the detected object using the values in `detection` and the dimensions of the input image (`height` and `width`). The code also calculates the area of the bounding box as `w*h`.
 
-Finally, the code appends the bounding box coordinates, class label, center coordinates, confidence score, and area to the corresponding lists for each object detected (`self.object_boxes`, `self.object_classes`, `self.object_centers`, `self.object_confidences`, and `self.object_area`).
+Finally, the code appends the bounding box coordinates, class label, center coordinates, confidence score, and area to the corresponding lists for each object detected (`self.object_boxes`, `self.object_classes`, `self.object_centers`, `self.object_confidences`, and `self.object_area`). For `self.object_positions`, just check the position of the center of the object detected.
+
+2. `draw_object()`
+
+```python
+class DarknetDNN:
+    def draw_object(self, frame):
+        indexes = cv2.dnn.NMSBoxes(self.object_boxes, self.object_confidences, self.confidence_threshold, self.nms_threshold)
+        for i, box, class_id, center, position in zip(range(len(self.object_boxes)), self.object_boxes, self.object_classes, self.object_centers, self.object_positions):
+            if i not in indexes:
+                continue
+
+            x1, y1, x2, y2 = box
+            cx, cy = center
+            name = self.classes[class_id]
+            #color = self.colors[int(class_id)]
+            #color = (int(color[0]), int(color[1]), int(color[2]))
+            color = (0, 255, 0)
+            this_position = position
+            
+            cv2.circle(frame, (cx, cy), 10, color, 2)
+            cv2.rectangle(frame, (x1, y1), (x2, y2), color, 1)
+            cv2.putText(frame, name.capitalize(), (x1 + 5, y1 + 25), 0, 0.8, (255, 255, 255), 2)
+            cv2.putText(frame, this_position, (x1+5, y1+50), 0, 0.8, (255, 255, 255), 2)
+```
+
+This method will takes in a frame as an argument and draws rectangles and labels around the detected objects in the frame. It uses the information stored in the instance variables of the class `object_boxes`, `object_classes`, `object_centers`, and `object_positions` to draw the rectangles and labels.
+
+First, it calls `cv2.dnn.NMSBoxes()` function to apply non-maximum suppression (NMS) to the detected object bounding boxes. This function removes overlapping bounding boxes and only keeps the ones with the highest confidence scores.
+
+Then, it iterates through the object information stored in the instance variables and checks if the current object's index is in the `indexes` returned by NMS. If it's not, it skips the object and moves on to the next one.
+
+For each object, it retrieves its bounding box coordinates, center point, class label, and position. It sets the color of the rectangle and the label based on the class label. It draws a circle around the center point, a rectangle around the object, and a label with the class name and position of the object. Finally, it returns the modified frame with the objects detected.
+
+3. `get_command`
+
+```python
+class DarknetDNN:
+    def get_command(self):
+        #for box, class_id, contours in zip():
+        if not self.object_area:
+            return 'Hold'
+        else:
+            return self.object_positions[self.object_area.index(max(self.object_area))]
+```
+
+This method returns the position of the largest object detected in the frame, which represents the command for the vehicle to execute.
+
+If there are no objects detected in the frame, it returns 'Hold' indicating that the drone should maintain its current position.
+
+Otherwise, it finds the index of the largest object in `self.object_area` list and returns the corresponding value in `self.object_positions` list, which represents the position of the object. The largest object means that the object that we will follow is the nearest from the vehicle assumming that the size of the object is the same because the nearest object will appear larger in the camera while the opposite for the farthest object.
+
+Currently, this method is used only when the human detectkion is pair up with ROS.
