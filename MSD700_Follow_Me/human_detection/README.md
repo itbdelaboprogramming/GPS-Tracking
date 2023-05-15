@@ -154,7 +154,7 @@ class DeviceCamera:
         pass
 
     def get_frame(self):
-        return self.frame
+        pass
     
     def create_grid(self):
         pass
@@ -257,4 +257,137 @@ class DeviceCamera:
 
 The method `show()` is used to show the frame from the camera stream.
 The method `release()` is used to close the camera.
+
+### DarknetDNN Class
+
+#### Darknet
+Darknet is an open source neural network framework written in C and CUDA. It is fast, easy to install, and supports CPU and GPU computation. You can find the source on [GitHub](https://github.com/pjreddie/darknet) or you can read more about what Darknet can do right [here](https://pjreddie.com/darknet/).
+
+#### YOLO
+YOLO is an abbreviation for the term ‘You Only Look Once’. This is an algorithm that detects and recognizes various objects in a picture (in real-time). Object detection in YOLO is done as a regression problem and provides the class probabilities of the detected images.
+
+YOLO algorithm employs convolutional neural networks (CNN) to detect objects in real-time. As the name suggests, the algorithm requires only a single forward propagation through a neural network to detect objects.
+
+This means that prediction in the entire image is done in a single algorithm run. The CNN is used to predict various class probabilities and bounding boxes simultaneously.
+
+The YOLO algorithm consists of various variants. Some of the common ones include tiny YOLOv3 and YOLOv3.
+
+[More about YOLO](https://pjreddie.com/darknet/yolo/)
+
+##### Class
+
+```python
+import os
+import cv2
+import numpy as np
+
+ROOT_DIR = os.path.dirname(__file__)
+
+class DarknetDNN:
+    def __init__(self, dnn_model = "weights/yolov3-tiny.weights", dnn_config = "cfg/yolov3-tiny.cfg"):
+        pass
+
+    def detect_object(self, image):
+        pass
+
+    def draw_object(self, frame):
+        pass
+
+    def get_command(self):
+        pass
+```
+
+These are the structure of the DarknetDNN class. Some method or function may not be shown here because it is not being used right now. Those method or function may be used in debugging or in the future.
+
+###### Constructor
+```python
+class DarknetDNN:
+    def __init__(self, dnn_model = "weights/yolov3-tiny.weights", dnn_config = "cfg/yolov3-tiny.cfg"):
+        #Initiate DNN model using Darknet framework
+        print("Initiating Darknet ...")
+        self.dnn_model = os.path.join(ROOT_DIR, dnn_model)
+        self.dnn_config = os.path.join(ROOT_DIR, dnn_config)
+        self.dnn_name_lists = os.path.join(ROOT_DIR, "coco.names")
+        print("Loading model from ", self.dnn_model)
+        print("Loading config from ", self.dnn_config)
+        print("Loading names from ", self.dnn_name_lists)
+        self.net = cv2.dnn.readNet(self.dnn_model, self.dnn_config)
+        self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
+        self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
+
+        ...
+```
+The constructor takes 2 argument which are `dnn_model` and `dnn_config`. By default those arguments values are `dnn_model = "weights/yolov3-tiny.weights"` and `dnn_config = "cfg/yolov3-tiny.cfg"`. Those values are the location of the model weights and configuration for the DNN.
+
+Another file that might be interesting is `coco.names` which are the list of object that can be detected, but for this case, we only want to detect human.
+
+```python
+class DarknetDNN:
+    def __init__(self, dnn_model = "weights/yolov3-tiny.weights", dnn_config = "cfg/yolov3-tiny.cfg"):
+        ...
+
+        self.classes = []
+
+        with open(self.dnn_name_lists, "r") as f:
+            self.classes = [line.strip() for line in f.readlines()]
+
+        ...
+```
+
+This part of the script is used to open `coco.names` and save the list. But for this case we actually don't need this part of the code.
+
+```python
+class DarknetDNN:
+    def __init__(self, dnn_model = "weights/yolov3-tiny.weights", dnn_config = "cfg/yolov3-tiny.cfg"):
+        ...
+
+        self.layer_names = self.net.getLayerNames()
+        self.output_layers = [self.layer_names[i - 1] for i in self.net.getUnconnectedOutLayers()]
+        self.colors = np.random.uniform(0, 255, size=(len(self.classes), 3))
+
+        ...
+```
+The first line initializes a variable called self.layer_names to a list of all the layer names in the neural network. The second line initializes a variable called self.output_layers to a list of the output layer names in the neural network. These are the layers that produce the final output of the network, which may be the predicted class probabilities or the bounding boxes of detected objects. The code uses the getUnconnectedOutLayers method to obtain the indices of the output layers and subtracts one from each index to get the corresponding layer name from self.layer_names.
+
+The third line initializes a variable called self.colors to an array of random RGB values that will be used to draw bounding boxes or labels for the detected objects. The array has a shape of (num_classes, 3), where num_classes is the number of classes that the neural network is trained to detect or classify. The np.random.uniform method is used to generate random values between 0 and 255 for each RGB channel.
+
+In our case, we actually don't need this third line because we only detect one object which is `Person`.
+
+```python
+class DarknetDNN:
+    def __init__(self, dnn_model = "weights/yolov3-tiny.weights", dnn_config = "cfg/yolov3-tiny.cfg"):
+        ...
+
+        #Blob parameter
+        self.blob_scalefactor = 0.00392
+        self.blob_size = (320, 320)
+        self.blob_scalar = (0, 0, 0)
+        self.blob_swapRB = True
+        self.blob_crop = False
+        self.blob_ddepth = cv2.CV_32F
+
+        ...
+```
+
+In this part, we initialize the value for Blob parameter. Blob refers to a multi-dimensional array of data that is used as input to a neural network. A blob is typically created by pre-processing an input image to meet the requirements of the neural network's input layer.
+
+A blob can be thought of as a higher-level representation of an image, where the pixel values are transformed into a format that can be efficiently processed by the neural network. The pre-processing steps involved in creating a blob can include resizing the input image to a fixed size, scaling the pixel values to a certain range, and reordering the color channels.
+
+The first parameter, `self.blob_scalefactor`, is a scale factor used to normalize the pixel values of the input image. This value is multiplied by each pixel value to scale them to a range between 0 and 1. The value of 0.00392 is equivalent to dividing each pixel value by 255, which is the maximum value that a pixel can have in an 8-bit color image.
+
+The second parameter, `self.blob_size`, specifies the size of the input image that the neural network expects. In this case, the input images are resized to a square shape with a width and height of 320 pixels. There are 5 common size for blob.
+1. 224x224
+2. 256x256
+3. 320x320
+4. 416x416
+5. 512x512
+The optimal value for blob may be differ for each case. In this case I just pick randomly. In the future we may be use anotbher value to get the most optimal human detector.
+
+The third parameter, `self.blob_scalar`, is a tuple that specifies a scalar value to subtract from each pixel value in the input image. This is used to center the pixel values around zero and to help normalize the input data.
+
+The fourth parameter, `self.blob_swapRB`, is a Boolean value that determines whether the color channels of the input image should be swapped. In OpenCV, the default order of color channels is BGR, but some neural networks may expect RGB color channels. Setting this parameter to True swaps the first and last color channels of the input image from BGR to RGB.
+
+The fifth parameter, `self.blob_crop`, is a Boolean value that determines whether the input image should be cropped to the specified self.blob_size after resizing. If this parameter is set to True, the center region of the resized image will be cropped to the desired size.
+
+The sixth parameter, `self.blob_ddepth`, specifies the data type of the output blob that will be fed into the neural network. In this case, the data type is cv2.CV_32F, which is a 32-bit floating point format.
 
