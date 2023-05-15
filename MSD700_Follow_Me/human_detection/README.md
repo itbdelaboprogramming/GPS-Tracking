@@ -392,3 +392,132 @@ The fifth parameter, `self.blob_crop`, is a Boolean value that determines whethe
 
 The sixth parameter, `self.blob_ddepth`, specifies the data type of the output blob that will be fed into the neural network. In this case, the data type is cv2.CV_32F, which is a 32-bit floating point format.
 
+```python
+class DarknetDNN:
+    def __init__(self, dnn_model = "weights/yolov3-tiny.weights", dnn_config = "cfg/yolov3-tiny.cfg"):
+        ...
+
+        #Threshold for detecting object
+        self.confidence_threshold = 0.3
+        self.nms_threshold = 0.4
+```
+
+The confidence_threshold and nms_threshold (Non-Maximum Suppression) parameters are used for object detection tasks and it affect the accuracy and reliability of the detections.
+
+`confidence_threshold`, specifies the minimum confidence score required for an object detection to be considered valid. The confidence score represents the probability that a detected object belongs to a particular class. A higher confidence threshold will result in fewer detections, but they will be more reliable. Conversely, a lower confidence threshold will result in more detections, but some of them may be false positives. The confidence_threshold value is typically set in the range of 0.1 to 0.5.
+
+`nms_threshold`, is used to remove redundant detections for the same object. After object detection, multiple bounding boxes may be assigned to the same object, resulting in duplicate detections. The NMS algorithm removes the redundant detections by selecting the bounding box with the highest confidence score and suppressing the others. The nms_threshold parameter controls the overlap between bounding boxes that are considered redundant. A higher nms_threshold will result in more suppression and fewer detections, while a lower nms_threshold will result in fewer suppression and more detections. The nms_threshold value is typically set in the range of 0.1 to 0.9.
+
+The value for these two variable is chosen randomly for now, but in the future for improvement can be used another value.
+
+###### Methods
+
+1. `detect_object()`
+
+This method will take frame from camera and feed it into the DNN that we create.
+
+```python
+class DarknetDNN:
+    def detect_object(self, image):
+        #Set image into blob
+        height, width, channels = image.shape
+        blob = cv2.dnn.blobFromImage(image, self.blob_scalefactor, self.blob_size, self.blob_scalar, self.blob_swapRB, self.blob_crop, self.blob_ddepth)
+
+        #Add blob as input and wait for output
+        self.net.setInput(blob)
+        outs = self.net.forward(self.output_layers)
+
+        ...
+```
+
+The first part of the method is to create a blob from the input frame and feed it to the Deep Neural Network (DNN). The neural network is then run using the `self.net.forward()` method, which returns the output of the network for the specified output layers (`self.output_layers`). The output is stored in the `outs` variable for object detection.
+
+```python
+class DarknetDNN:
+    def detect_object(self, image):
+        ...
+
+        #Object informations
+        self.object_boxes = []
+        self.object_classes = []
+        self.object_centers = []
+        self.object_contours = []
+        self.object_positions = []
+        self.object_confidences = []
+        self.object_area = []
+
+        ...
+```
+
+The code creates empty lists to store information about the objects detected in the input image. These lists later will be populated with information obtained from the output of the neural network.
+
+* `self.object_boxes`: This list will store the bounding boxes of the objects detected in the input image. A bounding box is defined by four values: the x-coordinate and y-coordinate of the top-left corner of the box, and the width and height of the box.
+
+* `self.object_classes`: This list will store the class labels of the objects detected in the input image. Each object is assigned a label that represents the type of object detected, such as "person", "car", or "dog".
+
+* `self.object_centers`: This list will store the center coordinates of the bounding boxes of the objects detected in the input image. The center coordinates are calculated as the midpoint of the x-coordinate and y-coordinate of the bounding box.
+
+* `self.object_contours`: This list will store the contour points of the objects detected in the input image. A contour is a curve that connects points of equal intensity in an image. The contour points are used to draw the boundaries of the objects in the output image.
+
+* `self.object_positions`: This list will store the position of the objects detected in the input image. The position is wether the object is in `Left`, `Right` or `Center` of the frame.
+
+* `self.object_confidences`: This list will store the confidence scores of the objects detected in the input image. The confidence score represents the probability that the object detected belongs to a particular class.
+
+* `self.object_area`: This list will store the area of the objects detected in the input image. The area is calculated as the product of the width and height of the bounding box.
+
+```python
+class DarknetDNN:
+    def detect_object(self, image):
+        ...
+
+        for out in outs:
+            for detection in out:
+                scores = detection[5:]
+
+                class_id = np.argmax(scores)
+                confidance = scores[class_id]
+
+                # To filter object confidance
+                if confidance < self.confidence_threshold:
+                    continue
+                
+                # To filter out other than 'Person' object
+                if class_id != 0:
+                    continue
+                
+                cx = int(detection[0] * width)
+                cy = int(detection[1] * height)
+                w = int(detection[2] * width)
+                h = int(detection[3] * height)
+                area = int(w * h)
+
+                x1 = int(cx - w/1.8)
+                y1 = int(cy - h/1.8)
+                x2 = int(cx + w/1.8)
+                y2 = int(cy + h/1.8)
+
+                self.object_boxes.append([x1, y1, x2, y2])
+                self.object_classes.append(class_id)
+                self.object_centers.append([cx, cy])
+                self.object_confidences.append(confidance)
+                self.object_area.append(area)
+                
+                if cx <= width/3:
+                    self.object_positions.append('Left')
+                elif cx >= 2*width/3:
+                    self.object_positions.append('Right')
+                else:
+                    self.object_positions.append('Center')
+```
+
+This code is responsible for extracting information about the objects detected in the input image from the output of the neural network.
+
+For each output layer in `outs`, the code iterates through the detections in that layer. For each detection, the code extracts the scores for each class, and finds the index of the class with the highest score using `np.argmax(scores)`. The confidence score for that class is then obtained from `scores[class_id]`.
+
+The code then checks if the confidence score for the detected object is greater than the `confidence_threshold`. If it is not, the object is skipped and the code proceeds to the next detection.
+
+The code also filters out objects that are not labeled as "Person" by checking if the `class_id` is equal to 0.
+
+If the confidence score is greater than the `confidence_threshold` and the object is labeled as "Person", the code calculates the coordinates of the bounding box for the detected object using the values in `detection` and the dimensions of the input image (`height` and `width`). The code also calculates the area of the bounding box as `w*h`.
+
+Finally, the code appends the bounding box coordinates, class label, center coordinates, confidence score, and area to the corresponding lists for each object detected (`self.object_boxes`, `self.object_classes`, `self.object_centers`, `self.object_confidences`, and `self.object_area`).
