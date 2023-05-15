@@ -137,7 +137,7 @@ We want to know if the object that we detected is located in the center, left or
 
 After all the processing of the frame, we show the final result of the object detection.
 
-For exit condition, we chcekc if the keyh `ESC` is being pressed or not. The key number for `ESC` is `27`.
+For exit condition, we check if the key `ESC` is being pressed or not. The key number for `ESC` is `27`.
 
 After exiting the loop, we then turn-off the camera using `camera.release()`.
 
@@ -232,4 +232,29 @@ The function `get_frame()` is used to capture frame from video stream. We then e
 To calculate the FPS of the video stream, we track the time of the frame that we got then calculate the difference of that frame relative to the frame that we get previously. The FPS is the inverse of that differenc in time. We then put the FPS that we got into the frame of the video stream.
 
 After that return that frame.
+
+```python
+class DeviceCamera:
+    def create_grid(self):
+        self.frame = cv2.line(self.frame, (int(self.frame_width/3), 0), (int(self.frame_width/3), self.frame_height), (0, 255, 0), 1)
+        self.frame = cv2.line(self.frame, (int(2*self.frame_width/3), 0), (int(2*self.frame_width/3), self.frame_height), (0, 255, 0), 1)
+```
+
+The method `create_grid()` is simply just create 2 lines that will divide the frame into 3 area: `Left`, `Center`, and `Right`.
+
+```python
+class DeviceCamera:
+    def show(self):
+        if self.retval:
+            cv2.imshow(self.winname, self.frame)
+        else:
+            print("No frame detected")
+    
+    def release(self):
+        self.capture.release()
+        print("Stream end here")
+```
+
+The method `show()` is used to show the frame from the camera stream.
+The method `release()` is used to close the camera.
 
