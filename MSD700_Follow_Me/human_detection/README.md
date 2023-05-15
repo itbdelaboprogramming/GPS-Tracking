@@ -381,6 +381,7 @@ The second parameter, `self.blob_size`, specifies the size of the input image th
 3. 320x320
 4. 416x416
 5. 512x512
+
 The optimal value for blob may be differ for each case. In this case I just pick randomly. In the future we may be use anotbher value to get the most optimal human detector.
 
 The third parameter, `self.blob_scalar`, is a tuple that specifies a scalar value to subtract from each pixel value in the input image. This is used to center the pixel values around zero and to help normalize the input data.
