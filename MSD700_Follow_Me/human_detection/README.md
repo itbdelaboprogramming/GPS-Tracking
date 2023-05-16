@@ -6,6 +6,13 @@ This folder contain all the code to detect human from the frame image of a camer
 [Files and Scripts Explanation](#files-and-scripts-explanation)
     [Files and Folders](#files-and-folders)
     [Main Script](#main-script)
+    [Device Camera Class](#device-camera-class)
+    [DarknetDNN Class](#darknetdnn-class)
+        [Darknet](#darknet)
+        [YOLO](#yolo)
+            [Class](#class)
+                [Constructor](#constructor)
+                [Methods and Function](#methods-and-function)
     
 ## How to Use
 
