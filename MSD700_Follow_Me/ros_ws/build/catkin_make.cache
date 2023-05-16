@@ -1,2 +1,0 @@
-camera_control_pkg
--DCATKIN_DEVEL_PREFIX=/home/itbdelabof3/allproject/GPS-Tracking/MSD700_Follow_Me/ros_ws/devel -DCMAKE_INSTALL_PREFIX=/home/itbdelabof3/allproject/GPS-Tracking/MSD700_Follow_Me/ros_ws/install -G Unix Makefiles

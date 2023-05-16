@@ -1,8 +1,0 @@
-prefix=/home/itbdelabof3/allproject/GPS-Tracking/MSD700_Follow_Me/ros_ws/install
-
-Name: camera_control_pkg
-Description: Description of camera_control_pkg
-Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 
