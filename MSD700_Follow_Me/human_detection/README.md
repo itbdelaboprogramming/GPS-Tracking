@@ -7,7 +7,7 @@ This folder contain all the code to detect human from the frame image of a camer
 1. Download/Pull the code from GitHub
 2. Go to GPS-Tracking/MSD700_Follow_Me/human_detection directory
 
-If you run this in Jetson device or any device that have Python installed globally (not recommended), then you can skip this step and jum to step 6
+If you run this in Jetson device or any device that have Python installed globally (not recommended), then you can skip this step and jump to step 6
 
 3. Install [virtual environment](https://python.land/virtual-environments/virtualenv) for Python
 4. Activate the virtual environment
