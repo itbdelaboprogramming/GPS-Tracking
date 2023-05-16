@@ -3,7 +3,7 @@
 This folder contain all the code to detect human from the frame image of a camera. 
 
 * [How to Use](#how-to-use)  
-    * [Files and Scripts Explanation](#files-and-scripts-explanation)  
+* [Files and Scripts Explanation](#files-and-scripts-explanation)  
     * [Files and Folders](#files-and-folders)  
     * [Main Script](#main-script)  
     * [Device Camera Class](#device-camera-class)  
