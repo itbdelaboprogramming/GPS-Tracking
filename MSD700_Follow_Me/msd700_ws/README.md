@@ -114,4 +114,10 @@ The video stream will pop up and display the video stream of human detector.
 
 # Code Explanation
 
+![ros_arduino_diagram](/MSD700_Follow_Me/img/ros_arduino_diagram.png?raw=true "ROS-Arduino")
+
+The `/camera_control` is a ROS node that will open the device camera and run a detection algorithm and detect human in the frame of the camera stream. [Here](/MSD700_Follow_Me/human_detection/README.md) to learn more about the detection algorithm. `/camera_control` will be publishing `/rover_command` topic that contain message for commanding the Arduino.  
+
+The `/serial_node` is a ROS Node that we run so we can access the Arduino through ROS. Just imagine that this node is the node that we upload to the Arduino Board. The `/serial_node` will subscribe `/rover_command` topic that `/camera_control` had published. The message from that topic then being translated into servo movement.
+
 ## Arduino Code
