@@ -84,7 +84,7 @@ This file is the main script for human detection. Run this script to open the ca
 
 The main script to run the human detector is [follow_me.py](/MSD700_Follow_Me/human_detection/follow_me.py). The file follows this flowchart.
 
-![Human_detection_flowchart](/MSD700_Follow_Me/human_detection/img/Flowchart%20human-detection.png?raw=true "Human detection flowchart")
+![Human_detection_flowchart](/MSD700_Follow_Me/img/Flowchart%20human-detection.png?raw=true "Human detection flowchart")
 
 Now open the file [follow_me.py](/MSD700_Follow_Me/human_detection/follow_me.py) and see these parts of script.
 ```python

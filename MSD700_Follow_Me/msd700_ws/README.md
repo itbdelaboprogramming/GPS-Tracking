@@ -28,6 +28,15 @@ After installing `rosserial` for our machine, we installed `rosserial` arduino l
 
 To check the system, we will move the servo based on the position of human detected by the camera.
 
-## Setup on Arduino Board
+1. Setup on Arduino Board  
 
+Just upload [this](/MSD700_Follow_Me/Arduino/control_servo_with_ros/control_servo_with_ros.ino) sketch into the Arduino Board. In this case we will use Arduino Uno R3 Board.  
 
+Connect the servo to the Arduino Board.  
+
+![Arduino Board](/MSD700_Follow_Me/img/servo_wiring.png?raw=true "Arduino Wiring")
+
+2. Setup on Your Machine
+  
+To use ROS, we need Ubuntu installed on our machine. In this case we will use itbdelabof3 in Lab, but this code should work on any machine that use Ubuntu. Next we may test it in Jetson Xavier NX.  
+  
