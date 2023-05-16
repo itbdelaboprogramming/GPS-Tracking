@@ -76,18 +76,18 @@ roscore
 6. Run the launch file.
 
 ```bash
-roslaunch human_detector follower.launch
+roslaunch human_detector_pkg follower.launch
 ```
 
 If the file is successfully launch, the output at the terminal will be like this.
 
 ```bash
-... logging to /home/itbdelabof3/.ros/log/a9a53544-f395-11ed-b034-7bcaf4a26fc2/roslaunch-itbdelabof3-OptiPlex-7470-AIO-54339.log
+... logging to /home/itbdelabof3/.ros/log/a9a53544-f395-11ed-b034-7bcaf4a26fc2/roslaunch-itbdelabof3-OptiPlex-7470-AIO-210559.log
 Checking log directory for disk usage. This may take a while.
 Press Ctrl-C to interrupt
 Done checking log file disk usage. Usage is <1GB.
 
-started roslaunch server http://itbdelabof3-OptiPlex-7470-AIO:40375/
+started roslaunch server http://itbdelabof3-OptiPlex-7470-AIO:36521/
 
 SUMMARY
 ========
@@ -98,14 +98,14 @@ PARAMETERS
 
 NODES
   /
-    camera_control (human_detector/follow_me.py)
+    camera_control (human_detector_pkg/follow_me.py)
     serial_node (rosserial_python/serial_node.py)
 
 ROS_MASTER_URI=http://localhost:11311
 
-process[camera_control-1]: started with pid [54365]
-process[serial_node-2]: started with pid [54366]
-[ WARN:0@0.508] global net_impl.cpp:174 setUpNet DNN module was not built with CUDA backend; switching to CPU
+process[camera_control-1]: started with pid [210596]
+process[serial_node-2]: started with pid [210606]
+[ WARN:0@1.673] global net_impl.cpp:174 setUpNet DNN module was not built with CUDA backend; switching to CPU
 ```
 
 The video stream will pop up and display the video stream of human detector.
