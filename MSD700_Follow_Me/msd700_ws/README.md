@@ -121,3 +121,105 @@ The `/camera_control` is a ROS node that will open the device camera and run a d
 The `/serial_node` is a ROS Node that we run so we can access the Arduino through ROS. Just imagine that this node is the node that we upload to the Arduino Board. The `/serial_node` will subscribe `/rover_command` topic that `/camera_control` had published. The message from that topic then being translated into servo movement.
 
 ## Arduino Code
+
+Open [this](/MSD700_Follow_Me/Arduino/control_servo_with_ros/control_servo_with_ros.ino) sketch.
+
+```cpp
+#include <Servo.h> 
+#include <ros.h>
+#include <std_msgs/UInt8.h>
+
+ros::NodeHandle  nh;
+
+Servo servo;
+
+void servo_cb( const std_msgs::UInt8& cmd_msg){
+  if(cmd_msg.data == 1){
+    servo.write(0);
+  } else if(cmd_msg.data == 2){
+    servo.write(180);
+  } else if(cmd_msg.data == 3){
+    servo.write(90);
+  }
+}
+
+ros::Subscriber<std_msgs::UInt8> sub("rover_command", servo_cb);
+
+void setup(){
+  pinMode(9, OUTPUT);
+
+  nh.initNode();
+  nh.subscribe(sub);
+  
+  servo.attach(9); //attach it to pin 9
+}
+
+void loop(){
+  nh.spinOnce();
+  delay(1);
+}
+```
+
+First, see this part of the code:
+
+```cpp
+#include <Servo.h> 
+#include <ros.h>
+#include <std_msgs/UInt8.h>
+```
+
+In this part, we include `Servo.h` and `ros.h` to access the Servo library and ROS library. We also expected the message from the topic that we subscribed to be in type of *8-bit unsigned integer* or `UInt8` so we included it from the *standard messages* (`std_msgs`).
+
+```cpp
+ros::NodeHandle  nh;
+```
+
+This line declares a ROS node handle object, which is used to communicate with other nodes in the ROS network.
+
+```cpp
+Servo servo;
+```
+
+This line declares a Servo object, which will be used to control the servo motor.
+
+```cpp
+void servo_cb( const std_msgs::UInt8& cmd_msg){
+  if(cmd_msg.data == 1){
+    servo.write(0);
+  } else if(cmd_msg.data == 2){
+    servo.write(180);
+  } else if(cmd_msg.data == 3){
+    servo.write(90);
+  }
+}
+```
+
+This function is a callback function that will be called whenever a new message is received on the `rover_command` topic. The function reads the message data and sets the servo position accordingly. If the message data is 1, the servo will be set to the minimum position (0 degrees). If the message data is 2, the servo will be set to the maximum position (180 degrees). If the message data is 3, the servo will be set to the middle position (90 degrees).
+
+```cpp
+ros::Subscriber<std_msgs::UInt8> sub("rover_command", servo_cb);
+```
+
+This line creates a ROS subscriber object that will listen for messages on the `rover_command` topic. Whenever a new message is received, the `servo_cb()` function will be called to handle the message.
+
+```cpp
+void setup(){
+  pinMode(9, OUTPUT);
+
+  nh.initNode();
+  nh.subscribe(sub);
+  
+  servo.attach(9); //attach it to pin 9
+}
+```
+
+This function is called once at the beginning of the sketch. It initializes pin 9 as an output pin, initializes the ROS node handle, subscribes to the `rover_command` topic, and attaches the servo motor to pin 9.
+
+```cpp
+void loop(){
+  nh.spinOnce();
+  delay(1);
+}
+```
+
+This function is called repeatedly in a loop after the `setup()` function. It calls the `spinOnce()` function of the ROS node handle, which checks for incoming messages and calls the appropriate callback functions. The `delay(1)` statement adds a small delay between iterations of the loop to prevent excessive processing.
