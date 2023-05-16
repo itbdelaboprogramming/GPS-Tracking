@@ -223,3 +223,129 @@ void loop(){
 ```
 
 This function is called repeatedly in a loop after the `setup()` function. It calls the `spinOnce()` function of the ROS node handle, which checks for incoming messages and calls the appropriate callback functions. The `delay(1)` statement adds a small delay between iterations of the loop to prevent excessive processing.
+
+## ROS Node Code
+
+We write the publisher node in *Python*. Open [this](/MSD700_Follow_Me/msd700_ws/src/human_detector_pkg/src/follow_me.py) python file. The algorithm for object detection is as same as [this](/MSD700_Follow_Me/human_detection/). [Here](/MSD700_Follow_Me/human_detection/README.md) to learn more about the detection algorithm.
+
+```python
+#!/usr/bin/env python3
+import rospy
+import time
+from std_msgs.msg import UInt8
+from darknet_yolo import *
+from device_camera import *
+
+#Initialize Darknet and Camera
+net = DarknetDNN()
+camera = DeviceCamera(0)
+start_time = time.time()
+frequency = 10 #in Hz
+
+rospy.init_node('camera_control')
+pub = rospy.Publisher('rover_command', UInt8, queue_size=10)
+
+while not rospy.is_shutdown():
+    #Get frame from camera
+    frame = camera.get_frame()
+
+    #Detect human from the frame
+    net.detect_object(frame)
+    
+    #Draw bounding box of the human detected
+    net.draw_object(frame)
+
+    #Publish the command
+    if time.time() - start_time >= 1/frequency:
+        direct = net.get_command()
+        if direct == 'Right':
+            command = 1
+        elif direct == 'Left':
+            command = 2
+        elif direct == 'Center':
+            command = 3
+        else:
+            command = 0
+        
+        rospy.loginfo(command)
+        pub.publish(command)
+
+        start_time = time.time()
+
+    #Draw grid
+    camera.create_grid()
+
+    #Display the image
+    camera.show()
+
+    #exit condition
+    key = cv2.waitKey(1)
+    if key == 27:
+        print(f"Key {key} is pressed.")
+        break
+
+camera.release()
+```
+
+First see this part of the code.
+
+```python
+import rospy
+import time
+from std_msgs.msg import UInt8
+from darknet_yolo import *
+from device_camera import *
+```
+
+In this part, we import `rospy` and `time` to access ROS library for python and `time` to use as timing for publishing the topic. The message that we want to publish later will be in type of *8-bit unsigned integer*, so we import `UInt8` from `std_msgs.msg`. We also import `DarknetDNN` and `DeviceCamera` to access the neural network and the camera.
+
+```python
+#Initialize Darknet and Camera
+net = DarknetDNN()
+camera = DeviceCamera(0)
+start_time = time.time()
+frequency = 10 #in Hz
+```
+
+This part we create DarknetDNN and DeviceCamera object. **Don't forget to change the device id in DeviceCamera according to the cmaera that will be used.** We also initiate start time to get timestamp for when the program will be start. We also set the frequency that the topic will be published. In this case we will use 10 Hz.
+
+```python
+rospy.init_node('camera_control')
+pub = rospy.Publisher('rover_command', UInt8, queue_size=10)
+```
+
+This part of code we initializes the node with the given name 'camera_control'. This creates a new node for the ROS system. A node in ROS is a process that performs computation. A node can publish or subscribe to a certain topic and can also provide or use a certain service. A node can also interact with other nodes in the ROS system. Then we creates a new publisher that sends messages of the type `UInt8` on the topic `rover_command`. A publisher is a ROS node that sends messages on a topic. The first argument to the Publisher constructor is the topic name, the second argument is the message type, and the third argument is the queue size. The queue size determines how many messages can be stored in the publisher's buffer before old messages are discarded. In this case, the queue size is set to 10.
+
+```python
+while not rospy.is_shutdown():
+    ...
+    #Publish the command
+    if time.time() - start_time >= 1/frequency:
+        direct = net.get_command()
+        if direct == 'Right':
+            command = 1
+        elif direct == 'Left':
+            command = 2
+        elif direct == 'Center':
+            command = 3
+        else:
+            command = 0
+        
+        rospy.loginfo(command)
+        pub.publish(command)
+
+        start_time = time.time()
+    ...
+```
+
+When publishing the topic, we first check the current time subtract it with the timestamp. We then compare it with 1/frequency that we will publish the topic. This condition ensures that the command is published at a regular frequency, determined by the frequency variable.
+
+The direct variable is assigned a value returned from a function `net.get_command()`. This function returns a direction command, such as `Right`, `Left`, or `Center`.
+
+The `if-elif` statements assign a numeric value to the command variable based on the direct variable. The `command` variable will be used to publish the command to the `rover_command` topic.
+
+`rospy.loginfo(command)` logs the `command` variable value to the console for debugging purposes.
+
+`pub.publish(command)` publishes the `command` variable value on the `rover_command` topic using the publisher created earlier. This sends the command to the rover control system.
+
+Finally, `start_time` is set to the current time so that the next `command` is published at the appropriate time, determined by the `frequency` variable.
