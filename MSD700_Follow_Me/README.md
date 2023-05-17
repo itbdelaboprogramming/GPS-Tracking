@@ -9,3 +9,6 @@ This folder contain all the code to detect human before putting it to the ros pa
 
 ## [msd700_ws](/MSD700_Follow_Me/msd700_ws/)
 This folder contain all the code for running ROS workspace in other device. The code has been tested in itbdelabof3 computer.
+
+## [serial_control (discontinued)](/MSD700_Follow_Me/serial_control/)
+This folder contain all the code for controlling servo using serial communication.

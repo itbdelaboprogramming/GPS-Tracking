@@ -2,6 +2,14 @@
 
 This code is used to test if direct serial communication from computer is suitable to control the movement of the rover. For this test we try to control the movement of the servo. **From the test we concluded that communication using direct serial communication isn't suitable for the project.** When using direct serial, the human detection algorithm flow is disturbed. ecause of this, we will use ROS for communicating between computer and Arduino.  
 
+* [Servo Control with Serial (Discontinued)](#servo-control-with-serial-discontinued)
+* [How to Use](#how-to-use)
+    * [Setup on Arduino Board](#setup-on-arduino-board)
+    * [Setup on Your Machine](#setup-on-your-machine)
+* [Code Explanation](#code-explanation)
+    * [Arduino Code](#arduino-code)
+    * [Python Script](#python-script)
+
 # How to Use
 
 We will need these file to show the direct serial communication:
