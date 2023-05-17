@@ -60,7 +60,7 @@ First, we import `Servo` library and create a Servo object.
 Servo servo;
 ```
 
-In the `setup()` function, `Serial.begin(9600)` initializes the serial communication with a baud rate of $$9600$$. `servo.attach(9)` attaches the servo motor to pin 9 of the Arduino board.
+In the `setup()` function, `Serial.begin(9600)` initializes the serial communication with a baud rate of 9600. `servo.attach(9)` attaches the servo motor to pin 9 of the Arduino board.
 
 ```cpp
 void setup(){
@@ -90,3 +90,6 @@ void loop(){
 ```
 
 The code will continue to read and execute commands as long as serial input is available.
+
+## Python Script
+
