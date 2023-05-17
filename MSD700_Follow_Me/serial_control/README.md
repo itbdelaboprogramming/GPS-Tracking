@@ -186,4 +186,32 @@ frequency = 10 # in Hz
 
 To create the serial object, we need to specify the port that we will use to communicate with arduino, for this case the port that we will use is `/dev/ttyUSB0`. The next thing we need to specify is the baud rate of the serial communication. In [this skecth](#arduino-code), we specify that we will use 9600 as baudrate.  
 
-Then we call `ser.reset_input_buffer()` to clear the input buffer
+The `Serial` class is imported from the `serial` library, which provides support for serial communication on a computer or microcontroller. The `Serial` class constructor takes three arguments: the port name, the baud rate, and the timeout. `port` is a string that specifies the name of the serial port to which the device is connected. For example, on a Linux system, the port name might be `/dev/ttyACM0`, while on a Windows system, it might be `COM1`. The `9600` argument specifies the baud rate for the serial communication. Baud rate is the rate at which bits are transmitted over the serial communication channel. The `timeout` argument specifies the time in seconds to wait for a response from the device. If no data is received within the timeout period, the read operation will be aborted. The `reset_input_buffer()` method clears the input buffer for the serial connection. This ensures that any data received before the code begins reading from the serial connection is discarded, preventing it from interfering with the current operation.
+
+The `time.time()` function is called to get the current time as a floating-point number of seconds since the epoch. The timestamp variable is assigned this value. The `frequency` variable is assigned a value of 10, which represents the frequency in Hertz at which the code will perform some operation. In this case, the frequency is set to 10 Hz, which means the operation will be performed 10 times per second.
+
+```python
+while True:
+    ...
+
+    if time.time() - timestamp >= 1/frequency:
+        direct = net.get_command()
+
+        if direct == 'Right':
+            command = '1'
+        elif direct == 'Left':
+            command = '2'
+        elif direct == 'Center':
+            command = '3'
+        else:
+            command = '0'
+        
+        ser.write(command.encode("utf-8"))
+        timestamp = time.time()
+    
+    ...
+```
+
+This block of code checks whether the difference between the current time `(time.time())` and the `timestamp` variable is greater than or equal to the inverse of the `frequency` variable (i.e., the time between each loop iteration). If the condition is true, the code proceeds to execute the following lines:
+
+`direct = net.get_command()`: This calls a function `get_command()` from an object called net which returns a string representing the direction to which a camera is pointing. The code then checks the value of `direct` and assigns a corresponding value to the `command` variable. The `ser.write()` function writes the value of `command` to a serial port using the `write()` function of the `serial.Serial` object `ser`. Finally, the `timestamp` variable is updated with the current time `(time.time())` to prepare for the next iteration of the loop.
