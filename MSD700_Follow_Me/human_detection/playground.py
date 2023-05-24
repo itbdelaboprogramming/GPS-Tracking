@@ -10,6 +10,8 @@ config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
 
 # Start streaming
 pipeline.start(config)
+align_to = rs.stream.color
+align = rs.align(align_to)
 
 # Create a variable to store the depth scale
 depth_scale = None
@@ -42,13 +44,13 @@ cv2.setMouseCallback('Color Image', mouse_callback)
 try:
     while True:
         # Wait for a coherent pair of frames: depth and color
-        #frames = pipeline.wait_for_frames()
+        frames = pipeline.wait_for_frames()
         #depth_frame = frames.get_depth_frame()
         #color_frame = frames.get_color_frame()
 
         # Align the depth frame to the color frame
-        align = rs.align(rs.stream.color)
-        frames = align.process(frames)
+        #align = rs.align(rs.stream.color)
+        aligned_frames = align.process(frames)
 
         # Retrieve the aligned depth and color frames
         depth_frame = frames.get_depth_frame()
