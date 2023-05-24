@@ -63,6 +63,19 @@ import pyrealsense2 as rs
 import numpy as np
 import cv2
 
+# Create a variable to store the clicked point
+clicked_point = None
+
+# Mouse callback function
+def mouse_callback(event, x, y, flags, param):
+    if event == cv2.EVENT_LBUTTONDOWN:
+        global clicked_point
+        clicked_point = (x, y)
+
+# Set the mouse callback function
+cv2.namedWindow('Color Image')
+cv2.setMouseCallback('Color Image', mouse_callback)
+
 # Configure depth and color streams
 pipeline = rs.pipeline()
 config = rs.config()
@@ -103,6 +116,18 @@ try:
         # Convert color frame to a numpy array
         color_image = np.asanyarray(color_frame.get_data())
         filled_depth_image = np.asanyarray(filled_depth.get_data())
+
+        # Check if a point has been clicked
+        if clicked_point is not None:
+            # Get the depth value at the clicked point
+            x, y = clicked_point
+            depth_value = depth_frame.get_distance(x, y)
+
+            # Print the depth value
+            print(f"Depth value at clicked point: {depth_value:.3f}")
+
+            # Reset the clicked point
+            clicked_point = None
         
         # FPS calculation
         frame_count += 1
@@ -118,7 +143,7 @@ try:
         # Display the depth image
         cv2.imshow('Depth Image', depth_image)
         #cv2.imshow('Depth Image Normal', depth_image_normal)
-        cv2.imshow('Depth filteres', filled_depth_image)
+        cv2.imshow('Depth filtered', filled_depth_image)
 
         # Display the color image
         cv2.imshow('Color Image', color_image)
