@@ -5,23 +5,26 @@ from realsense_camera import *
 
 #realsense = RealsenseCamera()
 
+pipeline = rs.pipeline()
+config = rs.config()
+config.enable_stream(rs.stream.color, 640, 480, rs.format.rgb8, 30)
+pipeline.start()
+
+print("Starting ...")
 tick_frequency = cv2.getTickFrequency()
 start_time = cv2.getTickCount()
 frame_count = 0
 
-pipeline = rs.pipeline()
-config = rs.config()
-config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 30)
-config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 30)
-pipeline.start(config)
-
 while True:
-    frame = pipeline.wait_for_frames()
-    color_image = frame.get_color_frame()
-    depth_image = frame.get_depth_frame()
+    # Wait for a coherent pair of frames: color and depth
+    frames = pipeline.wait_for_frames()
+    color_frame = frames.get_color_frame()
 
-    color_frame = np.asanyarray(color_image.get_data())
-    depth_frame = np.asanyarray(depth_image.get_data())
+    if not color_frame:
+        continue
+
+    # Convert the color frame to a numpy array
+    color_image = np.asanyarray(color_frame.get_data())
 
     frame_count += 1
     current_time = cv2.getTickCount()
@@ -33,9 +36,8 @@ while True:
         start_time = current_time
         frame_count = 0
 
-    
-    cv2.imshow("BGR", color_frame)
-    cv2.imshow("Depth", depth_frame)
+    # Display the resulting frame
+    cv2.imshow('Video Stream', color_image)
 
     #exit condition
     key = cv2.waitKey(1)
@@ -45,4 +47,3 @@ while True:
 
 pipeline.stop()
 cv2.destroyAllWindows()
-#camera.release()
