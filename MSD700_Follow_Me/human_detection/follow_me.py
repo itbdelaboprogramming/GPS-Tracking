@@ -64,4 +64,4 @@ while True:
         print(f"Key {key} is pressed.")
         break
 
-camera.release()
+#camera.release()
