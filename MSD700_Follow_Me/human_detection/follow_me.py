@@ -21,6 +21,10 @@ if args.image:
 #camera = DeviceCamera(device_id=args.camera)
 realsense = RealsenseCamera()
 
+tick_frequency = cv2.getTickFrequency()
+start_time = cv2.getTickCount()
+frame_count = 0
+
 while True:
     #Get frame from camera
     #frame = camera.get_frame()
@@ -40,6 +44,16 @@ while True:
     #Display the image
     #camera.show()
 
+    frame_count += 1
+    current_time = cv2.getTickCount()
+    elapsed_time = (current_time - start_time)/tick_frequency
+
+    if elapsed_time > 1.0:
+        fps = frame_count / elapsed_time
+        start_time = current_time
+        frame_count = 0
+
+    print(fps)
     cv2.imshow("BGR", bgr_frame)
     cv2.imshow("Depth", depth_frame)
 
