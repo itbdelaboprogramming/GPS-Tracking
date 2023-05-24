@@ -17,7 +17,7 @@ if args.image:
     image_path = input('Enter the path to the image: ')
     print(image_path)
 
-net = DarknetDNN()
+#net = DarknetDNN()
 camera = DeviceCamera(device_id=args.camera)
 realsense = RealsenseCamera()
 
