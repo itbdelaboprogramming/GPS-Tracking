@@ -17,11 +17,11 @@ pipeline.start(config)
 
 while True:
     frame = pipeline.wait_for_frames()
-    color_frame = frame.get_color_frame()
-    depth_frame = frame.get_depth_frame()
+    color_image = frame.get_color_frame()
+    depth_image = frame.get_depth_frame()
 
-    color_frame = np.asanyarray(color_frame)
-    depth_frame = np.asanyarray(depth_frame)
+    color_frame = np.asanyarray(color_image.get_data())
+    depth_frame = np.asanyarray(depth_image.get_data())
 
     frame_count += 1
     current_time = cv2.getTickCount()
