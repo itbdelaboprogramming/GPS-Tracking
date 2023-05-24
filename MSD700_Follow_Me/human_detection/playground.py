@@ -72,6 +72,11 @@ config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
 # Start streaming
 pipeline.start(config)
 
+print("Starting ...")
+tick_frequency = cv2.getTickFrequency()
+start_time = cv2.getTickCount()
+frame_count = 0
+
 try:
     while True:
         # Wait for a coherent pair of frames: depth and color
@@ -96,6 +101,16 @@ try:
 
         # Display the color image
         cv2.imshow('Color Image', color_image)
+
+        frame_count += 1
+        current_time = cv2.getTickCount()
+        elapsed_time = (current_time - start_time)/tick_frequency
+
+        if elapsed_time >= 1.0:
+            fps = frame_count / elapsed_time
+            print(fps)
+            start_time = current_time
+            frame_count = 0
 
         key = cv2.waitKey(1)
 
