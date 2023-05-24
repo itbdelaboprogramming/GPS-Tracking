@@ -7,7 +7,7 @@ import numpy as np
 
 pipeline = rs.pipeline()
 config = rs.config()
-config.enable_stream(rs.stream.color, 1280, 720, rs.format.rgb8, 30)
+config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 30)
 pipeline.start()
 
 print("Starting ...")
@@ -26,6 +26,9 @@ try:
 
         # Convert the color frame to a numpy array
         color_image = np.asanyarray(color_frame.get_data())
+
+        # Convert color ordering from RGB to BGR
+        color_image = cv2.cvtColor(color_image, cv2.COLOR_RGB2BGR)
 
         frame_count += 1
         current_time = cv2.getTickCount()
