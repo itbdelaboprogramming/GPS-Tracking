@@ -107,15 +107,15 @@ try:
 
         # Normalize the depth values for visualization
         #depth_image_normal = cv2.normalize(depth_image, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8UC1)
-        spatial = rs.spatial_filter()
-        spatial.set_option(rs.option.holes_fill, 3)
-        filtered_depth = spatial.process(depth_frame)
-        hole_filling = rs.hole_filling_filter()
-        filled_depth = hole_filling.process(filtered_depth)
+        #spatial = rs.spatial_filter()
+        #spatial.set_option(rs.option.holes_fill, 3)
+        #filtered_depth = spatial.process(depth_frame)
+        #hole_filling = rs.hole_filling_filter()
+        #filled_depth = hole_filling.process(filtered_depth)
 
         # Convert color frame to a numpy array
         color_image = np.asanyarray(color_frame.get_data())
-        filled_depth_image = np.asanyarray(filled_depth.get_data())
+        #filled_depth_image = np.asanyarray(filled_depth.get_data())
 
         # Check if a point has been clicked
         if clicked_point is not None:
@@ -143,7 +143,7 @@ try:
         # Display the depth image
         cv2.imshow('Depth Image', depth_image)
         #cv2.imshow('Depth Image Normal', depth_image_normal)
-        cv2.imshow('Depth filtered', filled_depth_image)
+        #cv2.imshow('Depth filtered', filled_depth_image)
 
         # Display the color image
         cv2.imshow('Color Image', color_image)
