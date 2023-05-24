@@ -1,6 +1,6 @@
 from device_camera import *
 from darknet_yolo import *
-#from realsense_camera import *
+from realsense_camera import *
 import argparse
 
 parser = argparse.ArgumentParser(
@@ -19,26 +19,29 @@ if args.image:
 
 net = DarknetDNN()
 camera = DeviceCamera(device_id=args.camera)
-#realsense = RealsenseCamera()
+realsense = RealsenseCamera()
 
 while True:
     #Get frame from camera
     frame = camera.get_frame()
-    #ret, bgr_frame, depth_frame = realsense.get_frame_stream()
+    ret, bgr_frame, depth_frame = realsense.get_frame_stream()
 
     #Detect human from the frame
-    net.detect_object(frame)
+    #net.detect_object(frame)
     #net.detect_object_distance(bgr_frame, depth_frame)
     
     #Draw bounding box of the human detected
-    net.draw_object(frame)
+    #net.draw_object(frame)
     #net.draw_object_with_distance(bgr_frame)
 
     #Draw grid
-    camera.create_grid()
+    #camera.create_grid()
 
     #Display the image
-    camera.show()
+    #camera.show()
+
+    cv2.imshow("BGR", bgr_frame)
+    cv2.imshow("Depth", depth_frame)
 
     #exit condition
     key = cv2.waitKey(1)
