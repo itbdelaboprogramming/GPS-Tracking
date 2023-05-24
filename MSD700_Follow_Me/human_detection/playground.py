@@ -3,7 +3,7 @@ import pyrealsense2 as rs
 import numpy as np
 from realsense_camera import *
 
-realsense = RealsenseCamera()
+#realsense = RealsenseCamera()
 
 tick_frequency = cv2.getTickFrequency()
 start_time = cv2.getTickCount()
