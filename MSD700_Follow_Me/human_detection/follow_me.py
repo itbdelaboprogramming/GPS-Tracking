@@ -50,10 +50,11 @@ while True:
 
     if elapsed_time > 1.0:
         fps = frame_count / elapsed_time
+        print(fps)
         start_time = current_time
         frame_count = 0
 
-    print(fps)
+    
     cv2.imshow("BGR", bgr_frame)
     cv2.imshow("Depth", depth_frame)
 
