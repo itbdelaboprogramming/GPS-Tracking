@@ -71,6 +71,7 @@ config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
 
 # Start streaming
 pipeline.start(config)
+align = rs.align(rs.stream.color)
 print("Starting ...")
 
 tick_frequency = cv2.getTickFrequency()
@@ -81,8 +82,9 @@ try:
     while True:
         # Wait for a coherent pair of frames: depth and color
         frames = pipeline.wait_for_frames()
-        depth_frame = frames.get_depth_frame()
-        color_frame = frames.get_color_frame()
+        aligned_frames = align.process(frames)
+        depth_frame = aligned_frames.get_depth_frame()
+        color_frame = aligned_frames.get_color_frame()
 
         if not depth_frame or not color_frame:
             continue
@@ -91,7 +93,7 @@ try:
         depth_image = np.asanyarray(depth_frame.get_data())
 
         # Normalize the depth values for visualization
-        depth_image = cv2.normalize(depth_image, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8UC1)
+        depth_image_normal = cv2.normalize(depth_image, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8UC1)
 
         # Convert color frame to a numpy array
         color_image = np.asanyarray(color_frame.get_data())
@@ -110,6 +112,7 @@ try:
 
         # Display the depth image
         cv2.imshow('Depth Image', depth_image)
+        cv2.imshow('Depth Image', depth_image_normal)
 
         # Display the color image
         cv2.imshow('Color Image', color_image)
