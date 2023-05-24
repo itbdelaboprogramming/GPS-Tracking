@@ -112,7 +112,7 @@ try:
 
         # Display the depth image
         cv2.imshow('Depth Image', depth_image)
-        cv2.imshow('Depth Image', depth_image_normal)
+        cv2.imshow('Depth Image Normal', depth_image_normal)
 
         # Display the color image
         cv2.imshow('Color Image', color_image)
