@@ -52,6 +52,7 @@ while True:
 
     # Display the depth image
     cv2.imshow("Depth Image", depth_frame)
+    cv2.imshow("Color image", color_frame)
 
     # Press 'q' to exit
     if cv2.waitKey(1) & 0xFF == ord('q'):
