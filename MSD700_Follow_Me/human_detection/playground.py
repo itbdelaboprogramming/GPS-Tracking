@@ -7,7 +7,7 @@ import numpy as np
 
 pipeline = rs.pipeline()
 config = rs.config()
-config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 20)
+config.enable_stream(rs.stream.color, 640, 360, rs.format.bgr8, 30)
 pipeline.start()
 
 print("Starting ...")
