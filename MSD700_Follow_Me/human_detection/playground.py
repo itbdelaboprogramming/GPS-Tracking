@@ -7,7 +7,7 @@ import numpy as np
 
 pipeline = rs.pipeline()
 config = rs.config()
-config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 30)
 pipeline.start()
 
 print("Starting ...")
@@ -31,7 +31,7 @@ try:
         current_time = cv2.getTickCount()
         elapsed_time = (current_time - start_time)/tick_frequency
 
-        if elapsed_time > 1.0:
+        if elapsed_time >= 1.0:
             fps = frame_count / elapsed_time
             print(fps)
             start_time = current_time
