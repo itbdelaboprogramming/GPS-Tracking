@@ -96,11 +96,7 @@ try:
         # Convert color frame to a numpy array
         color_image = np.asanyarray(color_frame.get_data())
 
-        # Display the depth image
-        cv2.imshow('Depth Image', depth_image)
-
-        # Display the color image
-        cv2.imshow('Color Image', color_image)
+        
 
         frame_count += 1
         current_time = cv2.getTickCount()
@@ -111,6 +107,12 @@ try:
             print(fps)
             start_time = current_time
             frame_count = 0
+
+        # Display the depth image
+        cv2.imshow('Depth Image', depth_image)
+
+        # Display the color image
+        cv2.imshow('Color Image', color_image)
 
         key = cv2.waitKey(1)
 
