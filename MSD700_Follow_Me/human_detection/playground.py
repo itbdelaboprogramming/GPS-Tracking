@@ -71,8 +71,8 @@ config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
 
 # Start streaming
 pipeline.start(config)
-
 print("Starting ...")
+
 tick_frequency = cv2.getTickFrequency()
 start_time = cv2.getTickCount()
 frame_count = 0
@@ -97,7 +97,7 @@ try:
         color_image = np.asanyarray(color_frame.get_data())
 
         
-
+        # FPS calculation
         frame_count += 1
         current_time = cv2.getTickCount()
         elapsed_time = (current_time - start_time)/tick_frequency
@@ -117,7 +117,8 @@ try:
         key = cv2.waitKey(1)
 
         # Exit loop if 'q' is pressed
-        if key == ord('q'):
+        if key == ord('q') or key == 27:
+            print(f"Key {key} is pressed.")
             break
 
 finally:
