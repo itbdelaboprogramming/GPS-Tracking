@@ -18,12 +18,12 @@ if args.image:
     print(image_path)
 
 #net = DarknetDNN()
-camera = DeviceCamera(device_id=args.camera)
+#camera = DeviceCamera(device_id=args.camera)
 realsense = RealsenseCamera()
 
 while True:
     #Get frame from camera
-    frame = camera.get_frame()
+    #frame = camera.get_frame()
     ret, bgr_frame, depth_frame = realsense.get_frame_stream()
 
     #Detect human from the frame
