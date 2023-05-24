@@ -20,6 +20,9 @@ while True:
     color_frame = frame.get_color_frame()
     depth_frame = frame.get_depth_frame()
 
+    color_frame = np.asanyarray(color_frame)
+    depth_frame = np.asanyarray(depth_frame)
+
     frame_count += 1
     current_time = cv2.getTickCount()
     elapsed_time = (current_time - start_time)/tick_frequency
