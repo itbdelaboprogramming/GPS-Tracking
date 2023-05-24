@@ -102,7 +102,7 @@ try:
 
         # Convert color frame to a numpy array
         color_image = np.asanyarray(color_frame.get_data())
-
+        filled_depth_image = np.asanyarray(filled_depth.get_data())
         
         # FPS calculation
         frame_count += 1
@@ -118,7 +118,7 @@ try:
         # Display the depth image
         cv2.imshow('Depth Image', depth_image)
         #cv2.imshow('Depth Image Normal', depth_image_normal)
-        cv2.imshow('Depth filteres', filled_depth)
+        cv2.imshow('Depth filteres', filled_depth_image)
 
         # Display the color image
         cv2.imshow('Color Image', color_image)
