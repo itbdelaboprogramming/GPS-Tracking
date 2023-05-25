@@ -55,7 +55,7 @@ class DeviceCamera:
         self.config = self.rs.config()
         #self.config.enable_stream(self.rs.stream.color, 1280, 720, self.rs.format.bgr8, 30)
         self.config.enable_stream(self.rs.stream.color, 1280, 720, self.rs.format.bgr8, 30)
-        #self.config.enable_stream(self.rs.stream.depth, 1280, 720, self.rs.format.z16, 30)
+        self.config.enable_stream(self.rs.stream.depth, 1280, 720, self.rs.format.z16, 30)
 
         # Start streaming
         self.pipeline.start(self.config)
@@ -140,6 +140,8 @@ def main():
         if key == ord('q') or key == 27:
             print(f"Key {key} is pressed.")
             break
+    
+    camera.pipeline.stop()
 
 if __name__ == "__main__":
     main()
