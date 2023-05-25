@@ -136,7 +136,7 @@ class DeviceCamera:
         return available_device
 
 def main():
-    camera = DeviceCamera(4, realsense=False)
+    camera = DeviceCamera(2, realsense=False)
     
     while True:
         color, depth = camera.get_frame()
