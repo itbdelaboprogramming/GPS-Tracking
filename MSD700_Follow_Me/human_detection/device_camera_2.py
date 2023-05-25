@@ -100,6 +100,12 @@ class DeviceCamera:
             pass
         pass
 
+    def stop(self):
+        if self.realsense:
+            self.pipeline.stop()
+        else:
+            self.capture.release()
+
     def show_color(self):
         color, depth = self.get_frame()
         cv2.imshow(self.winname, color)
@@ -141,7 +147,7 @@ def main():
             print(f"Key {key} is pressed.")
             break
     
-    camera.pipeline.stop()
+    camera.stop()
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
