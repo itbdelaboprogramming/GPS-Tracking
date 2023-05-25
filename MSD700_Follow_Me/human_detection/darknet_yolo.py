@@ -26,7 +26,7 @@ class DarknetDNN:
             self.classes = [line.strip() for line in f.readlines()]
         
         self.layer_names = self.net.getLayerNames()
-        self.output_layers = [self.layer_names[i - 1] for i in self.net.getUnconnectedOutLayers()]
+        self.output_layers = [self.layer_names[i[0] - 1] for i in self.net.getUnconnectedOutLayers()]
         self.colors = np.random.uniform(0, 255, size=(len(self.classes), 3))
 
         #Blob parameter
