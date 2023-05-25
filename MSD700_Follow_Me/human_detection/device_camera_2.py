@@ -16,7 +16,15 @@ class DeviceCamera:
         
 
     def validate_device_id(self, device_id):
-        cap = cv2.VideoCapture(device_id)
+        try:
+            cap = cv2.VideoCapture(device_id)
+            pass
+        except Exception as e:
+            #raise e
+            pass
+        finally:
+            pass
+        
         if cap.isOpened():
             cap.release()
             print("Found device with id:", device_id)
@@ -39,7 +47,7 @@ class DeviceCamera:
 
 def main():
     camera = DeviceCamera()
-    print(camera.available_device_id())
+    #print(camera.available_device_id())
 
 if __name__ == "__main__":
     main()
