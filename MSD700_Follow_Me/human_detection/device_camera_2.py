@@ -54,6 +54,7 @@ class DeviceCamera:
         self.pipeline = self.rs.pipeline()
         self.config = self.rs.config()
         self.config.enable_stream(self.rs.stream.color, 1280, 720, self.rs.format.bgr8, 30)
+        self.config.enable_stream(self.rs.stream.color, 640, 480, self.rs.format.bgr8, 30)
         #self.config.enable_stream(self.rs.stream.depth, 1280, 720, self.rs.format.z16, 30)
 
         # Start streaming
