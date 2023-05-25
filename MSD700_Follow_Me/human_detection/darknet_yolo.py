@@ -27,9 +27,6 @@ class DarknetDNN:
             self.classes = [line.strip() for line in f.readlines()]
         
         self.layer_names = self.net.getLayerNames()
-        #print(type(self.net.getUnconnectedOutLayers()[0]))
-        #print(isinstance(self.net.getUnconnectedOutLayers()[0], np.int32))
-        #self.output_layers = [self.layer_names[i - 1] for i in self.net.getUnconnectedOutLayers()]
         self.colors = np.random.uniform(0, 255, size=(len(self.classes), 3))
 
         print("Output layer type is", type(self.net.getUnconnectedOutLayers()[0]))
