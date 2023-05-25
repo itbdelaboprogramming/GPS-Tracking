@@ -58,8 +58,9 @@ class DeviceCamera:
 
         # Start streaming
         self.pipeline.start(config)
-        align_to = self.rs.stream.color
-        self.align = self.rs.align(align_to)
+        #align_to = self.rs.stream.color
+        #self.align = self.rs.align(align_to)
+        self.align = self.rs.align(self.rs.stream.color)
 
     def stream_regular(self):
         # Searching for the first available device id if not specified
