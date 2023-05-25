@@ -43,6 +43,16 @@ class DeviceCamera:
         self.tick_frequency = cv2.getTickFrequency()
         self.start_time = cv2.getTickCount()
         self.frame_count = 0
+        self.fps = None
+
+        #Font parameters
+        self.font_face = cv2.FONT_HERSHEY_SIMPLEX
+        self.org = (0, 50)
+        self.font_scale = 1
+        self.font_color = (90, 252, 3)
+        self.font_thickness = 2
+        self.font_line_type = cv2.LINE_AA
+        self.font_bottom_left_origin = False
     
     def check_pyrealsense2(self):
         try:
@@ -107,17 +117,19 @@ class DeviceCamera:
             pass
         pass
 
-    def show_fps(self):
+    def show_fps(self, frame):
         self.frame_count += 1
         current_time = cv2.getTickCount()
         elapsed_time = (current_time - self.start_time)/self.tick_frequency
 
         if elapsed_time >= 1.0:
-            fps = self.frame_count / elapsed_time
-            print(fps)
+            self.fps = self.frame_count / elapsed_time
+            #print(fps)
             self.start_time = current_time
             self.frame_count = 0
-        pass
+
+        cv2.putText(frame, f"FPS: {self.fps}", self.org, self.font_face, self.font_scale, self.font_color, self.font_thickness, self.font_line_type, self.font_bottom_left_origin)
+        return frame
 
     def stop(self):
         if self.realsense:
@@ -158,7 +170,7 @@ def main():
     while True:
         color, depth = camera.get_frame()
 
-        camera.show_fps()
+        color = camera.show_fps(color)
 
         cv2.imshow("Color", color)
         #cv2.imshow("Depth", depth)
