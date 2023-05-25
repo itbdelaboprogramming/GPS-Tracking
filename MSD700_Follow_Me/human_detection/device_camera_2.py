@@ -122,7 +122,7 @@ class DeviceCamera:
         current_time = cv2.getTickCount()
         elapsed_time = (current_time - self.start_time)/self.tick_frequency
 
-        if elapsed_time >= 0.5:
+        if elapsed_time >= 0.25:
             self.fps = round(self.frame_count / elapsed_time, 2)
             #print(fps)
             self.start_time = current_time
