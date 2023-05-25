@@ -53,7 +53,6 @@ class DeviceCamera:
         # Configure depth and color streams
         self.pipeline = self.rs.pipeline()
         self.config = self.rs.config()
-        #self.config.enable_stream(self.rs.stream.color, 1280, 720, self.rs.format.bgr8, 30)
         self.config.enable_stream(self.rs.stream.color, 1280, 720, self.rs.format.bgr8, 30)
         self.config.enable_stream(self.rs.stream.depth, 1280, 720, self.rs.format.z16, 30)
 
@@ -142,6 +141,7 @@ def main():
             break
     
     camera.pipeline.stop()
+    cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     main()
