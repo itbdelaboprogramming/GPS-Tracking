@@ -1,6 +1,8 @@
 import pyrealsense2 as rs
 import numpy as np
 import cv2
+#from darknet_yolo import DarknetDNN
+
 
 # Create a variable to store the clicked point
 clicked_point = None
@@ -63,7 +65,7 @@ try:
             depth_value = depth_frame.get_distance(x, y)
 
             # Print the depth value
-            print(f"Depth value at clicked point: {depth_value:.3f}")
+            #print(f"Depth value at clicked point: {depth_value:.3f}")
 
             # Reset the clicked point
             clicked_point = None
@@ -75,7 +77,7 @@ try:
 
         if elapsed_time >= 1.0:
             fps = frame_count / elapsed_time
-            print(fps)
+            #print(fps)
             start_time = current_time
             frame_count = 0
 

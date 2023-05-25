@@ -261,3 +261,19 @@ class DarknetDNN:
     
     def get_colors(self):
         return self.colors
+
+
+def main():
+    net = DarknetDNN()
+    #print(net.get_layer_names())
+    #for name in net.get_layer_names():
+    #    print(name)
+    print(net.net.getUnconnectedOutLayers())
+    for i in net.net.getUnconnectedOutLayers():
+        print(i)
+        pass
+    pass
+
+
+if __name__ == "__main__":
+    main()
