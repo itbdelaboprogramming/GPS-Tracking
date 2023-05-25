@@ -8,6 +8,7 @@ ROOT_DIR = os.path.dirname(__file__)
 
 class DarknetDNN:
     def __init__(self, dnn_model = "weights/yolov3-tiny.weights", dnn_config = "cfg/yolov3-tiny.cfg"):
+        print("Loading on OpenCV", cv2.__version__, "from:", cv2.__path__)
         #Initiate DNN model using Darknet framework
         print("Initiating Darknet ...")
         self.dnn_model = os.path.join(ROOT_DIR, dnn_model)
