@@ -58,8 +58,8 @@ class DeviceCamera:
 
         # Start streaming
         self.pipeline.start(config)
-        #align_to = self.rs.stream.color
-        #self.align = self.rs.align(align_to)
+        
+        # Align the depth stream with color stream
         self.align = self.rs.align(self.rs.stream.color)
 
     def stream_regular(self):
@@ -128,7 +128,7 @@ class DeviceCamera:
         return available_device
 
 def main():
-    camera = DeviceCamera()
+    camera = DeviceCamera(4, realsense=False)
     
     while True:
         color, depth = camera.get_frame()
