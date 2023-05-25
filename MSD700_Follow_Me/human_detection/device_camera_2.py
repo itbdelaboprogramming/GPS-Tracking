@@ -53,8 +53,8 @@ class DeviceCamera:
         # Configure depth and color streams
         self.pipeline = self.rs.pipeline()
         config = self.rs.config()
-        config.enable_stream(self.rs.stream.color, 1280, 720, self.rs.format.bgr8, 30)
         config.enable_stream(self.rs.stream.depth, 1280, 720, self.rs.format.z16, 30)
+        config.enable_stream(self.rs.stream.color, 1280, 720, self.rs.format.bgr8, 30)
 
         # Start streaming
         self.pipeline.start(config)
