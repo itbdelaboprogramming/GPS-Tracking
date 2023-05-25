@@ -38,6 +38,11 @@ class DeviceCamera:
             print("Starting regular stream")
             self.winname = "Regular Stream"
             self.stream_regular()
+
+        # FPS Calculation
+        self.tick_frequency = cv2.getTickFrequency()
+        self.start_time = cv2.getTickCount()
+        self.frame_count = 0
     
     def check_pyrealsense2(self):
         try:
@@ -102,6 +107,18 @@ class DeviceCamera:
             pass
         pass
 
+    def show_fps(self):
+        self.frame_count += 1
+        current_time = cv2.getTickCount()
+        elapsed_time = (current_time - self.start_time)/self.tick_frequency
+
+        if elapsed_time >= 1.0:
+            fps = self.frame_count / elapsed_time
+            print(fps)
+            self.start_time = current_time
+            self.frame_count = 0
+        pass
+
     def stop(self):
         if self.realsense:
             self.pipeline.stop()
@@ -140,6 +157,8 @@ def main():
     
     while True:
         color, depth = camera.get_frame()
+
+        camera.show_fps()
 
         cv2.imshow("Color", color)
         #cv2.imshow("Depth", depth)
