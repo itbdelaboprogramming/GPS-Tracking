@@ -69,6 +69,8 @@ class DeviceCamera:
         
         # Start streaming
         self.capture = cv2.VideoCapture(self.device_id)
+        self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+        self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
         print("Starting on device ", self.device_id)
 
     def get_frame(self):
