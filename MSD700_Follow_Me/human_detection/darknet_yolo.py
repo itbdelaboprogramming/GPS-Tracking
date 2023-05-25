@@ -26,14 +26,16 @@ class DarknetDNN:
             self.classes = [line.strip() for line in f.readlines()]
         
         self.layer_names = self.net.getLayerNames()
-        print(type(self.net.getUnconnectedOutLayers()[0]))
-        self.output_layers = [self.layer_names[i - 1] for i in self.net.getUnconnectedOutLayers()]
+        #print(type(self.net.getUnconnectedOutLayers()[0]))
+        #print(isinstance(self.net.getUnconnectedOutLayers()[0], np.int32))
+        #self.output_layers = [self.layer_names[i - 1] for i in self.net.getUnconnectedOutLayers()]
         self.colors = np.random.uniform(0, 255, size=(len(self.classes), 3))
 
-        #if isinstance(self.net.getUnconnectedOutLayers()[0], int):
-        #    self.output_layers = [self.layer_names[i - 1] for i in self.net.getUnconnectedOutLayers()]
-        #else:
-        #    self.output_layers = [self.layer_names[i[0] - 1] for i in self.net.getUnconnectedOutLayers()]
+        print("Output layer type is", type(self.net.getUnconnectedOutLayers()[0]))
+        if isinstance(self.net.getUnconnectedOutLayers()[0], np.int32):
+            self.output_layers = [self.layer_names[i - 1] for i in self.net.getUnconnectedOutLayers()]
+        else:
+            self.output_layers = [self.layer_names[i[0] - 1] for i in self.net.getUnconnectedOutLayers()]
 
         #Blob parameter
         self.blob_scalefactor = 0.00392
