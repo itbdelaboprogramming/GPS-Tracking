@@ -29,9 +29,17 @@ class DeviceCamera:
             if self.validate_device_id(device_id):
                 return device_id
         return None
+    
+    def available_device_id(self):
+        available_device = []
+        for device_id in self.device_ids:
+            if self.validate_device_id(device_id):
+                available_device.append(device_id)
+        return available_device
 
 def main():
     camera = DeviceCamera()
+    print(camera.available_device_id())
 
 if __name__ == "__main__":
     main()
