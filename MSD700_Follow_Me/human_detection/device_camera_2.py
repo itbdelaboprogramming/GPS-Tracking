@@ -39,7 +39,7 @@ class DeviceCamera:
         #Font parameters
         self.font_face = cv2.FONT_HERSHEY_SIMPLEX
         self.org = (0, 50)
-        self.font_scale = 1
+        self.font_scale = 0.5
         self.font_color = (90, 252, 3)
         self.font_thickness = 2
         self.font_line_type = cv2.LINE_AA
