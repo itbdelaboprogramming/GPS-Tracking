@@ -111,7 +111,7 @@ class DarknetDNN:
 
 def main():
     net = DarknetDNN()
-    cap = cv2.VideoCapture(4)
+    cap = cv2.VideoCapture(0)
 
     while True:
         _, frame = cap.read()
@@ -126,6 +126,9 @@ def main():
         if key == 27:
             print(f"Key {key} is pressed.")
             break
+
+    cap.release()
+    cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
