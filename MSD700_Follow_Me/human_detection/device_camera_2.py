@@ -163,7 +163,7 @@ def main():
 
         net.detect_object(color)
 
-        net.draw_detected_object(color)
+        net.draw_detected_object(color, depth)
 
         cv2.imshow("Color", color)
         #cv2.imshow("Depth", depth)

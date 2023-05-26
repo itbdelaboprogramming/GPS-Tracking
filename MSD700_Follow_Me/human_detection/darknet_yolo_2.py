@@ -82,6 +82,10 @@ class DarknetDNN:
                 if confidence <= self.confidence_threshold:
                     continue
 
+                #Filter out non-human object
+                if class_id != 0:
+                    continue
+
                 #Get the location of the detected object in the frame input
                 cx = int(detection[0] * width)
                 cy = int(detection[1] * height)
@@ -97,7 +101,7 @@ class DarknetDNN:
                 self.object_confidences.append(confidence)
                 self.object_boxes.append([x1, y1, x2, y2])
     
-    def draw_detected_object(self, frame):
+    def draw_detected_object(self, frame, depth_frame = None):
         #Perform Non-Maximum Suppression to remove the redundant detections
         indexes = cv2.dnn.NMSBoxes(self.object_boxes, self.object_confidences, self.confidence_threshold, self.nms_threshold)
         for i in indexes:
@@ -106,8 +110,15 @@ class DarknetDNN:
             label = self.classes[self.object_classes[i]]
             color = (0, 255, 0)
 
+            cx = (x1 + x2)/2
+            cy = (y1 + y2)/2
+
             cv2.rectangle(frame, (x1, y1), (x2, y2), color, 1)
             cv2.putText(frame, label.capitalize(), (x1 + 5, y1 + 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+            
+            if depth_frame is not None:
+                distance = depth_frame[cy, cx]
+                cv2.putText(frame, str(distance), (x1 + 5, y1 + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
 def main():
     net = DarknetDNN()
