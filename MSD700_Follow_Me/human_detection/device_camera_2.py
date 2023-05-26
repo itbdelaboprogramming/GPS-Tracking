@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import time
+from darknet_yolo_2 import DarknetDNN
 
 class DeviceCamera:
     """docstring for DeviceCamera."""
@@ -98,14 +99,11 @@ class DeviceCamera:
             depth_image = np.asanyarray(depth_frame.get_data())
 
             return color_image, depth_image
-            pass
         else:
             # Read the incoming frame from Regular Camera
             retval, frame = self.capture.read()
 
             return frame, None
-            pass
-        pass
 
     def show_fps(self, frame):
         self.frame_count += 1
@@ -155,12 +153,17 @@ class DeviceCamera:
         return available_device
 
 def main():
+    net = DarknetDNN()
     camera = DeviceCamera()
     
     while True:
         color, depth = camera.get_frame()
 
         color = camera.show_fps(color)
+
+        net.detect_object_distance(color, depth)
+
+        net.draw_object_with_distance(color)
 
         cv2.imshow("Color", color)
         #cv2.imshow("Depth", depth)
