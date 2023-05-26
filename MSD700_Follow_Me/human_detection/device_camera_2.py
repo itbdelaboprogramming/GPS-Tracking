@@ -5,20 +5,10 @@ import time
 class DeviceCamera:
     """docstring for DeviceCamera."""
     def __init__(self, device_id = None, realsense = True):
-        print("Loading camera")
+        print("Loading camera ...")
 
         # Check if pyrealsense2 is available
         self.realsense, self.rs = self.check_pyrealsense2() if realsense else (False, None)
-        ''' 
-        try:
-            import pyrealsense2 as rs
-            self.realsense = True
-            print("Realsense is used")
-            pass
-        except Exception as e:
-            self.realsense = False
-            print("pyrealsense2 can't be opened")
-        '''
 
         # Camera parameter initialization
         self.device_id = device_id
@@ -28,8 +18,8 @@ class DeviceCamera:
         self.winname = None
 
         # Initialize device
-        print(self.realsense)
-        print(self.rs)
+        #print(self.realsense)
+        #print(self.rs)
         if self.realsense:
             print("Starting realsense")
             self.winname = "Realsense"
@@ -165,7 +155,7 @@ class DeviceCamera:
         return available_device
 
 def main():
-    camera = DeviceCamera(4, False)
+    camera = DeviceCamera()
     
     while True:
         color, depth = camera.get_frame()
