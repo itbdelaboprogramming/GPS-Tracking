@@ -110,14 +110,14 @@ class DarknetDNN:
             label = self.classes[self.object_classes[i]]
             color = (0, 255, 0)
 
-            cx = (x1 + x2)/2
-            cy = (y1 + y2)/2
+            cx = int((x1 + x2)/2)
+            cy = int((y1 + y2)/2)
 
             cv2.rectangle(frame, (x1, y1), (x2, y2), color, 1)
             cv2.putText(frame, label.capitalize(), (x1 + 5, y1 + 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
             
             if depth_frame is not None:
-                distance = depth_frame[cy, cx]
+                distance = depth_frame.get_distance(cx, cy)
                 cv2.putText(frame, str(distance), (x1 + 5, y1 + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
 def main():
