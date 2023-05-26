@@ -111,7 +111,7 @@ class DarknetDNN:
 
 def main():
     net = DarknetDNN()
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(4)
 
     while True:
         _, frame = cap.read()
