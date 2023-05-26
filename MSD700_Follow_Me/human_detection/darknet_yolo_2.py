@@ -49,7 +49,7 @@ class DarknetDNN:
         self.confidence_threshold = 0.3
         self.nms_threshold = 0.4
 
-    def detect_object(self, image:cv2.Mat):
+    def detect_object(self, image):
         #Pre-process the input image
         height, width, channels = image.shape
         blob = cv2.dnn.blobFromImage(image, self.blob_scalefactor, self.blob_size, self.blob_scalar, self.blob_swapRB, self.blob_crop, self.blob_ddepth)
@@ -97,7 +97,7 @@ class DarknetDNN:
                 self.object_confidences.append(confidence)
                 self.object_boxes.append([x1, y1, x2, y2])
     
-    def draw_detected_object(self, frame:cv2.Mat):
+    def draw_detected_object(self, frame):
         #Perform Non-Maximum Suppression to remove the redundant detections
         indexes = cv2.dnn.NMSBoxes(self.object_boxes, self.object_confidences, self.confidence_threshold, self.nms_threshold)
         for i in indexes:
