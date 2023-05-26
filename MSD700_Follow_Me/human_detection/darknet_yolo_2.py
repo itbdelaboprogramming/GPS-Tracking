@@ -117,8 +117,8 @@ class DarknetDNN:
             cv2.putText(frame, label.capitalize(), (x1 + 5, y1 + 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
             
             if depth_frame is not None:
-                distance = depth_frame.get_distance(cx, cy)
-                cv2.putText(frame, str(distance), (x1 + 5, y1 + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                distance = round(depth_frame.get_distance(cx, cy), 2)
+                cv2.putText(frame, str(distance), (x1 + 5, y1 + 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
 def main():
     net = DarknetDNN()
