@@ -38,7 +38,7 @@ class DarknetDNN:
             self.output_layers = [self.layer_names[i[0] - 1] for i in self.net.getUnconnectedOutLayers()]
 
         #Blob parameter
-        self.blob_scalefactor = 0.00392
+        self.blob_scalefactor = 1/255.0
         self.blob_size = (320, 320)
         self.blob_scalar = (0, 0, 0)
         self.blob_swapRB = True
@@ -49,195 +49,83 @@ class DarknetDNN:
         self.confidence_threshold = 0.3
         self.nms_threshold = 0.4
 
-    def detect_object(self, image):
-        #Set image into blob
+    def detect_object(self, image:cv2.Mat):
+        #Pre-process the input image
         height, width, channels = image.shape
         blob = cv2.dnn.blobFromImage(image, self.blob_scalefactor, self.blob_size, self.blob_scalar, self.blob_swapRB, self.blob_crop, self.blob_ddepth)
 
-        #Add blob as input and wait for output
+        #Pass the blob as input into the DNN
         self.net.setInput(blob)
-        outs = self.net.forward(self.output_layers)
 
-        #Object informations
-        self.object_boxes = []
+        #Wait for the output
+        output = self.net.forward(self.output_layers)
+
+        #Detected object information
         self.object_classes = []
-        self.object_centers = []
-        self.object_contours = []
-        self.object_positions = []
         self.object_confidences = []
-        self.object_area = []
+        self.object_boxes = []
 
-        for out in outs:
+        #For every output of the DNN
+        for out in output:
+            #For every detection in output
             for detection in out:
+                #Takes the detection scores
                 scores = detection[5:]
 
+                #The object id detected is the largest scores
                 class_id = np.argmax(scores)
-                confidance = scores[class_id]
 
-                # To filter object confidance
-                if confidance < self.confidence_threshold:
+                #The confidence of the detected object is the scores of the detected object
+                confidence = scores[class_id]
+
+                #Filter out if the object has low confidence
+                if confidence <= self.confidence_threshold:
                     continue
-                
-                # To filter out other than 'Person' object
-                if class_id != 0:
-                    continue
-                
+
+                #Get the location of the detected object in the frame input
                 cx = int(detection[0] * width)
                 cy = int(detection[1] * height)
                 w = int(detection[2] * width)
                 h = int(detection[3] * height)
-                area = int(w * h)
+                x1 = int(cx - w/2)
+                y1 = int(cy - h/2)
+                x2 = int(cx + w/2)
+                y2 = int(cy + h/2)
 
-                x1 = int(cx - w/1.8)
-                y1 = int(cy - h/1.8)
-                x2 = int(cx + w/1.8)
-                y2 = int(cy + h/1.8)
-
-                self.object_boxes.append([x1, y1, x2, y2])
+                #Save the information about the detected object
                 self.object_classes.append(class_id)
-                self.object_centers.append([cx, cy])
-                self.object_confidences.append(confidance)
-                self.object_area.append(area)
-                
-                if cx <= width/3:
-                    self.object_positions.append('Left')
-                elif cx >= 2*width/3:
-                    self.object_positions.append('Right')
-                else:
-                    self.object_positions.append('Center')
-
-        #return self.object_boxes, self.object_classes
-    
-    def detect_object_distance(self, image, depth):
-        #Set image into blob
-        height, width, channels = image.shape
-        blob = cv2.dnn.blobFromImage(image, self.blob_scalefactor, self.blob_size, self.blob_scalar, self.blob_swapRB, self.blob_crop, self.blob_ddepth)
-
-        #Add blob as input and wait for output
-        self.net.setInput(blob)
-        outs = self.net.forward(self.output_layers)
-
-        #Object informations
-        self.object_boxes = []
-        self.object_classes = []
-        self.object_centers = []
-        self.object_contours = []
-        self.object_positions = []
-        self.object_confidences = []
-        self.object_area = []
-        self.object_distance = []
-
-        for out in outs:
-            for detection in out:
-                scores = detection[5:]
-
-                class_id = np.argmax(scores)
-                confidance = scores[class_id]
-
-                # To filter object confidance
-                if confidance < self.confidence_threshold:
-                    continue
-                
-                # To filter out other than 'Person' object
-                if class_id != 0:
-                    continue
-                
-                cx = int(detection[0] * width)
-                cy = int(detection[1] * height)
-                w = int(detection[2] * width)
-                h = int(detection[3] * height)
-                area = int(w * h)
-
-                x1 = int(cx - w/1.8)
-                y1 = int(cy - h/1.8)
-                x2 = int(cx + w/1.8)
-                y2 = int(cy + h/1.8)
-
+                self.object_confidences.append(confidence)
                 self.object_boxes.append([x1, y1, x2, y2])
-                self.object_classes.append(class_id)
-                self.object_centers.append([cx, cy])
-                self.object_confidences.append(confidance)
-                self.object_area.append(area)
-                self.object_distance.append(depth[cy, cx])
-                
-                if cx <= width/3:
-                    self.object_positions.append('Left')
-                elif cx >= 2*width/3:
-                    self.object_positions.append('Right')
-                else:
-                    self.object_positions.append('Center')
-
-    def draw_object(self, frame):
+    
+    def draw_detected_object(self, frame:cv2.Mat):
+        #Perform Non-Maximum Suppression to remove the redundant detections
         indexes = cv2.dnn.NMSBoxes(self.object_boxes, self.object_confidences, self.confidence_threshold, self.nms_threshold)
-        for i, box, class_id, center, position in zip(range(len(self.object_boxes)), self.object_boxes, self.object_classes, self.object_centers, self.object_positions):
-            if i not in indexes:
-                continue
-
-            x1, y1, x2, y2 = box
-            cx, cy = center
-            name = self.classes[class_id]
-            #color = self.colors[int(class_id)]
-            #color = (int(color[0]), int(color[1]), int(color[2]))
+        for i in indexes:
+            #i = i[0]
+            x1, y1, x2, y2 = self.object_boxes[i]
+            label = self.classes[self.object_classes[i]]
             color = (0, 255, 0)
-            this_position = position
-            
-            cv2.circle(frame, (cx, cy), 10, color, 2)
+
             cv2.rectangle(frame, (x1, y1), (x2, y2), color, 1)
-            cv2.putText(frame, name.capitalize(), (x1 + 5, y1 + 25), 0, 0.8, (255, 255, 255), 2)
-            cv2.putText(frame, this_position, (x1+5, y1+50), 0, 0.8, (255, 255, 255), 2)
-
-    def draw_object_with_distance(self, frame):
-        indexes = cv2.dnn.NMSBoxes(self.object_boxes, self.object_confidences, self.confidence_threshold, self.nms_threshold)
-        for i, box, class_id, center, position, distance in zip(range(len(self.object_boxes)), self.object_boxes, self.object_classes, self.object_centers, self.object_positions, self.object_distance):
-            if i not in indexes:
-                continue
-
-            x1, y1, x2, y2 = box
-            cx, cy = center
-            name = self.classes[class_id]
-            #color = self.colors[int(class_id)]
-            #color = (int(color[0]), int(color[1]), int(color[2]))
-            color = (0, 255, 0)
-            this_position = position
-            #distance = self.object_distance[class_id]
-            
-            cv2.circle(frame, (cx, cy), 10, color, 2)
-            cv2.rectangle(frame, (x1, y1), (x2, y2), color, 1)
-            cv2.putText(frame, name.capitalize(), (x1 + 5, y1 + 25), 0, 0.8, (255, 255, 255), 2)
-            cv2.putText(frame, this_position, (x1+5, y1+50), 0, 0.8, (255, 255, 255), 2)
-            cv2.putText(frame, distance, (x1+5, y1+120), 0, 0.8, (255, 255, 255), 2)
-
-    def get_command(self):
-        #for box, class_id, contours in zip():
-        if not self.object_area:
-            return 'Hold'
-        else:
-            return self.object_positions[self.object_area.index(max(self.object_area))]
-
-    def get_classes(self):
-        return self.classes
-    
-    def get_layer_names(self):
-        return self.layer_names
-    
-    def get_output_layers(self):
-        return self.output_layers
-    
-    def get_colors(self):
-        return self.colors
-
+            cv2.putText(frame, label.capitalize(), (x1 + 5, y1 + 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
 def main():
     net = DarknetDNN()
-    #print(net.get_layer_names())
-    #for name in net.get_layer_names():
-    #    print(name)
-    print(net.net.getUnconnectedOutLayers())
-    for i in net.net.getUnconnectedOutLayers():
-        print(i)
-        pass
-    pass
-    print(net.get_output_layers())
+    cap = cv2.VideoCapture(0)
+
+    while True:
+        _, frame = cap.read()
+
+        net.detect_object(frame)
+        net.draw_detected_object(frame)
+
+        cv2.imshow("Video", frame)
+
+        #exit condition
+        key = cv2.waitKey(1)
+        if key == 27:
+            print(f"Key {key} is pressed.")
+            break
 
 
 if __name__ == "__main__":
