@@ -161,9 +161,9 @@ def main():
 
         color = camera.show_fps(color)
 
-        net.detect_object_distance(color, depth)
+        net.detect_object(color)
 
-        net.draw_object_with_distance(color)
+        net.draw_detected_object(color)
 
         cv2.imshow("Color", color)
         #cv2.imshow("Depth", depth)
