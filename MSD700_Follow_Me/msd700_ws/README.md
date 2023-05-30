@@ -51,13 +51,14 @@ To use ROS, we need Ubuntu installed on our machine. In this case we will use it
   
 1. Download all the code from the `msd700_ws` or just pull all the code from this repo.
 2. Go to the `msd700_ws` directory. For this case we go to `/home/itbdelabof3/allproject/GPS-Tracking/MSD700_Follow_Me/msd700_ws`
-3. Run `catkin_make` command in terminal.
+3. If you already have a ROS workspace, just copy all the contents of `msd700_ws/src` into your Workspace `src` directory.
+4. Run `catkin_make` command in terminal.
 
 ```bash
 catkin_make
 ```
 
-4. Source the setup file. Check the output of `catkin_make` from previous step. See the *devel space*.
+5. Source the setup file. Check the output of `catkin_make` from previous step. See the *devel space*.
 
 ```bash
 Base path: /home/itbdelabof3/allproject/GPS-Tracking/MSD700_Follow_Me/msd700_ws
@@ -76,13 +77,13 @@ source /home/itbdelabof3/allproject/GPS-Tracking/MSD700_Follow_Me/msd700_ws/deve
 
 Everytime we open a terminal, we need to source that `setup.bash` file. To make it easier, source that file into `.bashrc` file in the root directory so everytime we open terminal, it automatically do it for us.
 
-5. Run the `roscore`.
+6. Run the `roscore`.
 
 ```bash
 roscore
 ```
 
-6. Run the launch file.
+7. Run the launch file.
 
 ```bash
 roslaunch human_detector_pkg follower.launch
