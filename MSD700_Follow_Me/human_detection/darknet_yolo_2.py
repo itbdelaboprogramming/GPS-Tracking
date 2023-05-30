@@ -114,11 +114,16 @@ class DarknetDNN:
             cy = int((y1 + y2)/2)
 
             cv2.rectangle(frame, (x1, y1), (x2, y2), color, 1)
-            cv2.putText(frame, label.capitalize(), (x1 + 5, y1 + 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+
+            text_size, _ = cv2.getTextSize(label.capitalize(), cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
+            cv2.rectangle(frame, (x1 + 5, y1 + 5), (x1 + 5 + text_size[0], y1 + 5 - text_size[1]), (0,0,0), cv2.FILLED)
+            cv2.putText(frame, label.capitalize(), (x1 + 5, y1 + 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
             
             if depth_frame is not None:
                 distance = round(depth_frame.get_distance(cx, cy), 2)
-                cv2.putText(frame, str(distance), (x1 + 5, y1 + 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                text_size, _ = cv2.getTextSize(f"{distance} m", cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
+                cv2.rectangle(frame, (x1 + 5, y1 + 25), (x1 + 5 + text_size[0], y1 + 25 - text_size[1]), (0,0,0), cv2.FILLED)
+                cv2.putText(frame, f"{distance} m", (x1 + 5, y1 + 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
 
 def main():
     net = DarknetDNN()
