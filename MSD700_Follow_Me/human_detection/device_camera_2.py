@@ -117,7 +117,7 @@ class DeviceCamera:
             self.frame_count = 0
 
         text_size, _ = cv2.getTextSize(f"FPS: {self.fps}", self.font_face, self.font_scale, self.font_thickness)
-        cv2.rectangle(frame,self.org, (self.org[0] + text_size[0], self.org[1] + text_size[1]), (255,255,255), cv2.FILLED)
+        cv2.rectangle(frame,(self.org[0] - text_size[0], self.org[1] - text_size[1]), self.org, (255,255,255), cv2.FILLED)
         cv2.putText(frame, f"FPS: {self.fps}", self.org, self.font_face, self.font_scale, self.font_color, self.font_thickness, self.font_line_type, self.font_bottom_left_origin)
         return frame
 
